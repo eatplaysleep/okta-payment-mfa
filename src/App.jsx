@@ -3,7 +3,7 @@
 import React from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security, SecureRoute, LoginCallback } from '@okta/okta-react';
+import { Security, LoginCallback } from '@okta/okta-react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -12,7 +12,6 @@ import config from './config';
 import { Checkout, Home, Privacy, Terms } from './components/organisms';
 import { AppFooter, AppNavBar } from './components/molecules';
 import { SignInSide } from './components/SignIn';
-import logo from './logo.svg';
 import './App.css';
 import { Theme } from './theme';
 

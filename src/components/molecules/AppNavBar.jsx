@@ -2,7 +2,6 @@
 
 import { useOktaAuth } from '@okta/okta-react';
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import {
 	AppBar,
@@ -14,24 +13,9 @@ import {
 import { Box, IconButton } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 
-const clearUserData = async () => {
-	localStorage.removeItem('userInfo');
-	localStorage.removeItem('userProfile');
-};
-
 export const AppNavBar = () => {
-	const history = useHistory();
 	const { authState, oktaAuth } = useOktaAuth();
 	const [userInfo, setUserInfo] = useState();
-
-	const logout = async () => {
-		try {
-			await clearUserData();
-			await oktaAuth.signOut();
-		} catch (err) {
-			throw err;
-		}
-	};
 
 	useEffect(() => {
 		if (!authState?.isAuthenticated) {

@@ -1,10 +1,8 @@
 /** @format */
 
 import { Fragment, useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
 import { Box, Container, Paper, Stepper, Step, StepLabel } from '@mui/material';
 import { Button, Typography } from '../atoms';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AddressForm, PaymentForm, ReviewOrder } from '../molecules';
 import withRoot from '../withRoot';
 
@@ -22,8 +20,6 @@ function getStepContent(step) {
 			throw new Error('Unknown step');
 	}
 }
-
-const theme = createTheme();
 
 function Checkout() {
 	const [activeStep, setActiveStep] = useState(0);

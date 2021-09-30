@@ -6,10 +6,8 @@ import { useOktaAuth } from '@okta/okta-react';
 import {
 	Avatar,
 	Box,
-	Checkbox,
 	CssBaseline,
 	CircularProgress,
-	FormControlLabel,
 	Grid,
 	Link,
 	Paper,
@@ -30,39 +28,20 @@ export const SignInSide = () => {
 	const [submitLogin, setSubmitLogin] = useState(false);
 	const [userLogin, setLogin] = useState();
 
-	const login = async ({ username, password }) => {
-		oktaAuth
-			.signInWithCredentials({
-				username: username,
-				password: password,
-				sendFingerprint: true,
-			})
-			.then(async transaction => {
-				if (transaction.status === 'SUCCESS') {
-					oktaAuth.signInWithRedirect({
-						sessionToken: transaction.sessionToken,
-					});
-				}
-			})
-			.catch(err => {
-				console.error(err);
-			});
-	};
-
-	const silentLogin = async () => {
-		oktaAuth.token
-			.getWithoutPrompt()
-			.then(resp => {
-				let tokens = resp.tokens;
-				oktaAuth.tokenManager.setTokens(tokens);
-			})
-			.catch(err => {
-				console.error(err);
-			});
-	};
-
 	useEffect(() => {
-		oktaAuth.session
+		const silentLogin = async () => {
+			authState.token
+				.getWithoutPrompt()
+				.then(resp => {
+					let tokens = resp.tokens;
+					authState.tokenManager.setTokens(tokens);
+				})
+				.catch(err => {
+					console.error(err);
+				});
+		};
+
+		authState.session
 			.exists()
 			.then(async resp => {
 				if (resp) {
@@ -74,9 +53,28 @@ export const SignInSide = () => {
 			})
 			.catch(err => console.error(err));
 		setLoading(() => false);
-	}, []);
+	}, [authState, history, oktaAuth]);
 
 	useEffect(() => {
+		const login = async ({ username, password }) => {
+			oktaAuth
+				.signInWithCredentials({
+					username: username,
+					password: password,
+					sendFingerprint: true,
+				})
+				.then(async transaction => {
+					if (transaction.status === 'SUCCESS') {
+						oktaAuth.signInWithRedirect({
+							sessionToken: transaction.sessionToken,
+						});
+					}
+				})
+				.catch(err => {
+					console.error(err);
+				});
+		};
+
 		if (submitLogin) {
 			setLoading(() => true);
 			return login({
@@ -84,7 +82,7 @@ export const SignInSide = () => {
 				password: userLogin.password,
 			});
 		}
-	}, [submitLogin]);
+	}, [submitLogin, userLogin, oktaAuth]);
 
 	const handleSubmit = e => {
 		e.preventDefault();

@@ -7,7 +7,7 @@ import { Button } from './Button';
 
 export const LogoutButton = props => {
 	const isIconButton = props?.isIconButton ?? false;
-
+	// eslint-disable-next-line no-unused-vars
 	const { authState, oktaAuth } = useOktaAuth();
 	const clearUserData = async () => {
 		localStorage.removeItem('userInfo');
@@ -17,7 +17,7 @@ export const LogoutButton = props => {
 	const logout = async () => {
 		try {
 			await clearUserData();
-			await oktaAuth.signOut();
+			await authState.signOut();
 		} catch (err) {
 			throw err;
 		}
