@@ -6,3 +6,4 @@ import Privacy from './Privacy';
 import Terms from './Terms';
 
 export { Checkout, Home, Terms, Privacy };
+export * from './Store';

@@ -1,88 +1,139 @@
 /** @format */
 
-import * as React from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Typography } from '../atoms';
-import { Grid, List, ListItem, ListItemText } from '@mui/material';
-
-const products = [
-	{
-		name: 'Product 1',
-		desc: 'A nice thing',
-		price: '$9.99',
-	},
-	{
-		name: 'Product 2',
-		desc: 'Another thing',
-		price: '$3.45',
-	},
-	{
-		name: 'Product 3',
-		desc: 'Something else',
-		price: '$6.51',
-	},
-	{
-		name: 'Product 4',
-		desc: 'Best thing of all',
-		price: '$14.11',
-	},
-	{ name: 'Shipping', desc: '', price: 'Free' },
-];
-
-const addresses = ['1 MUI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
-const payments = [
-	{ name: 'Card type', detail: 'Visa' },
-	{ name: 'Card holder', detail: 'Mr John Smith' },
-	{ name: 'Card number', detail: 'xxxx-xxxx-xxxx-1234' },
-	{ name: 'Expiry date', detail: '04/2024' },
-];
+import { Divider, Grid } from '@mui/material';
+import { useCart } from '../../hooks';
+import { CartItems } from './index';
+import { formatNumber } from '../../helpers';
 
 export const ReviewOrder = () => {
+	const { total, cartItems, itemCount, handleCheckout } = useCart();
+	const [address, setAddress] = useState();
+	const [billing, setBilling] = useState();
+
+	useEffect(() => {
+		let address = JSON.parse(localStorage.getItem('address')),
+			billing = JSON.parse(localStorage.getItem('billing'));
+
+		if (address) {
+			setAddress(() => address);
+		}
+
+		if (billing) {
+			setBilling(() => billing);
+		}
+	}, []);
+
 	return (
-		<React.Fragment>
+		<Fragment>
 			<Typography variant='h6' gutterBottom>
 				Order summary
 			</Typography>
-			<List disablePadding>
-				{products.map(product => (
-					<ListItem key={product.name} sx={{ py: 1, px: 0 }}>
-						<ListItemText primary={product.name} secondary={product.desc} />
-						<Typography variant='body2'>{product.price}</Typography>
-					</ListItem>
-				))}
-
-				<ListItem sx={{ py: 1, px: 0 }}>
-					<ListItemText primary='Total' />
-					<Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-						$34.06
-					</Typography>
-				</ListItem>
-			</List>
+			{cartItems?.length > 0 ? (
+				<CartItems />
+			) : (
+				<Typography>Oh no! Your cart is empty! :(</Typography>
+			)}
+			<Divider />
+			<Grid container spacing={2} sx={{ justifyContent: 'flex-end' }}>
+				<Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
+					SUMMARY
+				</Typography>
+				<Grid container>
+					<Fragment>
+						<Grid item xs={6}>
+							<Typography gutterBottom align='right'>
+								Total Items
+							</Typography>
+						</Grid>
+						<Grid item xs={6}>
+							<Typography gutterBottom align='right'>
+								{itemCount}
+							</Typography>
+						</Grid>
+					</Fragment>
+					<Fragment>
+						<Grid item xs={6}>
+							<Typography gutterBottom align='right'>
+								Total Amount
+							</Typography>
+						</Grid>
+						<Grid item xs={6}>
+							<Typography gutterBottom align='right'>
+								{formatNumber(total)}
+							</Typography>
+						</Grid>
+					</Fragment>
+				</Grid>
+			</Grid>
+			<Divider />
 			<Grid container spacing={2}>
 				<Grid item xs={12} sm={6}>
 					<Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
 						Shipping
 					</Typography>
-					<Typography gutterBottom>John Smith</Typography>
-					<Typography gutterBottom>{addresses.join(', ')}</Typography>
+					{address?.firstName && (
+						<Typography gutterBottom>
+							{address.firstName} {address.lastName}
+						</Typography>
+					)}
+					{address?.address1 && (
+						<Typography gutterBottom>{address.address1}</Typography>
+					)}
+					{address?.address2 && (
+						<Typography gutterBottom>{address.address2}</Typography>
+					)}
+					{address?.city && (
+						<Typography gutterBottom>
+							{address.city}, {address.state} {address.zip}
+						</Typography>
+					)}
+					{address?.country && (
+						<Typography gutterBottom>{address.country}</Typography>
+					)}
 				</Grid>
 				<Grid item container direction='column' xs={12} sm={6}>
 					<Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
 						Payment details
 					</Typography>
 					<Grid container>
-						{payments.map(payment => (
-							<React.Fragment key={payment.name}>
+						{billing?.cardHolder && (
+							<Fragment key='cardHolder'>
 								<Grid item xs={6}>
-									<Typography gutterBottom>{payment.name}</Typography>
+									<Typography gutterBottom>Card Holder</Typography>
 								</Grid>
 								<Grid item xs={6}>
-									<Typography gutterBottom>{payment.detail}</Typography>
+									<Typography gutterBottom>{billing.cardHolder}</Typography>
 								</Grid>
-							</React.Fragment>
-						))}
+							</Fragment>
+						)}
+						{billing?.cardNumber && (
+							<Fragment key='cardNumber'>
+								<Grid item xs={6}>
+									<Typography gutterBottom>Card Number</Typography>
+								</Grid>
+								<Grid item xs={6}>
+									<Typography gutterBottom>
+										XXXX-XXXX-XXXX-
+										{billing.cardNumber.slice(billing.cardNumber.length - 4)}
+									</Typography>
+								</Grid>
+							</Fragment>
+						)}
+						{billing?.cardExpiry && (
+							<Fragment key='cardExpiry'>
+								<Grid item xs={6}>
+									<Typography gutterBottom>Expiry Date</Typography>
+								</Grid>
+								<Grid item xs={6}>
+									<Typography gutterBottom>{billing.cardExpiry}</Typography>
+								</Grid>
+							</Fragment>
+						)}
 					</Grid>
 				</Grid>
 			</Grid>
-		</React.Fragment>
+		</Fragment>
 	);
 };

@@ -9,8 +9,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 import config from './config';
 
-import { Checkout, Home, Privacy, Terms } from './components/organisms';
-import { AppFooter, AppNavBar } from './components/molecules';
+import { Checkout, Home, Privacy, Store, Terms } from './components/organisms';
+import { AppFooter, AppNavBar, Cart } from './components/molecules';
+import { CartContextProvider, ProductsContextProvider } from './contexts';
 import { SignInSide } from './components/SignIn';
 import './App.css';
 import { Theme } from './theme';
@@ -36,18 +37,23 @@ const App = () => {
 				restoreOriginalUri={restoreOriginalUri}
 				onAuthRequired={customAuthHandler}
 			>
-				<AppNavBar />
-				<div>
-					<Switch>
-						<Route path='/checkout' component={Checkout} />
-						<Route path='/login/callback' component={LoginCallback} />
-						<Route path='/signin' component={SignInSide} />
-						<Route path='/privacy' component={Privacy} />
-						<Route path='/terms' component={Terms} />
-						<Route path='*' component={Home} />
-					</Switch>
-				</div>
-				<AppFooter />
+				<ProductsContextProvider>
+					<CartContextProvider>
+						<AppNavBar />
+						<div>
+							<Switch>
+								<Route path='/checkout' component={Checkout} />
+								<Route path='/store' component={Store} />
+								<Route path='/login/callback' component={LoginCallback} />
+								<Route path='/signin' component={SignInSide} />
+								<Route path='/privacy' component={Privacy} />
+								<Route path='/terms' component={Terms} />
+								<Route path='*' component={Home} />
+							</Switch>
+						</div>
+						<AppFooter />
+					</CartContextProvider>
+				</ProductsContextProvider>
 			</Security>
 		</ThemeProvider>
 	);

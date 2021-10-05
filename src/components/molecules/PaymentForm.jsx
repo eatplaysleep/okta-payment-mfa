@@ -1,64 +1,96 @@
 /** @format */
 
-import * as React from 'react';
-import { TextField, Typography } from '../atoms';
+import { Fragment, useState, useEffect } from 'react';
+import { MaskedTextField, TextField, Typography } from '../atoms';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
+import CreditCardInput from 'react-credit-card-input';
 
-export const PaymentForm = () => {
+export const PaymentForm = ({ callback }) => {
+	const [billing, setBilling] = useState({
+		cardNumber: '5103 6328 7917 4428',
+		cardExpiry: '01 / 30',
+		cvc: '123',
+	});
+	const [savePayment, setSavePayment] = useState();
+
+	useEffect(() => {
+		let storage = JSON.parse(localStorage.getItem('billing')),
+			address = JSON.parse(localStorage.getItem('address')),
+			cardHolder = `${address?.firstName} ${address?.lastName}`;
+
+		if (storage && address?.firstName) {
+			storage = {
+				...storage,
+				cardHolder: cardHolder,
+			};
+		}
+
+		if (storage) {
+			setBilling(() => ({ ...billing, ...storage }));
+		} else {
+			localStorage.setItem('billing', JSON.stringify(billing));
+		}
+	}, []);
+
+	const handleChange = e => {
+		e.preventDefault();
+		console.log(e.target);
+
+		let id = e.target.id,
+			value = e.target.value;
+
+		if (id === 'savePayment') {
+			value = e.target.checked;
+		}
+
+		let newBilling = {
+				[id]: value,
+			},
+			result = {
+				...billing,
+				...newBilling,
+			};
+
+		setBilling(() => result);
+
+		localStorage.setItem('billing', JSON.stringify(result));
+	};
+
 	return (
-		<React.Fragment>
+		<Fragment>
 			<Typography variant='h6' gutterBottom>
 				Payment method
 			</Typography>
-			<Grid container spacing={3}>
-				<Grid item xs={12} md={6}>
-					<TextField
-						required
-						id='cardName'
-						label='Name on card'
-						fullWidth
-						autoComplete='cc-name'
-						variant='standard'
-					/>
-				</Grid>
-				<Grid item xs={12} md={6}>
-					<TextField
-						required
-						id='cardNumber'
-						label='Card number'
-						fullWidth
-						autoComplete='cc-number'
-						variant='standard'
-					/>
-				</Grid>
-				<Grid item xs={12} md={6}>
-					<TextField
-						required
-						id='expDate'
-						label='Expiry date'
-						fullWidth
-						autoComplete='cc-exp'
-						variant='standard'
-					/>
-				</Grid>
-				<Grid item xs={12} md={6}>
-					<TextField
-						required
-						id='cvv'
-						label='CVV'
-						helperText='Last three digits on signature strip'
-						fullWidth
-						autoComplete='cc-csc'
-						variant='standard'
-					/>
-				</Grid>
-				<Grid item xs={12}>
-					<FormControlLabel
-						control={<Checkbox color='secondary' name='saveCard' value='yes' />}
-						label='Remember credit card details for next time'
-					/>
-				</Grid>
+			<CreditCardInput
+				cardNumberInputProps={{
+					id: 'cardNumber',
+					value: billing?.cardNumber ?? '',
+					onChange: handleChange,
+				}}
+				cardExpiryInputProps={{
+					id: 'cardExpiry',
+					value: billing?.cardExpiry ?? '',
+					onChange: handleChange,
+				}}
+				cardCVCInputProps={{
+					value: billing?.cvc ?? '',
+					onChange: handleChange,
+				}}
+			/>
+			<Grid item xs={12}>
+				<FormControlLabel
+					control={
+						<Checkbox
+							id='savePayment'
+							color='secondary'
+							name='savePayment'
+							checked={billing?.savePayment ?? savePayment}
+							onChange={handleChange}
+						/>
+					}
+					label='Save this payment for future use.'
+				/>
 			</Grid>
-		</React.Fragment>
+		</Fragment>
 	);
 };

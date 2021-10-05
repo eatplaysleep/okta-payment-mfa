@@ -8,22 +8,21 @@ import withRoot from '../withRoot';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function getStepContent(step) {
-	switch (step) {
-		case 0:
-			return <AddressForm />;
-		case 1:
-			return <PaymentForm />;
-		case 2:
-			return <ReviewOrder />;
-		default:
-			throw new Error('Unknown step');
-	}
-}
-
 function Checkout() {
 	const [activeStep, setActiveStep] = useState(0);
 
+	const getStepContent = step => {
+		switch (step) {
+			case 0:
+				return <AddressForm />;
+			case 1:
+				return <PaymentForm />;
+			case 2:
+				return <ReviewOrder />;
+			default:
+				throw new Error('Unknown step');
+		}
+	};
 	const handleNext = () => {
 		setActiveStep(activeStep + 1);
 	};

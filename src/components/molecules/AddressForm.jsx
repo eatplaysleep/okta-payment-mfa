@@ -1,12 +1,53 @@
 /** @format */
 
-import * as React from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
 import { TextField, Typography } from '../atoms';
 
 export const AddressForm = () => {
+	const [address, setAddress] = useState({
+		firstName: 'Sam',
+		lastName: 'Shopper',
+		address1: '123 Main St.',
+		city: 'Hollywood',
+		state: 'FL',
+		zip: '33004',
+		country: 'US',
+		checked: false,
+	});
+	const [saveAddress, setSaveAddress] = useState(false);
+
+	useEffect(() => {
+		let storage = JSON.parse(localStorage.getItem('address'));
+
+		if (storage) {
+			setAddress(() => ({ ...address, ...storage }));
+		} else {
+			localStorage.setItem('address', JSON.stringify(address));
+		}
+	}, []);
+
+	const handleChange = e => {
+		e.preventDefault();
+
+		let id = e.target.id,
+			value = e.target.value;
+
+		if (id === 'saveAddress') {
+			value = e.target.checked;
+		}
+
+		let newAddress = {
+			[id]: value,
+		};
+
+		setAddress(() => ({ ...address, ...newAddress }));
+
+		localStorage.setItem('address', JSON.stringify(address));
+	};
+
 	return (
-		<React.Fragment>
+		<Fragment>
 			<Typography variant='h6' gutterBottom>
 				Shipping address
 			</Typography>
@@ -18,8 +59,10 @@ export const AddressForm = () => {
 						name='firstName'
 						label='First name'
 						fullWidth
+						value={address?.firstName ?? ''}
 						autoComplete='given-name'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -29,8 +72,10 @@ export const AddressForm = () => {
 						name='lastName'
 						label='Last name'
 						fullWidth
+						value={address?.lastName ?? ''}
 						autoComplete='family-name'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12}>
@@ -40,8 +85,10 @@ export const AddressForm = () => {
 						name='address1'
 						label='Address line 1'
 						fullWidth
+						value={address?.address1 ?? ''}
 						autoComplete='shipping address-line1'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12}>
@@ -50,8 +97,10 @@ export const AddressForm = () => {
 						name='address2'
 						label='Address line 2'
 						fullWidth
+						value={address?.address2 ?? ''}
 						autoComplete='shipping address-line2'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -61,8 +110,10 @@ export const AddressForm = () => {
 						name='city'
 						label='City'
 						fullWidth
+						value={address?.city ?? ''}
 						autoComplete='shipping address-level2'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -71,7 +122,9 @@ export const AddressForm = () => {
 						name='state'
 						label='State/Province/Region'
 						fullWidth
+						value={address?.state ?? ''}
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -81,8 +134,10 @@ export const AddressForm = () => {
 						name='zip'
 						label='Zip / Postal code'
 						fullWidth
+						value={address?.zip ?? ''}
 						autoComplete='shipping postal-code'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -92,19 +147,27 @@ export const AddressForm = () => {
 						name='country'
 						label='Country'
 						fullWidth
+						value={address?.country ?? ''}
 						autoComplete='shipping country'
 						variant='standard'
+						onChange={handleChange}
 					/>
 				</Grid>
 				<Grid item xs={12}>
 					<FormControlLabel
 						control={
-							<Checkbox color='secondary' name='saveAddress' value='yes' />
+							<Checkbox
+								id='saveAddress'
+								color='secondary'
+								name='saveAddress'
+								checked={address?.saveAddress ?? saveAddress}
+								onChange={handleChange}
+							/>
 						}
 						label='Use this address for payment details'
 					/>
 				</Grid>
 			</Grid>
-		</React.Fragment>
+		</Fragment>
 	);
 };
