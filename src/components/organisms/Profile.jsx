@@ -35,7 +35,7 @@ export const Profile = () => {
 	};
 
 	const doWebAuth = () => {
-		const factorId = 'fwf1jjgxvkJxeNqAB1d7';
+		const factorId = factors.find(factor => factor.type === 'webauthn')?.id;
 		const url = `${window.location.origin}/api/${user?.sub}/factors/${factorId}/verify`;
 
 		fetch(url)
@@ -45,14 +45,24 @@ export const Profile = () => {
 				}
 			})
 			.then(resp => {
+				const allowCredentials = [
+					{
+						id: CryptoUtil.strToBin(resp?.profile?.credentialId),
+						type: 'public-key',
+					},
+				];
+
 				resp._embedded.challenge.challenge = CryptoUtil.strToBin(
 					resp?._embedded?.challenge?.challenge
 				);
 
-				console.log(resp);
+				const publicKey = {
+					challenge: resp._embedded.challenge.challenge,
+					allowCredentials: allowCredentials,
+				};
 
 				navigator.credentials
-					.get({ publicKey: resp._embedded.challenge })
+					.get({ publicKey: publicKey })
 					.then(assertion => {
 						const clientData = CryptoUtil.binToStr(
 								assertion.response.clientDataJSON
