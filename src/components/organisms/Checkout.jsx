@@ -1,15 +1,18 @@
 /** @format */
 
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Box, Container, Paper, Stepper, Step, StepLabel } from '@mui/material';
 import { Button, Typography } from '../atoms';
 import { AddressForm, PaymentForm, ReviewOrder } from '../molecules';
 import withRoot from '../withRoot';
+import { useCart } from '../../hooks';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 function Checkout() {
 	const [activeStep, setActiveStep] = useState(0);
+	const [doMFA, setMFA] = useState(false);
+	const { total } = useCart();
 
 	const getStepContent = step => {
 		switch (step) {
@@ -24,12 +27,25 @@ function Checkout() {
 		}
 	};
 	const handleNext = () => {
-		setActiveStep(activeStep + 1);
+		let nextStep = activeStep + 1;
+
+		if (nextStep === steps.length && doMFA) {
+		}
+
+		setActiveStep(nextStep);
 	};
 
 	const handleBack = () => {
 		setActiveStep(activeStep - 1);
 	};
+
+	useEffect(() => {
+		if (total >= 30) {
+			setMFA(() => true);
+		} else {
+			setMFA(() => false);
+		}
+	}, [activeStep]);
 
 	return (
 		<Container component='main' maxWidth='sm' sx={{ mb: 4 }}>

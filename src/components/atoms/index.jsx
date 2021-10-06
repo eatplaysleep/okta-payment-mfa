@@ -4,6 +4,7 @@ export * from './AppBar';
 export * from './Button';
 export * from './CartItem';
 export * from './Copyright';
+export * from './Factor';
 export * from './ImageBackdrop';
 export * from './ImageIconButton';
 export * from './LoginButton';

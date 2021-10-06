@@ -1,11 +1,11 @@
 /** @format */
 
 import { Fragment, useState, useEffect } from 'react';
-import { MaskedTextField, TextField, Typography } from '../atoms';
+import { Typography } from '../atoms';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
 import CreditCardInput from 'react-credit-card-input';
 
-export const PaymentForm = ({ callback }) => {
+export const PaymentForm = () => {
 	const [billing, setBilling] = useState({
 		cardNumber: '5103 6328 7917 4428',
 		cardExpiry: '01 / 30',
@@ -30,7 +30,7 @@ export const PaymentForm = ({ callback }) => {
 		} else {
 			localStorage.setItem('billing', JSON.stringify(billing));
 		}
-	}, []);
+	}, [billing]);
 
 	const handleChange = e => {
 		e.preventDefault();
@@ -41,6 +41,7 @@ export const PaymentForm = ({ callback }) => {
 
 		if (id === 'savePayment') {
 			value = e.target.checked;
+			setSavePayment(() => value);
 		}
 
 		let newBilling = {

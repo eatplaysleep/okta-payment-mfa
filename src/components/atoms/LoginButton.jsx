@@ -9,7 +9,7 @@ export const LoginButton = props => {
 	const { authState, oktaAuth } = useOktaAuth();
 	const enroll = async () =>
 		oktaAuth.signInWithRedirect({ loginHint: 'signup' });
-	const login = async () => authState.signInWithRedirect();
+	const login = async () => oktaAuth.signInWithRedirect();
 
 	const onClick = () => {
 		if (signup) {

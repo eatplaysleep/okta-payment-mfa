@@ -5,6 +5,8 @@ export * from './AppFooter';
 export * from './AppNavBar';
 export * from './Cart';
 export * from './CartItems';
+export * from './FactorDialog';
+export * from './FactorList';
 export * from './PaymentForm';
 export * from './ProductCategories';
 export * from './ProductCTA';

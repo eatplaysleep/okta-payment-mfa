@@ -10,7 +10,7 @@ import {
 	Toolbar,
 	Typography,
 } from '../atoms';
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, Link } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 
 export const AppNavBar = () => {
@@ -24,7 +24,15 @@ export const AppNavBar = () => {
 		} else {
 			oktaAuth
 				.getUser()
-				.then(info => setUserInfo(() => info))
+				.then(info => {
+					if (info.headers) {
+						delete info.headers;
+					}
+
+					localStorage.setItem('user', JSON.stringify(info));
+
+					setUserInfo(() => info);
+				})
 				.catch(err => console.error(err));
 		}
 	}, [authState, oktaAuth]); // Update only if authState changes
@@ -40,6 +48,7 @@ export const AppNavBar = () => {
 								aria-label='profile'
 								aria-controls='menu-appbar'
 								color='inherit'
+								href='/me'
 							>
 								<AccountCircle />
 								<Typography variant='subtitle1'>
@@ -49,18 +58,23 @@ export const AppNavBar = () => {
 						</div>
 					)}
 				</Box>
-				<Typography
-					variant='h6'
-					component='div'
-					color='inherit'
-					sx={{ fontSize: 24, textAlign: 'center' }}
-				>
-					Atko International
-				</Typography>
+				<Link href='/'>
+					<Typography
+						variant='h6'
+						component='div'
+						color='white'
+						sx={{ fontSize: 24, textAlign: 'center' }}
+					>
+						Atko International
+					</Typography>
+				</Link>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
 					{authState?.isAuthenticated && (
 						<div>
-							<LogoutButton isIconButton sx={{ color: 'secondary.main' }} />
+							<LogoutButton
+								isiconbutton='true'
+								sx={{ color: 'secondary.main' }}
+							/>
 						</div>
 					)}
 					{!authState?.isAuthenticated && (

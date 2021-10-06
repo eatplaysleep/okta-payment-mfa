@@ -6,7 +6,7 @@ import { Logout } from '@mui/icons-material';
 import { Button } from './Button';
 
 export const LogoutButton = props => {
-	const isIconButton = props?.isIconButton ?? false;
+	const isIconButton = props?.isiconbutton === 'true' ? true : false;
 	// eslint-disable-next-line no-unused-vars
 	const { authState, oktaAuth } = useOktaAuth();
 	const clearUserData = async () => {
@@ -17,7 +17,7 @@ export const LogoutButton = props => {
 	const logout = async () => {
 		try {
 			await clearUserData();
-			await authState.signOut();
+			await oktaAuth.signOut();
 		} catch (err) {
 			throw err;
 		}
@@ -33,8 +33,6 @@ export const LogoutButton = props => {
 	if (isIconButton) {
 		props = {
 			size: 'large',
-			ariaLabel: 'logout',
-			ariaControls: 'menu-appbar',
 			...props,
 		};
 

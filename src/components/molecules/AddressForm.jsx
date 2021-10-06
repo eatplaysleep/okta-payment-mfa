@@ -15,13 +15,14 @@ export const AddressForm = () => {
 		country: 'US',
 		checked: false,
 	});
+	// eslint-disable-next-line no-unused-vars
 	const [saveAddress, setSaveAddress] = useState(false);
 
 	useEffect(() => {
-		let storage = JSON.parse(localStorage.getItem('address'));
+		const storage = JSON.parse(localStorage.getItem('address'));
 
 		if (storage) {
-			setAddress(() => ({ ...address, ...storage }));
+			return setAddress(() => ({ ...address, ...storage }));
 		} else {
 			localStorage.setItem('address', JSON.stringify(address));
 		}
