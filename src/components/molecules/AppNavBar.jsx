@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 
 import {
 	AppBar,
+	AuthModal,
+	Button,
 	LoginButton,
 	LogoutButton,
 	Toolbar,
@@ -16,7 +18,7 @@ import { AccountCircle } from '@mui/icons-material';
 export const AppNavBar = () => {
 	const { authState, oktaAuth } = useOktaAuth();
 	const [userInfo, setUserInfo] = useState();
-
+	const [modalIsOpen, openModal] = useState();
 	useEffect(() => {
 		if (!authState?.isAuthenticated) {
 			// When user isn't authenticated, forget any user info
@@ -37,8 +39,19 @@ export const AppNavBar = () => {
 		}
 	}, [authState, oktaAuth]); // Update only if authState changes
 
+	const fido = () =>
+		oktaAuth.signInWithRedirect({
+			clientId: '0oa1kn96tkmBaXZPN1d7',
+			loginHint: 'danny@atko.email',
+		});
+
 	return (
 		<AppBar>
+			<AuthModal
+				loginhint='danny@atko.email'
+				open={modalIsOpen}
+				onClose={() => openModal(() => false)}
+			/>
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
 					{authState?.isAuthenticated && (
@@ -69,6 +82,15 @@ export const AppNavBar = () => {
 					</Typography>
 				</Link>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+					<div>
+						<Button
+							// onClick={() => openModal(() => true)}
+							onClick={fido}
+							sx={{ color: 'inherit' }}
+						>
+							Step up
+						</Button>
+					</div>
 					{authState?.isAuthenticated && (
 						<div>
 							<LogoutButton
