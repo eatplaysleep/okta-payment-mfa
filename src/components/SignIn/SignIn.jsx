@@ -30,7 +30,7 @@ export const SignInSide = () => {
 
 	useEffect(() => {
 		const silentLogin = async () => {
-			authState.token
+			oktaAuth.token
 				.getWithoutPrompt()
 				.then(resp => {
 					let tokens = resp.tokens;
@@ -41,7 +41,7 @@ export const SignInSide = () => {
 				});
 		};
 
-		authState.session
+		oktaAuth.session
 			.exists()
 			.then(async resp => {
 				if (resp) {
