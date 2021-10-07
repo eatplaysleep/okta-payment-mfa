@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { Button, Factor, Paper, Typography } from '../atoms';
 import { FactorDialog } from '../molecules';
-import CryptoUtil from '../../utils/cryptoUtil';
 
 export const Profile = () => {
 	// eslint-disable-next-line no-unused-vars
@@ -20,7 +19,6 @@ export const Profile = () => {
 		JSON.parse(localStorage.getItem('user') ?? {})
 	);
 	const [profile, setProfile] = useState();
-	const [isLoading, setLoading] = useState();
 	const [factors, setFactors] = useState();
 	const [isStale, fetchFactors] = useState(true);
 	const [dialogIsOpen, openDialog] = useState(false);
@@ -32,65 +30,6 @@ export const Profile = () => {
 	const handleRemoveFactor = factorId => {
 		setFactorId(() => factorId);
 		removeFactor(() => true);
-	};
-
-	const doWebAuth = () => {
-		const factorId = factors.find(factor => factor.type === 'webauthn')?.id;
-		const url = `${window.location.origin}/api/${user?.sub}/factors/${factorId}/verify`;
-
-		fetch(url)
-			.then(resp => {
-				if (resp.ok) {
-					return resp.json();
-				}
-			})
-			.then(resp => {
-				const allowCredentials = [
-					{
-						id: CryptoUtil.strToBin(resp?.profile?.credentialId),
-						type: 'public-key',
-					},
-				];
-
-				resp._embedded.challenge.challenge = CryptoUtil.strToBin(
-					resp?._embedded?.challenge?.challenge
-				);
-
-				const publicKey = {
-					challenge: resp._embedded.challenge.challenge,
-					allowCredentials: allowCredentials,
-				};
-
-				navigator.credentials
-					.get({ publicKey: publicKey })
-					.then(assertion => {
-						const clientData = CryptoUtil.binToStr(
-								assertion.response.clientDataJSON
-							),
-							authenticatorData = CryptoUtil.binToStr(
-								assertion.response.authenticatorData
-							),
-							signatureData = CryptoUtil.binToStr(assertion.response.signature),
-							request = {
-								method: 'post',
-								body: JSON.stringify({
-									authenticatorData: authenticatorData,
-									clientData: clientData,
-									signatureData: signatureData,
-								}),
-							};
-
-						fetch(url, request)
-							.then(resp => {
-								if (resp.ok) {
-									return resp.json();
-								}
-							})
-							.then(resp => console.log(resp))
-							.catch(err => console.error(err));
-					})
-					.catch(err => console.error(err));
-			});
 	};
 
 	useEffect(() => {
@@ -116,41 +55,45 @@ export const Profile = () => {
 		};
 
 		if (user) {
-			if (!isLoading) {
-				setLoading(() => true);
-			}
-
+			console.log('building profile...');
 			setProfile(() => buildProfile());
-		}
-
-		if (isLoading) {
-			setLoading(() => false);
 		}
 	}, [user]);
 
 	useEffect(() => {
-		if (isStale && user?.sub) {
-			if (!isLoading) {
-				setLoading(() => true);
+		const renderFactors = data => {
+			const list = [];
+			data.forEach(factor =>
+				list.push(
+					<Factor
+						key={factor.factorId}
+						child={factor}
+						onClick={handleRemoveFactor}
+					/>
+				)
+			);
+
+			if (list) {
+				return setFactors(() => list);
 			}
+		};
 
-			let url = `${window.location.origin}/api/${user.sub}/factors`;
+		if (isStale) {
+			if (user) {
+				let url = `${window.location.origin}/api/${user.sub}/factors`;
 
-			return fetch(url)
-				.then(resp => {
-					if (resp.ok) {
-						return resp.json();
-					}
-				})
-				.then(resp => setFactors(() => resp))
-				.then(() => fetchFactors(() => false))
-				.catch(err => console.error(err));
+				return fetch(url)
+					.then(resp => {
+						if (resp.ok) {
+							return resp.json();
+						}
+					})
+					.then(resp => renderFactors(resp))
+					.then(() => fetchFactors(() => false))
+					.catch(err => console.error(err));
+			}
 		}
-
-		if (isLoading) {
-			return setLoading(() => false);
-		}
-	}, [isStale]);
+	}, [isStale, user]);
 
 	useEffect(() => {
 		const deleteFactor = factorId => {
@@ -172,16 +115,13 @@ export const Profile = () => {
 		};
 
 		if (factorId && handleFactor) {
+			console.log('deleting factor...');
 			removeFactor(() => false);
-
-			if (!isLoading) {
-				setLoading(() => true);
-			}
 
 			deleteFactor(factorId);
 			fetchFactors(() => true);
 		}
-	}, [handleFactor, factorId]);
+	}, [handleFactor, factorId, user]);
 
 	return (
 		<Fragment>
@@ -225,21 +165,11 @@ export const Profile = () => {
 										<TableCell key='remove' />
 									</TableRow>
 								</TableHead>
-								<TableBody>
-									{factors?.length > 0 &&
-										factors?.map(factor => (
-											<Factor
-												key={factor.id}
-												child={factor}
-												onClick={handleRemoveFactor}
-											/>
-										))}
-								</TableBody>
+								<TableBody>{factors}</TableBody>
 							</Table>
 						</TableContainer>
 						<div>
 							<Button onClick={handleDialog}>Add Factor</Button>
-							<Button onClick={doWebAuth}>Get WebAuthN</Button>
 						</div>
 					</Fragment>
 				</Paper>

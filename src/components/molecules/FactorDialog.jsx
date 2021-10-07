@@ -77,7 +77,12 @@ export const FactorDialog = props => {
 						},
 						attestation: attestation,
 						pubKeyCredParams: pubKeyCredParams,
+						authenticatorSelection: {
+							authenticatorAttachment: 'platform',
+						},
 					};
+
+					console.log(JSON.stringify(publicKey, null, 2));
 
 					navigator.credentials
 						.create({ publicKey })
