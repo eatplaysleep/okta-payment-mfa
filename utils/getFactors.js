@@ -22,11 +22,21 @@ const getFactors = (req, res) => {
 			let factors = [];
 
 			resp.forEach(factor => {
+				const userLink = factor?._links?.user?.href.split('/'),
+					userId = userLink[userLink.length - 1];
+
 				factors.push({
-					id: factor?.id,
+					factorId: factor?.id,
+					userId: userId,
 					type: factor?.factorType,
 					name: factorMap[factor?.factorType] ?? 'Unknown',
 					status: factor?.status,
+					isRequired: factor?.enrollment === 'REQUIRED' ? true : false,
+					provider: factor?.provider,
+					device: {
+						id: factor?.profile?.credentialId,
+						type: factor?.profile?.authenticatorName,
+					},
 				});
 			});
 

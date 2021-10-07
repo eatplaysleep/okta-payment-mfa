@@ -12,6 +12,7 @@ const verifyFactor = (req, res) => {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			},
+			body: req?.body,
 		};
 
 	return client.http

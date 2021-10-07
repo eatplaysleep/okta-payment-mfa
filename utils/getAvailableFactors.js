@@ -22,14 +22,14 @@ const getAvailableFactors = (req, res) => {
 			let factors = [];
 
 			resp.forEach(factor => {
-				if (factor.status === 'NOT_SETUP') {
+				if (factor?.factorType === 'webauthn' || factor?.status === 'NOT_SETUP')
 					factors.push({
 						type: factor?.factorType,
 						name: factorMap[factor?.factorType] ?? 'Unknown',
-						isActive: false,
-						isRequired: factor?.enrollment !== 'OPTIONAL' ? true : false,
+						status: factor?.status,
+						isRequired: factor?.enrollment === 'REQUIRED' ? true : false,
+						provider: factor?.provider,
 					});
-				}
 			});
 
 			return res.status(200).send(factors);

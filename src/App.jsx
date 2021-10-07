@@ -3,7 +3,7 @@
 import React from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
+import { Security, LoginCallback } from '@okta/okta-react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -17,7 +17,7 @@ import {
 	Store,
 	Terms,
 } from './components/organisms';
-import { AppFooter, AppNavBar, Cart } from './components/molecules';
+import { AppFooter, AppNavBar } from './components/molecules';
 import { CartContextProvider, ProductsContextProvider } from './contexts';
 import { SignInSide } from './components/SignIn';
 import './App.css';
@@ -54,7 +54,7 @@ const App = () => {
 								<Route path='/login/callback' component={LoginCallback} />
 								<Route path='/signin' component={SignInSide} />
 								<Route path='/privacy' component={Privacy} />
-								<SecureRoute path='/me' component={Profile} />
+								<Route path='/me' component={Profile} />
 								<Route path='/terms' component={Terms} />
 								<Route path='*' component={Home} />
 							</Switch>
