@@ -25,6 +25,8 @@ import { Theme } from './theme';
 
 const oktaAuth = new OktaAuth(config.oidc);
 
+oktaAuth.start();
+
 const App = () => {
 	const history = useHistory();
 	const restoreOriginalUri = async (_oktaAuth, originalUri) => {
