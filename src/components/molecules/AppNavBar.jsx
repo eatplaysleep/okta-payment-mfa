@@ -84,8 +84,8 @@ export const AppNavBar = () => {
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
 					<div>
 						<Button
-							// onClick={() => openModal(() => true)}
-							onClick={fido}
+							onClick={() => openModal(() => true)}
+							// onClick={fido}
 							sx={{ color: 'inherit' }}
 						>
 							Step up
