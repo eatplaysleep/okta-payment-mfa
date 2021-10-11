@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { createContext, useReducer } from 'react';
-import { CartReducer, sumItems } from './CartReducer';
+import { CartReducer, sumItems } from '../reducers';
 
 export const CartContext = createContext();
 
@@ -15,7 +15,7 @@ const initialState = {
 	...sumItems(storage),
 };
 
-export const CartContextProvider = ({ children }) => {
+export const CartProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(CartReducer, initialState);
 
 	const increase = payload => dispatch({ type: 'INCREASE', payload });

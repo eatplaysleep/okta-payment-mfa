@@ -1,7 +1,7 @@
 /** @format */
 
 import { useContext } from 'react';
-import { ProductsContext } from '../contexts/ProductsContext';
+import { ProductsContext } from '../providers';
 
 export const useProducts = () => {
 	const ctx = useContext(ProductsContext);
