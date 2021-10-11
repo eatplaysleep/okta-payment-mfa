@@ -7,6 +7,7 @@ import {
 	AppBar,
 	AuthModal,
 	Button,
+	// LoadingOverlay,
 	LoginButton,
 	LogoutButton,
 	Toolbar,
@@ -14,47 +15,22 @@ import {
 } from '../atoms';
 import { Box, IconButton, Link } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
+import { useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
-	const { authState, oktaAuth } = useOktaAuth();
-	const [userInfo, setUserInfo] = useState();
+	const { isAuthenticated, user } = useAuthState();
 	const [modalIsOpen, openModal] = useState();
-	useEffect(() => {
-		if (!authState?.isAuthenticated) {
-			// When user isn't authenticated, forget any user info
-			setUserInfo(null);
-		} else {
-			oktaAuth
-				.getUser()
-				.then(info => {
-					if (info.headers) {
-						delete info.headers;
-					}
-
-					localStorage.setItem('user', JSON.stringify(info));
-
-					setUserInfo(() => info);
-				})
-				.catch(err => console.error(err));
-		}
-	}, [authState, oktaAuth]); // Update only if authState changes
-
-	const fido = () =>
-		oktaAuth.signInWithRedirect({
-			clientId: '0oa1kn96tkmBaXZPN1d7',
-			loginHint: 'danny@atko.email',
-		});
 
 	return (
 		<AppBar>
-			<AuthModal
+			{/* <AuthModal
 				loginhint='danny@atko.email'
 				open={modalIsOpen}
 				onClose={() => openModal(() => false)}
-			/>
+			/> */}
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-					{authState?.isAuthenticated && (
+					{isAuthenticated && (
 						<div>
 							<IconButton
 								size='large'
@@ -65,7 +41,7 @@ export const AppNavBar = () => {
 							>
 								<AccountCircle />
 								<Typography variant='subtitle1'>
-									&nbsp;&nbsp;{userInfo?.name}
+									&nbsp;&nbsp;{user?.name}
 								</Typography>
 							</IconButton>
 						</div>
@@ -91,7 +67,7 @@ export const AppNavBar = () => {
 							Step up
 						</Button>
 					</div>
-					{authState?.isAuthenticated && (
+					{isAuthenticated && (
 						<div>
 							<LogoutButton
 								isiconbutton='true'
@@ -99,10 +75,7 @@ export const AppNavBar = () => {
 							/>
 						</div>
 					)}
-					{!authState?.isAuthenticated && (
-						// <Button color='inherit' children='Login' onClick={login} />
-						<LoginButton />
-					)}
+					{!isAuthenticated && <LoginButton />}
 				</Box>
 			</Toolbar>
 		</AppBar>

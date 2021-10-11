@@ -8,6 +8,7 @@ export * from './Copyright';
 export * from './Factor';
 export * from './ImageBackdrop';
 export * from './ImageIconButton';
+export * from './LoadingOverlay';
 export * from './LoginButton';
 export * from './LogoutButton';
 export * from './Paper';

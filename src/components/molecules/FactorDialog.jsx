@@ -122,7 +122,7 @@ export const FactorDialog = props => {
 				case 'webauthn':
 					enrollFactor(() => undefined);
 				default:
-					return enrollWebAuthN();
+					return;
 			}
 		}
 	}, [factor]);

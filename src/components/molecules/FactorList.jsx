@@ -16,8 +16,13 @@ export const FactorList = props => {
 				onChange={onChange}
 				value={selected}
 			>
+				<option value='' key='undefined' />
 				{factors.map(factor => {
-					return <option value={factor.type}>{factor.name}</option>;
+					return (
+						<option value={factor.type} key={factor.name}>
+							{factor.name}
+						</option>
+					);
 				})}
 			</NativeSelect>
 		</Fragment>

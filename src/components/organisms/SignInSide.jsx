@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useOktaAuth } from '@okta/okta-react';
+// import { useOktaAuth } from '@okta/okta-react';
 import {
 	Avatar,
 	Box,
@@ -17,72 +17,25 @@ import {
 import { LoadingButton } from '@mui/lab';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useAuthDispatch, useAuthState, useAuthActions } from '../../providers';
+import { LoadingOverlay } from '../index';
 
 const theme = createTheme();
 
 export const SignInSide = () => {
-	const history = useHistory();
-
-	const { authState, oktaAuth } = useOktaAuth();
-	const [isLoading, setLoading] = useState(true);
+	const dispatch = useAuthDispatch();
+	const { isLoading } = useAuthState();
+	const { loginWithCredentials } = useAuthActions();
 	const [submitLogin, setSubmitLogin] = useState(false);
 	const [userLogin, setLogin] = useState();
 
 	useEffect(() => {
-		const silentLogin = async () => {
-			oktaAuth.token
-				.getWithoutPrompt()
-				.then(resp => {
-					let tokens = resp.tokens;
-					authState.tokenManager.setTokens(tokens);
-				})
-				.catch(err => {
-					console.error(err);
-				});
-		};
+		if (submitLogin && userLogin?.username && userLogin?.password) {
+			setSubmitLogin(() => false);
 
-		oktaAuth.session
-			.exists()
-			.then(async resp => {
-				if (resp) {
-					await silentLogin();
-					if (await oktaAuth.isAuthenticated()) {
-						history.push('/');
-					}
-				}
-			})
-			.catch(err => console.error(err));
-		setLoading(() => false);
-	}, [authState, history, oktaAuth]);
-
-	useEffect(() => {
-		const login = async ({ username, password }) => {
-			oktaAuth
-				.signInWithCredentials({
-					username: username,
-					password: password,
-					sendFingerprint: true,
-				})
-				.then(async transaction => {
-					if (transaction.status === 'SUCCESS') {
-						oktaAuth.signInWithRedirect({
-							sessionToken: transaction.sessionToken,
-						});
-					}
-				})
-				.catch(err => {
-					console.error(err);
-				});
-		};
-
-		if (submitLogin) {
-			setLoading(() => true);
-			return login({
-				username: userLogin.username,
-				password: userLogin.password,
-			});
+			return loginWithCredentials(dispatch, userLogin);
 		}
-	}, [submitLogin, userLogin, oktaAuth]);
+	}, [submitLogin, userLogin, isLoading, dispatch, loginWithCredentials]);
 
 	const handleSubmit = e => {
 		e.preventDefault();
@@ -92,22 +45,34 @@ export const SignInSide = () => {
 			setLogin(null);
 		}
 
-		setLoading(() => true);
 		setLogin(() => ({
 			username: data.get('username'),
 			password: data.get('password'),
 		}));
 		setSubmitLogin(() => true);
+	};
 
-		// eslint-disable-next-line no-console
-		// console.log({
-		// 	email: data.get('email'),
-		// 	password: data.get('password'),
-		// });
+	const handleFormChange = e => {
+		const id = e?.target?.id;
+		const value = e?.target?.value;
+
+		setLogin({ ...userLogin, submit: { [id]: value } });
+	};
+
+	const handleSubmitSignIn = e => {
+		e.preventDefault();
+
+		if (!userLogin) {
+			setLogin(null);
+		}
+
+		setLogin(() => ({ ...userLogin }));
+		setSubmitLogin(() => true);
 	};
 
 	return (
 		<ThemeProvider theme={theme}>
+			{/* {isLoading && <LoadingOverlay open={isLoading} />} */}
 			<Grid container component='main' sx={{ height: '100vh' }}>
 				<CssBaseline />
 				<Grid
@@ -157,6 +122,8 @@ export const SignInSide = () => {
 								name='username'
 								autoFocus
 								disabled={isLoading}
+								value={userLogin?.username}
+								onChange={handleFormChange}
 							/>
 							<TextField
 								margin='normal'
@@ -168,6 +135,8 @@ export const SignInSide = () => {
 								id='password'
 								autoComplete='current-password'
 								disabled={isLoading}
+								value={userLogin?.password}
+								onChange={handleFormChange}
 							/>
 							{/* <FormControlLabel
 								control={<Checkbox value='remember' color='primary' />}
@@ -184,7 +153,7 @@ export const SignInSide = () => {
 									<CircularProgress color='inherit' size={16} />
 								}
 							/>
-							<Grid container>
+							{/* <Grid container>
 								<Grid item xs>
 									<Link href='#' variant='body2'>
 										Forgot password?
@@ -195,7 +164,7 @@ export const SignInSide = () => {
 										{"Don't have an account? Sign Up"}
 									</Link>
 								</Grid>
-							</Grid>
+							</Grid> */}
 						</Box>
 					</Box>
 				</Grid>

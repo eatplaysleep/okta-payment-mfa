@@ -3,6 +3,7 @@ import { Fragment, useEffect, useState } from 'react';
 import {
 	Container,
 	Grid,
+	// CircularProgress,
 	TableBody,
 	TableCell,
 	TableContainer,
@@ -10,14 +11,11 @@ import {
 	TableRow,
 	Table,
 } from '@mui/material';
-import { Button, Factor, Paper, Typography } from '../atoms';
-import { FactorDialog } from '../molecules';
+import { Button, Factor, FactorDialog, Paper, Typography } from '../index';
+import { useAuthState } from '../../providers';
 
 export const Profile = () => {
-	// eslint-disable-next-line no-unused-vars
-	const [user, setUser] = useState(
-		JSON.parse(localStorage.getItem('user') ?? {})
-	);
+	const { user } = useAuthState();
 	const [profile, setProfile] = useState();
 	const [factors, setFactors] = useState();
 	const [isStale, fetchFactors] = useState(true);
@@ -79,7 +77,7 @@ export const Profile = () => {
 		};
 
 		if (isStale) {
-			if (user) {
+			if (user?.sub) {
 				let url = `${window.location.origin}/api/${user.sub}/factors`;
 
 				return fetch(url)
@@ -138,6 +136,7 @@ export const Profile = () => {
 							ATTRIBUTES
 						</Typography>
 						<Grid container spacing={2} sx={{ justifyContent: 'flex-start' }}>
+							{/* {isLoading && <CircularProgress />} */}
 							{profile}
 						</Grid>
 					</Fragment>
@@ -174,11 +173,13 @@ export const Profile = () => {
 					</Fragment>
 				</Paper>
 			</Container>
-			<FactorDialog
-				open={dialogIsOpen}
-				onClose={handleDialog}
-				user={user?.sub}
-			/>
+			{user && (
+				<FactorDialog
+					open={dialogIsOpen}
+					onClose={handleDialog}
+					user={user?.sub}
+				/>
+			)}
 		</Fragment>
 	);
 };

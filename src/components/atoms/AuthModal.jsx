@@ -52,46 +52,51 @@ export const AuthModal = props => {
 
 		const currentConfig = oktaAuth.options;
 		const newConfig = {
+			// clientId: '0oa120ptzojjj3hj50h8',
 			clientId: '0oa1kn96tkmBaXZPN1d7',
 			responseMode: 'okta_post_message',
 		};
 
-		return oktaAuth.token
-			.prepareTokenParams()
-			.then(resp => {
-				tokenParams = resp;
+		return setSrc(
+			() =>
+				'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8'
+		);
+		// return oktaAuth.token
+		// 	.prepareTokenParams()
+		// 	.then(resp => {
+		// 		tokenParams = resp;
 
-				delete resp.codeVerifier;
-				delete resp.ignoreSignature;
-				delete resp.pkce;
+		// 		delete resp.codeVerifier;
+		// 		delete resp.ignoreSignature;
+		// 		delete resp.pkce;
 
-				const url = new URL(currentConfig.issuer),
-					searchParams = {
-						...resp,
-						...newConfig,
-					};
-				console.log(JSON.stringify(searchParams, null, 2));
-				url.pathname = '/v1/authorize';
+		// 		const url = new URL(currentConfig.issuer),
+		// 			searchParams = {
+		// 				...resp,
+		// 				...newConfig,
+		// 			};
+		// 		console.log(JSON.stringify(searchParams, null, 2));
+		// 		url.pathname = '/v1/authorize';
 
-				for (const [key, value] of Object.entries(searchParams)) {
-					url.searchParams.append(key, value);
-				}
-				console.log(url.toString());
-				return setSrc(() => url.toString());
-			})
-			.catch(err => console.error(err));
+		// 		for (const [key, value] of Object.entries(searchParams)) {
+		// 			url.searchParams.append(key, value);
+		// 		}
+		// 		console.log(url.toString());
+		// 		return setSrc(() => url.toString());
+		// 	})
+		// 	.catch(err => console.error(err));
 	};
 
-	// const src = `${URL}?login_hint=${loginhint}&response_mode=okta_post_messsage`;
+	// https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8
 
 	// const src2 = `https://expedia-oie.dannyfuhriman.com/oauth2/aus1gb3zbtlqNoCUK1d7/v1/authorize?client_id=0oa1kn96tkmBaXZPN1d7&response_type=code&scope=openid&redirect_uri=http://localhost:3000/login/callback&state=c2i6yuaNNRN1fGb8r0w1uhzKTbDwEq87oa3MSzsio9frd4uztxrlR8y3WU21fueY&nonce=88Uh8NqtyKgyuWYI4nwckGaTCiVIxBZrjWPnjHexoSvkxhYttMToHzJKgf5XPKQd&code_challenge=qq40HN9-BkfGbW2KMkEzmW02irW35pB8PU88ivtIaf8&code_challenge_method=S256&response_mode=okta_post_message`;
 
 	useEffect(() => getUrl(), []);
 	useEffect(() => {
 		const handler = e => {
-			console.log('event:', JSON.stringify(e?.data, null, 2));
-			const data = JSON.parse(e?.data);
-			console.log('post data:', data);
+			// console.log('event:', JSON.stringify(e?.data, null, 2));
+			// const data = JSON.parse(e?.data);
+			// console.log('post data:', data);
 		};
 
 		window.addEventListener('message', handler);

@@ -1,23 +1,14 @@
 /** @format */
 
-import { useOktaAuth } from '@okta/okta-react';
-import { Button } from './Button';
+import { Button } from './index';
+import { useAuthDispatch, useAuthActions } from '../../providers';
 
 export const LoginButton = props => {
-	const signup = props?.signup ?? false;
-	// eslint-disable-next-line no-unused-vars
-	const { authState, oktaAuth } = useOktaAuth();
-	const enroll = async () =>
-		oktaAuth.signInWithRedirect({ loginHint: 'signup' });
-	const login = async () => oktaAuth.signInWithRedirect();
+	const dispatch = useAuthDispatch();
+	const { login } = useAuthActions();
 
-	const onClick = () => {
-		if (signup) {
-			enroll();
-		} else login();
-	};
 	props = {
-		onClick: onClick,
+		onClick: () => login(dispatch),
 		children: 'Login',
 		color: 'inherit',
 		...props,
