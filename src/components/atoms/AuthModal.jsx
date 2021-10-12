@@ -60,8 +60,9 @@ export const AuthModal = props => {
 		// };
 
 		// const url = 'http://localhost:3000/stepup/callback';
-		const url =
-			'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8';
+		const url = process.env.REACT_APP_STEP_UP_URL;
+		// 'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1lk8knsOyCCU8Y1d7/aln177a159h7Zf52X0g8';
+		// 'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8';
 
 		return setSrc(() => url);
 		// return oktaAuth.token
@@ -180,7 +181,7 @@ export const AuthModal = props => {
 						height='650'
 						frameBorder='0'
 						style={{ display: 'block', borderRadius: '4px' }}
-						// referrerPolicy='same-origin'
+						allow='publickey-credentials-get http://localhost https://expedia-oie.dannyfuhriman.com'
 					/>
 				)}
 			</DialogContent>
