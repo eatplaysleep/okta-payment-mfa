@@ -13,7 +13,13 @@ export const Profile = () => {
 			let profile = [];
 
 			for (const [key, value] of Object.entries(user)) {
-				profile.push({ key: key, value: value });
+				if (key === 'address') {
+					for (const [addressKey, addressValue] of Object.entries(value)) {
+						profile.push({ key: addressKey, value: addressValue });
+					}
+				} else {
+					profile.push({ key: key, value: value });
+				}
 			}
 
 			if (profile.length > 0) {

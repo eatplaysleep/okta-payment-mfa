@@ -171,7 +171,7 @@ export const useAuthActions = () => {
 				console.debug('session:', hasSession);
 
 				if (!hasSession) {
-					const loginHint = props?.loginHint;
+					const loginHint = props?.loginhint;
 
 					console.debug('loginHint:', loginHint);
 
@@ -181,7 +181,7 @@ export const useAuthActions = () => {
 
 					// return oktaAuth.token.getWithPopup();
 					return oktaAuth.signInWithRedirect({
-						loginHint: props?.loginHint,
+						loginHint: loginHint,
 					});
 				} else {
 					const { tokens } = await oktaAuth.token.getWithoutPrompt();
@@ -272,7 +272,7 @@ export const useAuthActions = () => {
 			}
 
 			dispatch({
-				type: 'SUCCESS',
+				type: 'STEP_UP_SUCCESS',
 				payload: { message, factorsAreLoading: false, isStale: false },
 			});
 

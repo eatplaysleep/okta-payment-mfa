@@ -17,7 +17,8 @@ export const sumItems = cartItems => {
 };
 
 export const CartReducer = (state, action) => {
-	switch (action.type) {
+	console.debug(action?.type);
+	switch (action?.type) {
 		case 'ADD_ITEM':
 			if (!state.cartItems.find(item => item.id === action.payload.id)) {
 				state.cartItems.push({
@@ -68,7 +69,7 @@ export const CartReducer = (state, action) => {
 				...sumItems(state.cartItems),
 				cartItems: [...state.cartItems],
 			};
-		case 'CHECKOUT':
+		case 'CHECKED_OUT':
 			return {
 				cartItems: [],
 				checkout: true,
@@ -79,6 +80,21 @@ export const CartReducer = (state, action) => {
 				cartItems: [],
 				...sumItems([]),
 			};
+		case 'NEXT_STEP':
+			if (state?.activeStep < state?.totalSteps) {
+				state = {
+					...state,
+					activeStep: state?.activeStep + 1,
+				};
+			}
+			return { ...state };
+		case 'PREVIOUS_STEP':
+			if (state?.activeStep !== 0) {
+				return {
+					...state,
+					activeStep: state?.activeStep < 1 ? 0 : state?.activeStep - 1,
+				};
+			}
 		default:
 			return state;
 	}

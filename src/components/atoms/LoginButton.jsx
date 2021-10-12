@@ -8,7 +8,7 @@ export const LoginButton = props => {
 	const { login } = useAuthActions();
 
 	props = {
-		onClick: () => login(dispatch),
+		onClick: () => login(dispatch, {...props}),
 		children: 'Login',
 		color: 'inherit',
 		...props,

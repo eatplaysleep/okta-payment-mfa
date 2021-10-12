@@ -12,9 +12,9 @@ import {
 	Toolbar,
 	Typography,
 } from '../atoms';
-import { Box, IconButton } from '@mui/material';
-import { AccountCircle } from '@mui/icons-material';
-import { LinkIconButton } from '../index';
+import { Box, Divider, IconButton } from '@mui/material';
+import { AccountCircle, LockOutlined } from '@mui/icons-material';
+import { CartIconButton, LinkIconButton } from '../index';
 import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
@@ -56,26 +56,25 @@ export const AppNavBar = () => {
 					</Typography>
 				</Link>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+					<CartIconButton />
 					{isAuthenticated && (
 						<Fragment>
+							<LogoutButton
+								isiconbutton='true'
+								sx={{ color: 'secondary.main' }}
+							/>
+						</Fragment>
+					)}
+					{!isAuthenticated && (
+						<Fragment>
 							<div>
-								<Button
-									onClick={() => dispatch({ type: 'STEP_UP_START' })}
-									// onClick={fido}
-									sx={{ color: 'inherit' }}
-								>
-									Step up
-								</Button>
+								<LoginButton loginhint='signup' children='Sign Up' />
 							</div>
 							<div>
-								<LogoutButton
-									isiconbutton='true'
-									sx={{ color: 'secondary.main' }}
-								/>
+								<LoginButton />
 							</div>
 						</Fragment>
 					)}
-					{!isAuthenticated && <LoginButton />}
 				</Box>
 			</Toolbar>
 		</AppBar>

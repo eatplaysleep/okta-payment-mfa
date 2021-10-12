@@ -1,7 +1,8 @@
 /** @format */
 
 import * as React from 'react';
-import { Button, Typography } from '../../atoms';
+import { Link } from 'react-router-dom';
+import { LinkButton, Typography } from '../../index';
 import { ProductHeroLayout } from './ProductHeroLayout';
 
 const backgroundImage =
@@ -33,16 +34,9 @@ export const ProductHero = () => {
 			>
 				Enjoy secret offers up to -70% off the best luxury hotels every Sunday.
 			</Typography>
-			<Button
-				color='secondary'
-				variant='contained'
-				size='large'
-				component='a'
-				sx={{ minWidth: 200 }}
-				href='/checkout'
-			>
+			<Link to='/store' component={LinkButton}>
 				Get Started
-			</Button>
+			</Link>
 			<Typography variant='body2' color='inherit' sx={{ mt: 2 }}>
 				Discover the experience
 			</Typography>

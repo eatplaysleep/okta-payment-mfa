@@ -2,31 +2,40 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
-import { TextField, Typography } from '../atoms';
+import { TextField, Typography } from '../index';
+import { useAuthState } from '../../providers';
 
 export const AddressForm = () => {
-	const [address, setAddress] = useState({
-		firstName: 'Sam',
-		lastName: 'Shopper',
-		address1: '123 Main St.',
-		city: 'Hollywood',
-		state: 'FL',
-		zip: '33004',
-		country: 'US',
-		checked: false,
-	});
+	const { user, isAuthenticated } = useAuthState();
+	const [address, setAddress] = useState();
 	// eslint-disable-next-line no-unused-vars
 	const [saveAddress, setSaveAddress] = useState(false);
 
-	useEffect(() => {
-		const storage = JSON.parse(localStorage.getItem('address'));
+	// useEffect(() => {
+	// 	const storage = JSON.parse(localStorage.getItem('address'));
 
-		if (storage) {
-			return setAddress(() => ({ ...address, ...storage }));
-		} else {
-			localStorage.setItem('address', JSON.stringify(address));
+	// 	if (storage) {
+	// 		return setAddress(() => ({ ...address, ...storage }));
+	// 	} else {
+	// 		localStorage.setItem('address', JSON.stringify(address));
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
+
+	useEffect(() => {
+		if (user && isAuthenticated) {
+			setAddress(() => ({
+				...address,
+				firstName: user?.given_name,
+				lastName: user?.family_name,
+				address1: user?.address?.street_address,
+				city: user?.address?.locality,
+				state: user?.address?.region,
+				zip: user?.address?.postal_code,
+				country: user?.address?.country_code ?? 'US',
+			}));
 		}
-	}, []);
+	}, [user, isAuthenticated]);
 
 	const handleChange = e => {
 		e.preventDefault();

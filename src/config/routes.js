@@ -1,6 +1,7 @@
 /** @format */
 import {
 	AppLoginCallback,
+	Cart,
 	Checkout,
 	Home,
 	Privacy,
@@ -12,6 +13,10 @@ import {
 } from '../components';
 
 export const routes = [
+	{
+		path: '/cart',
+		component: Cart,
+	},
 	{
 		path: '/checkout',
 		component: Checkout,

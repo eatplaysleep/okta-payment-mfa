@@ -4,7 +4,7 @@ export const Products = [
 	{
 		id: 1,
 		name: 'Buffalo - Striploin',
-		price: 39.11,
+		price: 29.11,
 		photo: '/static/images/store/1.jpg',
 	},
 	{

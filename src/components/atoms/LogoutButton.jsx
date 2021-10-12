@@ -25,9 +25,18 @@ export const LogoutButton = props => {
 		};
 
 		return (
-			<IconButton {...props}>
-				<Logout />
-			</IconButton>
+			<div
+				style={{
+					display: 'flex',
+					justifyContents: 'center',
+					alignItems: 'center',
+					width: '48px',
+				}}
+			>
+				<IconButton {...props}>
+					<Logout />
+				</IconButton>
+			</div>
 		);
 	} else return <Button {...props} />;
 };

@@ -28,6 +28,12 @@ export const AuthReducer = (state, action) => {
 			return {
 				...state,
 				...action?.payload,
+				isLoading: true,
+			};
+		case 'STEP_UP_MODAL_START':
+			return {
+				...state,
+				...action?.payload,
 				iFrameIsVisible: true,
 				authModalIsVisible: true,
 				isLoading: true,
@@ -63,7 +69,22 @@ export const AuthReducer = (state, action) => {
 				iFrameIsVisible: false,
 				authModalIsVisible: false,
 			};
+		case 'STEP_UP_REQUIRED_FIDO':
+			state = { ...state, fidoMFA: true };
+		case 'STEP_UP_REQUIRED':
+			return {
+				...state,
+				...action?.payload,
+				isLoading: false,
+				isStepUpRequired: true,
+			};
 		case 'STEP_UP_SUCCESS':
+			state = {
+				...state,
+				isStepUpRequired: false,
+				fidoMFA: false,
+				isLoading: false,
+			};
 		case 'GET_USER_SUCCESS':
 		case 'AUTHN_SUCCESS':
 		case 'SUCCESS':

@@ -2,13 +2,14 @@
 
 import { Fragment } from 'react';
 import { Box, Container, Grid } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks';
 import { CartItems } from './index';
-import { Button, Paper, Typography } from '../atoms';
+import { LinkButton, Paper, Typography } from '../index';
 import { formatNumber } from '../../helpers';
 
 export const Cart = () => {
-	const { total, cartItems, itemCount, handleCheckout } = useCart();
+	const { total, cartItems, itemCount } = useCart();
 
 	return (
 		<Container component='main' maxWidth='sm' sx={{ mb: 4 }}>
@@ -18,7 +19,7 @@ export const Cart = () => {
 			>
 				<Fragment>
 					<Typography variant='h6' gutterBottom>
-						Order summary
+						Shopping Cart
 					</Typography>
 					{cartItems?.length > 0 ? (
 						<CartItems />
@@ -57,14 +58,16 @@ export const Cart = () => {
 						</Grid>
 					</Grid>
 					<Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<Button
+						<Link
+							component={LinkButton}
 							variant='contained'
-							onClick={handleCheckout}
+							to='/checkout'
+							color='inherit'
 							sx={{ mt: 3, ml: 1 }}
 							disabled={itemCount < 1 ? true : false}
 						>
 							Checkout
-						</Button>
+						</Link>
 					</Box>
 				</Fragment>
 			</Paper>
