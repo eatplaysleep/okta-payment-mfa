@@ -24,5 +24,4 @@ export * from './Terms';
 export * from './TextField';
 export * from './Toolbar';
 export * from './Typography';
-export * from './WebAuthButton';
 export * from './WebAuthNButton';

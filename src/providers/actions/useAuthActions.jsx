@@ -30,8 +30,6 @@ const enrollWebAuthn = async data => {
 			},
 		};
 
-		console.log(JSON.stringify(publicKey, null, 2));
-
 		const enrollResp = await navigator.credentials.create({ publicKey });
 
 		const attestationBin = CryptoUtil.binToStr(
@@ -263,6 +261,7 @@ export const useAuthActions = () => {
 			switch (factorType) {
 				case 'webauthn':
 					result = await verifyWebAuthN(url, challenge);
+					break;
 				default:
 					break;
 			}
@@ -300,7 +299,7 @@ export const useAuthActions = () => {
 					type: 'SUCCESS',
 					payload: { factors, isStale: false, factorsAreLoading: false },
 				});
-			} else throw 'Missing userId!';
+			} else throw new Error('Missing userId!');
 		} catch (err) {
 			console.error(err);
 			return dispatch({ type: 'FETCH_ERROR', error: err });

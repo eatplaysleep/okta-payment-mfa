@@ -1,7 +1,6 @@
 /** @format */
 
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 // import { useOktaAuth } from '@okta/okta-react';
 import {
 	Avatar,
@@ -9,7 +8,6 @@ import {
 	CssBaseline,
 	CircularProgress,
 	Grid,
-	Link,
 	Paper,
 	TextField,
 	Typography,
@@ -18,7 +16,6 @@ import { LoadingButton } from '@mui/lab';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuthDispatch, useAuthState, useAuthActions } from '../../providers';
-import { LoadingOverlay } from '../index';
 
 const theme = createTheme();
 
@@ -59,16 +56,16 @@ export const SignInSide = () => {
 		setLogin({ ...userLogin, submit: { [id]: value } });
 	};
 
-	const handleSubmitSignIn = e => {
-		e.preventDefault();
+	// const handleSubmitSignIn = e => {
+	// 	e.preventDefault();
 
-		if (!userLogin) {
-			setLogin(null);
-		}
+	// 	if (!userLogin) {
+	// 		setLogin(null);
+	// 	}
 
-		setLogin(() => ({ ...userLogin }));
-		setSubmitLogin(() => true);
-	};
+	// 	setLogin(() => ({ ...userLogin }));
+	// 	setSubmitLogin(() => true);
+	// };
 
 	return (
 		<ThemeProvider theme={theme}>

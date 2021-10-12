@@ -31,6 +31,7 @@ export const FactorTable = () => {
 		if (user?.sub && (isStale || !factors)) {
 			return fetchFactors(dispatch, user.sub);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isStale]);
 
 	useEffect(() => {
@@ -59,6 +60,7 @@ export const FactorTable = () => {
 				dispatch({ type: 'REFRESH_FACTORS' })
 			);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleFactor, factorId]);
 
 	return (

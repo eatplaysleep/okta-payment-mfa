@@ -71,6 +71,7 @@ export const AuthReducer = (state, action) => {
 			};
 		case 'STEP_UP_REQUIRED_FIDO':
 			state = { ...state, fidoMFA: true };
+		// eslint-disable-next-line no-fallthrough
 		case 'STEP_UP_REQUIRED':
 			return {
 				...state,
@@ -85,6 +86,7 @@ export const AuthReducer = (state, action) => {
 				fidoMFA: false,
 				isLoading: false,
 			};
+		// eslint-disable-next-line no-fallthrough
 		case 'GET_USER_SUCCESS':
 		case 'AUTHN_SUCCESS':
 		case 'SUCCESS':

@@ -1,11 +1,11 @@
 /** @format */
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { InputLabel, NativeSelect } from '@mui/material';
 
 export const FactorList = props => {
 	const { onChange, factors } = props;
-
+	// eslint-disable-next-line no-unused-vars
 	const [selected, setSelected] = useState();
 
 	return (

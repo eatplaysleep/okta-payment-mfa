@@ -9,7 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 import { authConfig, routes } from './config';
 
-import { AppFooter, AppNavBar, StepUpLoginCallback } from './components';
+import { AppFooter, AppNavBar } from './components';
 import { AuthProvider, CartProvider, ProductsProvider } from './providers';
 import './App.css';
 import { Theme } from './theme';

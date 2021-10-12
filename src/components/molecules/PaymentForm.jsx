@@ -30,7 +30,7 @@ export const PaymentForm = () => {
 		} else {
 			localStorage.setItem('billing', JSON.stringify(billing));
 		}
-		// es-lint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleChange = e => {

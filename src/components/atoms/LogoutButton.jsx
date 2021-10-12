@@ -1,6 +1,5 @@
 /** @format */
 
-import { useOktaAuth } from '@okta/okta-react';
 import { IconButton } from '@mui/material';
 import { Logout } from '@mui/icons-material';
 import { Button } from './Button';

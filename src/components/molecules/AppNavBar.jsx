@@ -1,24 +1,21 @@
 /** @format */
 
-import { useOktaAuth } from '@okta/okta-react';
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import {
 	AppBar,
 	AuthModal,
-	Button,
 	LoginButton,
 	LogoutButton,
 	Toolbar,
 	Typography,
 } from '../atoms';
-import { Box, Divider, IconButton } from '@mui/material';
-import { AccountCircle, LockOutlined } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import { AccountCircle } from '@mui/icons-material';
 import { CartIconButton, LinkIconButton } from '../index';
-import { useAuthDispatch, useAuthState } from '../../providers';
+import { useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
-	const dispatch = useAuthDispatch();
 	const { authModalIsVisible, isAuthenticated, user } = useAuthState();
 
 	// useEffect(() => {

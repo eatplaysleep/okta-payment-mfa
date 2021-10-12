@@ -8,7 +8,7 @@ import { CartItems } from './index';
 import { formatNumber } from '../../helpers';
 
 export const ReviewOrder = () => {
-	const { total, cartItems, itemCount, handleCheckout } = useCart();
+	const { total, cartItems, itemCount } = useCart();
 	const [address, setAddress] = useState();
 	const [billing, setBilling] = useState();
 

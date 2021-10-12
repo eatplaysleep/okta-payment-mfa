@@ -1,21 +1,12 @@
 /** @format */
 
 import { Fragment, useEffect, useState } from 'react';
-import {
-	Box,
-	Container,
-	Divider,
-	Paper,
-	Stepper,
-	Step,
-	StepLabel,
-} from '@mui/material';
+import { Box, Container, Paper, Stepper, Step, StepLabel } from '@mui/material';
 import swal from 'sweetalert';
 import {
 	AddressForm,
 	Button,
 	Loader,
-	LoginButton,
 	PaymentForm,
 	ReviewOrder,
 	Typography,
@@ -33,7 +24,6 @@ function Checkout() {
 		factors,
 		fetchFactors,
 		fidoMFA,
-		isAuthenticated,
 		isLoading,
 		isStepUpRequired,
 		isStale,
@@ -62,6 +52,7 @@ function Checkout() {
 		if (user?.sub && (isStale || !factors)) {
 			return fetchFactors(dispatch, user?.sub);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isStale]);
 
 	useEffect(() => {
@@ -127,12 +118,14 @@ function Checkout() {
 				}
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeStep]);
 
 	useEffect(() => {
 		if (activeStep < 3 && total >= 30) {
 			dispatch({ type: 'STEP_UP_REQUIRED' });
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeStep]);
 
 	return (

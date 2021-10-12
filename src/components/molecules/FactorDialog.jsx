@@ -12,7 +12,7 @@ import { FactorList } from './index';
 import { useAuthState, useAuthDispatch } from '../../providers';
 
 export const FactorDialog = props => {
-	const { open, user, onClose, onChange } = props;
+	const { open, user, onClose } = props;
 	const dispatch = useAuthDispatch();
 	const { enrollMFA } = useAuthState();
 
@@ -38,6 +38,7 @@ export const FactorDialog = props => {
 				.then(resp => setAvailableFactors(() => resp))
 				.catch(err => console.error(err));
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [availableFactors]);
 
 	useEffect(() => {
@@ -49,6 +50,7 @@ export const FactorDialog = props => {
 				}
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [factor]);
 
 	return (

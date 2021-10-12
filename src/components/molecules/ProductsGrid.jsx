@@ -1,6 +1,6 @@
 /** @format */
 
-import { Container, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { ProductItem } from '../atoms';
 import { useProducts } from '../../hooks';
 

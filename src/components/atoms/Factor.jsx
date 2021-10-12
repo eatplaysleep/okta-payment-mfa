@@ -2,7 +2,7 @@
 
 import { IconButton, TableCell, TableRow } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import { Typography, WebAuthButton, WebAuthNButton } from './index';
+import { Typography, WebAuthNButton } from './index';
 
 export const Factor = ({ factor, onClick }) => {
 	// const { onClick, factorId, status, name, device, type } = props;
@@ -23,7 +23,6 @@ export const Factor = ({ factor, onClick }) => {
 						factor={{ factorId: factor.factorId, factorType: factor.type }}
 						user={factor?.userId}
 					/>
-					// <WebAuthButton />
 				)}
 			</TableCell>
 			<TableCell key={`remove-${factor?.factorId}`} align='right'>

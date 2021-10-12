@@ -13,8 +13,6 @@
  * @format
  */
 
-/* global Uint8Array */
-
 const fn = {};
 
 /**

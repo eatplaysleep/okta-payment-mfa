@@ -35,6 +35,7 @@ export const AddressForm = () => {
 				country: user?.address?.country_code ?? 'US',
 			}));
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user, isAuthenticated]);
 
 	const handleChange = e => {

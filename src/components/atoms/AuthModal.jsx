@@ -10,8 +10,8 @@ import { Loader } from './index';
 import { useAuthDispatch, useAuthState } from '../../providers';
 
 // const URL = process.env.REACT_APP_STEP_UP_URL;
-const PROMPT = 'login';
-const RESPONSE_MODE = 'okta_post_message';
+// const PROMPT = 'login';
+// const RESPONSE_MODE = 'okta_post_message';
 
 const CustomDialog = styled(Dialog)(({ theme }) => ({
 	'& .MuiPaper-root': {
@@ -38,11 +38,10 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 export const AuthModal = props => {
-	const { open, onClose } = props;
+	const { onClose } = props;
 	const dispatch = useAuthDispatch();
 	const { authModalIsVisible, isLoading, iFrameIsVisible } = useAuthState();
 
-	// const { oktaAuth } = useOktaAuth();
 	const [src, setSrc] = useState();
 
 	const onCancel = () => {
@@ -103,6 +102,7 @@ export const AuthModal = props => {
 					if (data?.result === 'success') {
 						return dispatch({ type: 'STEP_UP_STARTED' });
 					}
+					break;
 				case 'callback':
 					if (origin !== window.location.origin) {
 						return;
@@ -145,6 +145,7 @@ export const AuthModal = props => {
 		window.addEventListener('message', handler);
 
 		return () => window.removeEventListener('message', handler);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
@@ -174,6 +175,7 @@ export const AuthModal = props => {
 					<iframe
 						src={src}
 						name='step-up-auth'
+						title='Step Up Auth'
 						width='400'
 						height='650'
 						frameBorder='0'

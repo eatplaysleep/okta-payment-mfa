@@ -51,15 +51,6 @@ export const CartReducer = (state, action) => {
 				...sumItems(state.cartItems),
 				cartItems: [...state.cartItems],
 			};
-		case 'INCREASE':
-			state.cartItems[
-				state.cartItems.findIndex(item => item.id === action.payload.id)
-			].quantity++;
-			return {
-				...state,
-				...sumItems(state.cartItems),
-				cartItems: [...state.cartItems],
-			};
 		case 'DECREASE':
 			state.cartItems[
 				state.cartItems.findIndex(item => item.id === action.payload.id)
@@ -95,6 +86,7 @@ export const CartReducer = (state, action) => {
 					activeStep: state?.activeStep < 1 ? 0 : state?.activeStep - 1,
 				};
 			}
+			break;
 		default:
 			return state;
 	}
