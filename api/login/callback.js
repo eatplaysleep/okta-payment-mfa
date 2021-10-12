@@ -6,7 +6,8 @@ module.exports = (req, res) => {
 	console.debug(method);
 
 	if (method === 'POST') {
-		const url = `http://${req?.headers['x-vercel-deployment-url']}/stepup/callback#id_token=${req?.body.id_token}`;
+		// console.debug(req?.headers);
+		const url = `${req?.headers['x-forwarded-proto']}://${req?.headers['x-forwarded-host']}/stepup/callback#id_token=${req?.body.id_token}`;
 		return res.redirect(302, url);
 	}
 };
