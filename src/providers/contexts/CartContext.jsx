@@ -30,12 +30,12 @@ export const CartProvider = ({ children }) => {
 
 	const clearCart = () => dispatch({ type: 'CLEAR' });
 
+	const nextStep = () => dispatch({ type: 'NEXT_STEP' });
+
 	const handleCheckout = () => {
-		this.nextStep();
+		nextStep();
 		dispatch({ type: 'CHECKED_OUT' });
 	};
-
-	const nextStep = () => dispatch({ type: 'NEXT_STEP' });
 
 	const previousStep = () => dispatch({ type: 'PREVIOUS_STEP' });
 
