@@ -16,13 +16,21 @@ export const AuthReducer = (state, action) => {
 			return { ...state, factorsAreLoading: true };
 		case 'GET_USER':
 			return { ...state, profileIsLoading: true };
+		case 'STEP_UP_STARTED':
+			return {
+				...state,
+				...action?.payload,
+				iFrameIsVisible: true,
+				authModalIsVisible: true,
+				isLoading: false,
+			};
 		case 'STEP_UP_START':
 			return {
 				...state,
 				...action?.payload,
-				isLoading: false,
 				iFrameIsVisible: true,
 				authModalIsVisible: true,
+				isLoading: true,
 			};
 		case 'LOGIN_REDIRECT':
 		case 'LOGIN_WITH_CREDENTIALS':

@@ -156,6 +156,8 @@ export const useAuthActions = () => {
 					return;
 				} else {
 					await oktaAuth.handleLoginRedirect();
+
+					return getUser(oktaAuth, dispatch);
 				}
 			} else if (!authState?.isAuthenticated) {
 				console.debug('setting original uri...');

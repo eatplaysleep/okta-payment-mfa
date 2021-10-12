@@ -18,7 +18,7 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
 		padding: 0,
 		overflowY: 'unset',
 		margin: 0,
-		background: 'none',
+		background: 'white',
 	},
 	'& .MuiDialog-root': {
 		padding: 0,
@@ -98,42 +98,48 @@ export const AuthModal = props => {
 	useEffect(() => getUrl(), []);
 	useEffect(() => {
 		const handler = ({ origin, data }) => {
-			if (origin !== window.location.origin) {
-				return;
-			}
-
-			if (data?.type === 'callback') {
-				let options = {
-					title: 'Success!',
-					text: 'Thank you for completing our additional security verification.',
-					button: 'Continue',
-					icon: 'success',
-				};
-
-				onClose();
-
-				if (data?.result === 'success') {
-					dispatch({
-						type: 'STEP_UP_SUCCESS',
-						payload: { authModalIsVisible: false },
-					});
-				} else {
-					dispatch({
-						type: 'STEP_UP_ERROR',
-						payload: { authModalIsVisible: false },
-					});
-
-					options = {
-						...options,
-						title: 'Uh oh!',
-						text: 'Something went wrong. We are so sorry!',
-						button: 'Drats',
-						icon: 'error',
+			switch (data?.type) {
+				case 'onload':
+					if (data?.result === 'success') {
+						return dispatch({ type: 'STEP_UP_STARTED' });
+					}
+				case 'callback':
+					if (origin !== window.location.origin) {
+						return;
+					}
+					let options = {
+						title: 'Success!',
+						text: 'Thank you for completing our additional security verification.',
+						button: 'Continue',
+						icon: 'success',
 					};
-				}
 
-				return swal(options);
+					if (data?.result === 'success') {
+						dispatch({
+							type: 'STEP_UP_SUCCESS',
+							payload: { authModalIsVisible: false },
+						});
+					} else {
+						dispatch({
+							type: 'STEP_UP_ERROR',
+							payload: { authModalIsVisible: false },
+						});
+
+						options = {
+							...options,
+							title: 'Uh oh!',
+							text: 'Something went wrong. We are so sorry!',
+							button: 'Drats',
+							icon: 'error',
+						};
+					}
+
+					return swal(options);
+				default:
+					break;
 			}
+
+			// onClose();
 		};
 
 		window.addEventListener('message', handler);
@@ -162,7 +168,8 @@ export const AuthModal = props => {
 				</IconButton>
 			</DialogTitle>
 			<DialogContent sx={{ width: '400px', height: '650px' }}>
-				{!iFrameIsVisible && isLoading && <Loader />}
+				{isLoading && <Loader />}
+				{/* <Loader /> */}
 				{src && iFrameIsVisible && (
 					<iframe
 						src={src}

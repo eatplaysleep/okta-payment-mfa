@@ -1,7 +1,7 @@
 /** @format */
 
 import { useOktaAuth } from '@okta/okta-react';
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
 	AppBar,
@@ -20,6 +20,10 @@ import { useAuthDispatch, useAuthState } from '../../providers';
 export const AppNavBar = () => {
 	const dispatch = useAuthDispatch();
 	const { authModalIsVisible, isAuthenticated, user } = useAuthState();
+
+	// useEffect(() => {
+	// 	console.debug('isAuthenticated:', isAuthenticated);
+	// }, [isAuthenticated]);
 
 	return (
 		<AppBar>
@@ -52,22 +56,24 @@ export const AppNavBar = () => {
 					</Typography>
 				</Link>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-					<div>
-						<Button
-							onClick={() => dispatch({ type: 'STEP_UP_START' })}
-							// onClick={fido}
-							sx={{ color: 'inherit' }}
-						>
-							Step up
-						</Button>
-					</div>
 					{isAuthenticated && (
-						<div>
-							<LogoutButton
-								isiconbutton='true'
-								sx={{ color: 'secondary.main' }}
-							/>
-						</div>
+						<Fragment>
+							<div>
+								<Button
+									onClick={() => dispatch({ type: 'STEP_UP_START' })}
+									// onClick={fido}
+									sx={{ color: 'inherit' }}
+								>
+									Step up
+								</Button>
+							</div>
+							<div>
+								<LogoutButton
+									isiconbutton='true'
+									sx={{ color: 'secondary.main' }}
+								/>
+							</div>
+						</Fragment>
 					)}
 					{!isAuthenticated && <LoginButton />}
 				</Box>
