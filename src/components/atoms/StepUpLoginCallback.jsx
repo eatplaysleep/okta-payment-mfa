@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { Loader } from '.';
 import { useAuthState, useAuthDispatch } from '../../providers';
 
+const ORIGIN = process.env.REACT_APP_ORIGIN;
+
 export const StepUpLoginCallback = () => {
 	const { login } = useAuthState();
 	const dispatch = useAuthDispatch();
@@ -16,7 +18,7 @@ export const StepUpLoginCallback = () => {
 					type: 'callback',
 					result: 'success',
 				},
-				'http://localhost:3000'
+				ORIGIN
 			);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
