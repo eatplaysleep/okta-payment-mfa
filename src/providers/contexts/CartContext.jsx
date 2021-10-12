@@ -12,6 +12,8 @@ const storage = localStorage.getItem('cart')
 const initialState = {
 	cartItems: storage,
 	checkout: false,
+	activeStep: 0,
+	totalSteps: 3,
 	...sumItems(storage),
 };
 
@@ -28,7 +30,14 @@ export const CartProvider = ({ children }) => {
 
 	const clearCart = () => dispatch({ type: 'CLEAR' });
 
-	const handleCheckout = () => dispatch({ type: 'CHECKOUT' });
+	const handleCheckout = () => {
+		this.nextStep();
+		dispatch({ type: 'CHECKED_OUT' });
+	};
+
+	const nextStep = () => dispatch({ type: 'NEXT_STEP' });
+
+	const previousStep = () => dispatch({ type: 'PREVIOUS_STEP' });
 
 	const contextValues = {
 		removeProduct,
@@ -37,6 +46,8 @@ export const CartProvider = ({ children }) => {
 		decrease,
 		clearCart,
 		handleCheckout,
+		nextStep,
+		previousStep,
 		...state,
 	};
 
