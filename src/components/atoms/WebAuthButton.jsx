@@ -17,7 +17,7 @@ export const WebAuthButton = props => {
 
 	props = {
 		onClick: onClick,
-		children: 'Login',
+		children: 'Try it',
 		color: 'inherit',
 		...props,
 	};

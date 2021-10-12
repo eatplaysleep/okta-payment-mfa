@@ -6,6 +6,7 @@ import {
 	Privacy,
 	Profile,
 	SignInSide,
+	StepUpLoginCallback,
 	Store,
 	Terms,
 } from '../components';
@@ -18,6 +19,10 @@ export const routes = [
 	{
 		path: '/login/callback',
 		component: AppLoginCallback,
+	},
+	{
+		path: '/stepup/callback',
+		component: StepUpLoginCallback,
 	},
 	{
 		path: '/login',

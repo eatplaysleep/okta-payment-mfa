@@ -9,10 +9,12 @@ import {
 	DialogContent,
 } from '@mui/material';
 import { FactorList } from './index';
-import CryptoUtil from '../../utils/cryptoUtil';
+import { useAuthState, useAuthDispatch } from '../../providers';
 
 export const FactorDialog = props => {
 	const { open, user, onClose, onChange } = props;
+	const dispatch = useAuthDispatch();
+	const { enrollMFA } = useAuthState();
 
 	const [availableFactors, setAvailableFactors] = useState();
 	const [factor, enrollFactor] = useState();
@@ -39,91 +41,13 @@ export const FactorDialog = props => {
 	}, [availableFactors]);
 
 	useEffect(() => {
-		const enrollWebAuthN = () => {
-			const url = `${window.location.origin}/api/${user}/factors`;
-
-			const request = {
-				factorType: 'webauthn',
-				provider: 'FIDO',
-			};
-
-			const options = {
-				method: 'post',
-				body: JSON.stringify(request),
-			};
-
-			return fetch(url, options)
-				.then(resp => {
-					if (resp.ok) {
-						return resp.json();
-					}
-				})
-				.then(resp => {
-					const _embedded = resp?._embedded?.activation,
-						user = _embedded?.user,
-						factorId = resp?.id,
-						challenge = _embedded?.challenge,
-						rp = _embedded?.rp,
-						attestation = _embedded?.attestation,
-						pubKeyCredParams = _embedded?.pubKeyCredParams;
-
-					let publicKey = {
-						status: resp?.status,
-						challenge: CryptoUtil.strToBin(challenge),
-						rp: rp,
-						user: {
-							...user,
-							id: CryptoUtil.strToBin(user.id),
-						},
-						attestation: attestation,
-						pubKeyCredParams: pubKeyCredParams,
-						authenticatorSelection: {
-							authenticatorAttachment: 'platform',
-						},
-					};
-
-					console.log(JSON.stringify(publicKey, null, 2));
-
-					navigator.credentials
-						.create({ publicKey })
-						.then(resp => {
-							const attestation = CryptoUtil.binToStr(
-									resp?.response?.attestationObject
-								),
-								clientData = CryptoUtil.binToStr(
-									resp?.response?.clientDataJSON
-								),
-								requestData = {
-									attestation: attestation,
-									clientData: clientData,
-								},
-								url = `${window.location.origin}/api/${user?.id}/factors/${factorId}/activate`,
-								options = {
-									method: 'post',
-									body: JSON.stringify(requestData),
-								};
-
-							return fetch(url, options)
-								.then(resp => {
-									if (resp.ok) {
-										return resp.json();
-									}
-								})
-								.then(() => onClose())
-								.catch(err => console.error(err));
-						})
-						.catch(err => console.error(err));
-				})
-				.catch(err => console.error(err));
-		};
-
 		if (factor) {
-			switch (factor) {
-				case 'webauthn':
-					enrollFactor(() => undefined);
-				default:
-					return;
-			}
+			return enrollMFA(dispatch, user, factor).then(resp => {
+				if (resp) {
+					dispatch({ type: 'REFRESH_FACTORS' });
+					return onClose();
+				}
+			});
 		}
 	}, [factor]);
 

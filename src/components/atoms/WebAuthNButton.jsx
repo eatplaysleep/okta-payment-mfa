@@ -1,78 +1,34 @@
 /** @format */
-
-import { useEffect, useState } from 'react';
+import swal from 'sweetalert';
 import { Button } from './index';
-import CryptoUtil from '../../utils/cryptoUtil';
+import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const WebAuthNButton = props => {
+	const dispatch = useAuthDispatch();
+	const { issueMFA } = useAuthState();
 	const { factor, user } = props;
 
-	const url = `${window.location.origin}/api/${user}/factors/${factor}/verify`;
+	const onClick = () =>
+		issueMFA(dispatch, user, factor).then(resp => {
+			let options = {
+				title: 'Success!',
+				text: 'Thank you for completing our additional security verification.',
+				button: 'Continue',
+				icon: 'success',
+			};
 
-	const onClick = () => {
-		return fetch(url)
-			.then(resp => {
-				if (resp.ok) {
-					return resp.json();
-				}
-			})
-			.then(resp => {
-				const allowCredentials = [
-					{
-						id: CryptoUtil.strToBin(resp?.profile?.credentialId),
-						type: 'public-key',
-						transports: ['internal'],
-					},
-				];
-
-				resp._embedded.challenge.challenge = CryptoUtil.strToBin(
-					resp?._embedded?.challenge?.challenge
-				);
-
-				const publicKey = {
-					...resp?._embedded.challenge,
-					allowCredentials: allowCredentials,
-					userVerification: 'required',
+			if (!resp) {
+				options = {
+					...options,
+					title: 'Uh oh!',
+					text: 'Something went wrong. We are so sorry!',
+					button: 'Drats',
+					icon: 'error',
 				};
+			}
 
-				return navigator.credentials
-					.get({ publicKey: publicKey })
-					.then(assertion => {
-						const request = {
-							method: 'post',
-							body: JSON.stringify({
-								authenticatorData: CryptoUtil.binToStr(
-									assertion?.response?.authenticatorData
-								),
-								clientData: CryptoUtil.binToStr(
-									assertion?.response?.clientDataJSON
-								),
-								signatureData: CryptoUtil.binToStr(
-									assertion?.response?.signature
-								),
-							}),
-						};
+			return swal(options);
+		});
 
-						return fetch(url, request)
-							.then(resp => {
-								if (resp.ok) {
-									return resp.json();
-								}
-							})
-							.then(resp => {
-								console.info('success');
-								let result = 'Something went wrong';
-
-								if (resp?.factorResult === 'SUCCESS') {
-									result = 'Successfully authenticated!';
-								}
-								return window.alert(result);
-							})
-							.catch(err => console.error(err));
-					});
-			})
-			.catch(err => console.error(err));
-	};
-
-	return <Button onClick={onClick}>Authenticate</Button>;
+	return <Button onClick={onClick}>Try me</Button>;
 };

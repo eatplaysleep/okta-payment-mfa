@@ -7,6 +7,7 @@ export * from './Cart';
 export * from './CartItems';
 export * from './FactorDialog';
 export * from './FactorList';
+export * from './FactorTable';
 export * from './PaymentForm';
 export * from './ProductCategories';
 export * from './ProductCTA';

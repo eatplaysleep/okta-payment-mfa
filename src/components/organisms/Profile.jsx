@@ -1,34 +1,12 @@
 /** @format */
 import { Fragment, useEffect, useState } from 'react';
-import {
-	Container,
-	Grid,
-	// CircularProgress,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Table,
-} from '@mui/material';
-import { Button, Factor, FactorDialog, Paper, Typography } from '../index';
+import { Container, Grid } from '@mui/material';
+import { FactorTable, Loader, Paper, Typography } from '../index';
 import { useAuthState } from '../../providers';
 
 export const Profile = () => {
-	const { user } = useAuthState();
+	const { user, profileIsLoading } = useAuthState();
 	const [profile, setProfile] = useState();
-	const [factors, setFactors] = useState();
-	const [isStale, fetchFactors] = useState(true);
-	const [dialogIsOpen, openDialog] = useState(false);
-	const [handleFactor, removeFactor] = useState(false);
-	const [factorId, setFactorId] = useState();
-
-	const handleDialog = () => openDialog(() => !dialogIsOpen);
-
-	const handleRemoveFactor = factorId => {
-		setFactorId(() => factorId);
-		removeFactor(() => true);
-	};
 
 	useEffect(() => {
 		const buildProfile = () => {
@@ -58,69 +36,6 @@ export const Profile = () => {
 		}
 	}, [user]);
 
-	useEffect(() => {
-		const renderFactors = data => {
-			const list = [];
-			data.forEach(factor =>
-				list.push(
-					<Factor
-						key={factor.factorId}
-						child={factor}
-						onClick={handleRemoveFactor}
-					/>
-				)
-			);
-
-			if (list) {
-				return setFactors(() => list);
-			}
-		};
-
-		if (isStale) {
-			if (user?.sub) {
-				let url = `${window.location.origin}/api/${user.sub}/factors`;
-
-				return fetch(url)
-					.then(resp => {
-						if (resp.ok) {
-							return resp.json();
-						}
-					})
-					.then(resp => renderFactors(resp))
-					.then(() => fetchFactors(() => false))
-					.catch(err => console.error(err));
-			}
-		}
-	}, [isStale, user]);
-
-	useEffect(() => {
-		const deleteFactor = factorId => {
-			const url = `${window.location.origin}/api/${user?.sub}/factors/${factorId}`;
-			const options = {
-				method: 'DELETE',
-			};
-
-			fetch(url, options)
-				.then(resp => {
-					if (resp.ok) {
-						console.log(JSON.stringify(resp, null, 2));
-						return resp.json();
-					}
-				})
-				.then(resp => setFactors(() => resp))
-				.then(() => setFactorId(() => undefined))
-				.catch(err => console.error(err));
-		};
-
-		if (factorId && handleFactor) {
-			console.log('deleting factor...');
-			removeFactor(() => false);
-
-			deleteFactor(factorId);
-			fetchFactors(() => true);
-		}
-	}, [handleFactor, factorId, user]);
-
 	return (
 		<Fragment>
 			<Container component='section' sx={{ mt: 8, mb: 4 }}>
@@ -135,8 +50,16 @@ export const Profile = () => {
 						<Typography variant='h5' gutterBottom sx={{ mt: 2 }}>
 							ATTRIBUTES
 						</Typography>
-						<Grid container spacing={2} sx={{ justifyContent: 'flex-start' }}>
-							{/* {isLoading && <CircularProgress />} */}
+						<Grid
+							container
+							spacing={2}
+							sx={{
+								justifyContent: 'flex-start',
+								position: 'relative',
+								minHeight: '200px',
+							}}
+						>
+							{profileIsLoading && <Loader />}
 							{profile}
 						</Grid>
 					</Fragment>
@@ -145,41 +68,18 @@ export const Profile = () => {
 			<Container component='section' sx={{ mt: 8, mb: 4 }}>
 				<Paper
 					variant='outlined'
-					sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
+					sx={{ marginY: { xs: 3, md: 6 }, padding: { xs: 2, md: 3 } }}
 				>
-					<Fragment>
-						<Typography variant='h5' gutterBottom sx={{ mt: 2 }}>
-							FACTORS
-						</Typography>
-						<TableContainer>
-							<Table stickyHeader>
-								<TableHead>
-									<TableRow>
-										<TableCell key='type'>
-											<Typography variant='h6'>Type</Typography>
-										</TableCell>
-										<TableCell key='status'>
-											<Typography variant='h6'>Status</Typography>
-										</TableCell>
-										<TableCell key='remove' />
-									</TableRow>
-								</TableHead>
-								<TableBody>{factors}</TableBody>
-							</Table>
-						</TableContainer>
-						<div>
-							<Button onClick={handleDialog}>Add Factor</Button>
-						</div>
-					</Fragment>
+					<FactorTable />
 				</Paper>
 			</Container>
-			{user && (
+			{/* {user && (
 				<FactorDialog
 					open={dialogIsOpen}
 					onClose={handleDialog}
 					user={user?.sub}
 				/>
-			)}
+			)} */}
 		</Fragment>
 	);
 };

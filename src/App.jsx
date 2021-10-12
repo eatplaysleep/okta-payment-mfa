@@ -1,15 +1,15 @@
 /** @format */
 
 import React from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security, SecureRoute, LoginCallback } from '@okta/okta-react';
+import { Security, SecureRoute } from '@okta/okta-react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { authConfig, routes } from './config';
 
-import { AppFooter, AppNavBar } from './components/molecules';
+import { AppFooter, AppNavBar, StepUpLoginCallback } from './components';
 import { AuthProvider, CartProvider, ProductsProvider } from './providers';
 import './App.css';
 import { Theme } from './theme';
@@ -19,6 +19,7 @@ const oktaAuth = new OktaAuth(authConfig.oidc);
 oktaAuth.start();
 
 const App = () => {
+	const isStepUp = useRouteMatch('/stepup/callback');
 	const history = useHistory();
 	const restoreOriginalUri = async (_oktaAuth, originalUri) =>
 		history.replace(toRelativeUrl(originalUri || '/', window.location.origin));
@@ -37,7 +38,7 @@ const App = () => {
 				<AuthProvider>
 					<ProductsProvider>
 						<CartProvider>
-							<AppNavBar />
+							{!isStepUp && <AppNavBar />}
 							<div>
 								<Switch>
 									{routes.map(route => {
@@ -61,17 +62,9 @@ const App = () => {
 											);
 										}
 									})}
-									{/* <Route path='/checkout' component={Checkout}/>
-								<Route path='/store' component={Store} />
-								<Route path='/login/callback' component={AppLoginCallback} />
-								<Route path='/signin' component={SignInSide} />
-								<Route path='/privacy' component={Privacy} />
-								<Route path='/me' component={Profile} />
-								<Route path='/terms' component={Terms} />
-								<Route path='*' component={Home} /> */}
 								</Switch>
 							</div>
-							<AppFooter />
+							{!isStepUp && <AppFooter />}
 						</CartProvider>
 					</ProductsProvider>
 				</AuthProvider>

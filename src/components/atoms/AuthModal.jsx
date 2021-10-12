@@ -1,17 +1,13 @@
 /** @format */
 
-import { useOktaAuth } from '@okta/okta-react';
+// import { useOktaAuth } from '@okta/okta-react';
 import { useEffect, useState } from 'react';
-import {
-	Box,
-	IconButton,
-	Dialog,
-	DialogContent,
-	DialogTitle,
-} from '@mui/material';
+import { IconButton, Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-// import { URL } from 'url';
+import swal from 'sweetalert';
+import { Loader } from './index';
+import { useAuthDispatch, useAuthState } from '../../providers';
 
 // const URL = process.env.REACT_APP_STEP_UP_URL;
 const PROMPT = 'login';
@@ -42,25 +38,33 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 export const AuthModal = props => {
-	const { open, onClose, loginhint } = props;
+	const { open, onClose } = props;
+	const dispatch = useAuthDispatch();
+	const { authModalIsVisible, isLoading, iFrameIsVisible } = useAuthState();
 
-	const { authClient, oktaAuth } = useOktaAuth();
+	// const { oktaAuth } = useOktaAuth();
 	const [src, setSrc] = useState();
 
+	const onCancel = () => {
+		dispatch({ type: 'STEP_UP_CANCEL' });
+		return onClose();
+	};
+
 	const getUrl = () => {
-		let tokenParams;
+		// let tokenParams;
 
-		const currentConfig = oktaAuth.options;
-		const newConfig = {
-			// clientId: '0oa120ptzojjj3hj50h8',
-			clientId: '0oa1kn96tkmBaXZPN1d7',
-			responseMode: 'okta_post_message',
-		};
+		// const currentConfig = oktaAuth.options;
+		// const newConfig = {
+		// clientId: '0oa120ptzojjj3hj50h8',
+		// clientId: '0oa1kn96tkmBaXZPN1d7',
+		// responseMode: 'okta_post_message',
+		// };
 
-		return setSrc(
-			() =>
-				'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8'
-		);
+		// const url = 'http://localhost:3000/stepup/callback';
+		const url =
+			'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8';
+
+		return setSrc(() => url);
 		// return oktaAuth.token
 		// 	.prepareTokenParams()
 		// 	.then(resp => {
@@ -93,10 +97,43 @@ export const AuthModal = props => {
 
 	useEffect(() => getUrl(), []);
 	useEffect(() => {
-		const handler = e => {
-			// console.log('event:', JSON.stringify(e?.data, null, 2));
-			// const data = JSON.parse(e?.data);
-			// console.log('post data:', data);
+		const handler = ({ origin, data }) => {
+			if (origin !== window.location.origin) {
+				return;
+			}
+
+			if (data?.type === 'callback') {
+				let options = {
+					title: 'Success!',
+					text: 'Thank you for completing our additional security verification.',
+					button: 'Continue',
+					icon: 'success',
+				};
+
+				onClose();
+
+				if (data?.result === 'success') {
+					dispatch({
+						type: 'STEP_UP_SUCCESS',
+						payload: { authModalIsVisible: false },
+					});
+				} else {
+					dispatch({
+						type: 'STEP_UP_ERROR',
+						payload: { authModalIsVisible: false },
+					});
+
+					options = {
+						...options,
+						title: 'Uh oh!',
+						text: 'Something went wrong. We are so sorry!',
+						button: 'Drats',
+						icon: 'error',
+					};
+				}
+
+				return swal(options);
+			}
 		};
 
 		window.addEventListener('message', handler);
@@ -105,12 +142,12 @@ export const AuthModal = props => {
 	}, []);
 
 	return (
-		<CustomDialog open={open} onClose={onClose}>
+		<CustomDialog open={authModalIsVisible} onClose={onClose}>
 			<DialogTitle>
 				<IconButton
 					edge='end'
 					size='small'
-					onClick={onClose}
+					onClick={onCancel}
 					sx={{
 						color: 'white',
 						position: 'absolute',
@@ -124,27 +161,11 @@ export const AuthModal = props => {
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
-			<DialogContent>
-				{src && (
+			<DialogContent sx={{ width: '400px', height: '650px' }}>
+				{!iFrameIsVisible && isLoading && <Loader />}
+				{src && iFrameIsVisible && (
 					<iframe
 						src={src}
-						// srcDoc={`
-						// <!DOCTYPE html>
-						// <html>
-						// 	<script>
-						// 		window.top.postMessage(
-						// 			JSON.stringify({
-						// 				error: false,
-						// 				message: "Hello world!"
-						// 			}),
-						// 			'*'
-						// 		);
-						// 	</script>
-						// 	<body>
-						// 			<h1>Stuff in an iFrame!</h1>
-						// 	</body>
-						// </html>
-						// `}
 						name='step-up-auth'
 						width='400'
 						height='650'

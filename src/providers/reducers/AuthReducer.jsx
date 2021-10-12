@@ -6,23 +6,79 @@ export const initialState = {
 };
 
 export const AuthReducer = (state, action) => {
-	console.info(JSON.stringify(action, null, 2));
+	console.debug('======= current state =======');
+	console.debug(JSON.stringify(state, null, 2));
+	console.debug('=======    action     =======');
+	console.debug(JSON.stringify(action, null, 2));
 	switch (action.type) {
+		case 'GET_FACTORS':
+		case 'REMOVE_FACTOR':
+			return { ...state, factorsAreLoading: true };
 		case 'GET_USER':
-		case 'LOGIN_REDIRECT':
-		case 'LOGIN_WITH_CREDENTIALS':
-		case 'LOGIN':
-			return { ...state, isLoading: true };
-		// case 'INITIALIZE':
-		// return { ...state, ...action?.payload, isLoading: true };
-		case 'SUCCESS':
+			return { ...state, profileIsLoading: true };
+		case 'STEP_UP_START':
 			return {
 				...state,
 				...action?.payload,
 				isLoading: false,
+				iFrameIsVisible: true,
+				authModalIsVisible: true,
 			};
+		case 'LOGIN_REDIRECT':
+		case 'LOGIN_WITH_CREDENTIALS':
+		case 'LOGIN':
+			return { ...state, ...action?.payload, isLoading: true };
+		// case 'INITIALIZE':
+		// return { ...state, ...action?.payload, isLoading: true };
+		case 'REFRESH_FACTORS':
+			let resp = {
+				...state,
+				...action?.payload,
+				factorsAreLoading: true,
+				isStale: true,
+			};
+			console.debug(JSON.stringify(resp, null, 2));
+			return resp;
+		case 'MFA_ENROLL_SUCCESS':
+			return {
+				...state,
+				...action?.payload,
+				isLoading: false,
+				isStale: true,
+			};
+		case 'STEP_UP_COMPLETE':
+			return {
+				...state,
+				isStale: false,
+				...action?.payload,
+				isLoading: true,
+				iFrameIsVisible: false,
+				authModalIsVisible: false,
+			};
+		case 'STEP_UP_SUCCESS':
+		case 'GET_USER_SUCCESS':
+		case 'AUTHN_SUCCESS':
+		case 'SUCCESS':
+			return {
+				...state,
+				isStale: true,
+				...action?.payload,
+				isLoading: false,
+			};
+		case 'STEP_UP_CANCEL':
+			return {
+				...state,
+				...action?.payload,
+				isLoading: false,
+				authModalIsVisible: false,
+			};
+		case 'LOGOUT_SUCCESS':
+			return { ...state, ...action?.payload, isLoading: false };
 		case 'LOGOUT':
-			return { ...state, isLoading: false };
+			return { ...state, ...action?.payload, isLoading: true };
+		case 'MFA_ERROR':
+		case 'STEP_UP_ERROR':
+		case 'FETCH_ERROR':
 		case 'LOGIN_ERROR':
 			return { ...state, errorMessage: action?.error };
 		default:

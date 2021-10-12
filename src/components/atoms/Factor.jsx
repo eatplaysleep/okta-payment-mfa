@@ -4,26 +4,29 @@ import { IconButton, TableCell, TableRow } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { Typography, WebAuthButton, WebAuthNButton } from './index';
 
-export const Factor = props => {
-	const { onClick, child } = props;
+export const Factor = ({ factor, onClick }) => {
+	// const { onClick, factorId, status, name, device, type } = props;
 
-	const removeFactor = () => onClick(child.factorId);
+	const removeFactor = () => onClick(factor?.factorId);
 
 	return (
-		<TableRow hover tabIndex={-1} key={child.factorId}>
-			<TableCell key={`${child.name}-${child.factorId}`} align='left'>
-				<Typography>{child?.device?.type ?? child.name}</Typography>
+		<TableRow hover tabIndex={-1} key={factor?.factorId}>
+			<TableCell key={`${factor?.name}-${factor?.factorId}`} align='left'>
+				<Typography>{factor?.device?.type ?? factor?.name}</Typography>
 			</TableCell>
-			<TableCell key={`${child.status}-${child.factorId}`} align='left'>
-				<Typography>{child.status}</Typography>
+			<TableCell key={`${factor?.status}-${factor?.factorId}`} align='left'>
+				<Typography>{factor?.status}</Typography>
 			</TableCell>
-			<TableCell key={`auth-${child.factorId}`} align='center'>
-				{child?.type === 'webauthn' && (
-					// <WebAuthNButton factor={child.factorId} user={child?.userId} />
-					<WebAuthButton />
+			<TableCell key={`auth-${factor?.factorId}`} align='center'>
+				{factor?.type === 'webauthn' && (
+					<WebAuthNButton
+						factor={{ factorId: factor.factorId, factorType: factor.type }}
+						user={factor?.userId}
+					/>
+					// <WebAuthButton />
 				)}
 			</TableCell>
-			<TableCell key={`remove-${child.factorId}`} align='right'>
+			<TableCell key={`remove-${factor?.factorId}`} align='right'>
 				<IconButton
 					edge='end'
 					size='small'

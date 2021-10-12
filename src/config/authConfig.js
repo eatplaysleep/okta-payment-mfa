@@ -7,7 +7,9 @@ const SCOPES = process.env.REACT_APP_OKTA_SCOPES;
 // const SCOPES = 'openid profile email';
 const CLIENT_ID = process.env.REACT_APP_OKTA_CLIENT_ID;
 // const CLIENT_ID = '0oa120pjs4hOYsSJx0h8';
-const ISSUER = process.env.REACT_APP_OKTA_ISSUER;
+const AUTH_SERVER_ID = process.env.REACT_APP_OKTA_AUTH_SERVER_ID;
+const OKTA_URL = process.env.REACT_APP_OKTA_URL;
+const ISSUER = `${OKTA_URL}/oauth2/${AUTH_SERVER_ID}`;
 // const ISSUER = 'https://expedia.dannyfuhriman.com/oauth2/default';
 // const ISSUER = 'https://udp-expedia-oie.oktapreview.com/oauth2/aus1gb3zbtlqNoCUK1d7';
 

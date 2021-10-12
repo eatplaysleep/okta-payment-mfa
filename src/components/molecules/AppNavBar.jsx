@@ -2,52 +2,46 @@
 
 import { useOktaAuth } from '@okta/okta-react';
 import React, { useState, useEffect } from 'react';
-
+import { Link } from 'react-router-dom';
 import {
 	AppBar,
 	AuthModal,
 	Button,
-	// LoadingOverlay,
 	LoginButton,
 	LogoutButton,
 	Toolbar,
 	Typography,
 } from '../atoms';
-import { Box, IconButton, Link } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import { useAuthState } from '../../providers';
+import { LinkIconButton } from '../index';
+import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
-	const { isAuthenticated, user } = useAuthState();
-	const [modalIsOpen, openModal] = useState();
+	const dispatch = useAuthDispatch();
+	const { authModalIsVisible, isAuthenticated, user } = useAuthState();
 
 	return (
 		<AppBar>
-			{/* <AuthModal
-				loginhint='danny@atko.email'
-				open={modalIsOpen}
-				onClose={() => openModal(() => false)}
-			/> */}
+			<AuthModal
+				loginhint={user?.login}
+				open={authModalIsVisible}
+				onClose={() => {}}
+			/>
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
 					{isAuthenticated && (
 						<div>
-							<IconButton
-								size='large'
-								aria-label='profile'
-								aria-controls='menu-appbar'
-								color='inherit'
-								href='/me'
-							>
+							<Link to='/me' component={LinkIconButton}>
 								<AccountCircle />
 								<Typography variant='subtitle1'>
 									&nbsp;&nbsp;{user?.name}
 								</Typography>
-							</IconButton>
+							</Link>
 						</div>
 					)}
 				</Box>
-				<Link href='/'>
+				<Link to='/' style={{ textDecoration: 'none' }}>
 					<Typography
 						variant='h6'
 						component='div'
@@ -60,7 +54,7 @@ export const AppNavBar = () => {
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
 					<div>
 						<Button
-							onClick={() => openModal(() => true)}
+							onClick={() => dispatch({ type: 'STEP_UP_START' })}
 							// onClick={fido}
 							sx={{ color: 'inherit' }}
 						>
