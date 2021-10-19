@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Box, Button, Container } from '@mui/material';
-import { Typography } from '../atoms';
+import { Typography } from '../../components';
 
 export const ProductSmokingHero = () => {
 	return (

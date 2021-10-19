@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Box, Container, Grid, Link } from '@mui/material';
-import { Copyright, TextField, Typography } from '../atoms';
+import { Copyright, TextField, Typography } from '../../components';
 
 const iconStyle = {
 	width: 48,

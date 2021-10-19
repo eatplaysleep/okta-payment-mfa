@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
-import { TextField, Typography } from '../index';
+import { TextField, Typography } from '../../components';
 import { useAuthState } from '../../providers';
 
 export const AddressForm = () => {

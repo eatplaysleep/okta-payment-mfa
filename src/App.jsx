@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { Security, SecureRoute } from '@okta/okta-react';
@@ -30,45 +30,47 @@ const App = () => {
 	return (
 		<ThemeProvider theme={Theme}>
 			<CssBaseline />
-			<Security
-				oktaAuth={oktaAuth}
-				restoreOriginalUri={restoreOriginalUri}
-				onAuthRequired={customAuthHandler}
-			>
-				<AuthProvider>
-					<ProductsProvider>
-						<CartProvider>
-							{!isStepUp && <AppNavBar />}
-							<div>
-								<Switch>
-									{routes.map(route => {
-										if (route?.isSecure) {
-											return (
-												<SecureRoute
-													key={route.path}
-													path={route.path}
-													exact={route?.exact ?? false}
-													component={route.component}
-												/>
-											);
-										} else {
-											return (
-												<Route
-													key={route.path}
-													path={route.path}
-													exact={route?.isExact ?? false}
-													component={route.component}
-												/>
-											);
-										}
-									})}
-								</Switch>
-							</div>
-							{!isStepUp && <AppFooter />}
-						</CartProvider>
-					</ProductsProvider>
-				</AuthProvider>
-			</Security>
+			<Suspense fallback={<div>Loading...</div>}>
+				<Security
+					oktaAuth={oktaAuth}
+					restoreOriginalUri={restoreOriginalUri}
+					onAuthRequired={customAuthHandler}
+				>
+					<AuthProvider>
+						<ProductsProvider>
+							<CartProvider>
+								{!isStepUp && <AppNavBar />}
+								<div>
+									<Switch>
+										{routes.map(route => {
+											if (route?.isSecure) {
+												return (
+													<SecureRoute
+														key={route.path}
+														path={route.path}
+														exact={route?.exact ?? false}
+														component={route.component}
+													/>
+												);
+											} else {
+												return (
+													<Route
+														key={route.path}
+														path={route.path}
+														exact={route?.isExact ?? false}
+														component={route.component}
+													/>
+												);
+											}
+										})}
+									</Switch>
+								</div>
+								{!isStepUp && <AppFooter />}
+							</CartProvider>
+						</ProductsProvider>
+					</AuthProvider>
+				</Security>
+			</Suspense>
 		</ThemeProvider>
 	);
 };

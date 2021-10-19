@@ -4,7 +4,7 @@ import { useCart } from '../../hooks';
 import { Box, IconButton, ListItem, ListItemText } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-import { Typography } from './index';
+import { Typography } from '../../components';
 
 export const CartItem = ({ product }) => {
 	const { removeProduct } = useCart();

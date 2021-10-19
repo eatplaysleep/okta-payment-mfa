@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge, IconButton } from '@mui/material';
 import { ShoppingBag } from '@mui/icons-material';
-import { useCart } from '../../hooks';
+import { useCart } from '../../../hooks';
 
 const LinkIconButton = forwardRef((props, ref) => {
 	const { children } = props;

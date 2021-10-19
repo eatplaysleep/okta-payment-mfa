@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { LinkButton, Typography } from '../../index';
+import { LinkButton, Typography } from '../../../components';
 import { ProductHeroLayout } from './ProductHeroLayout';
 
 const backgroundImage =

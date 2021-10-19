@@ -8,7 +8,7 @@ import {
 	DialogTitle,
 	DialogContent,
 } from '@mui/material';
-import { FactorList } from './index';
+import { FactorList } from '../../components';
 import { useAuthState, useAuthDispatch } from '../../providers';
 
 export const FactorDialog = props => {

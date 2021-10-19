@@ -1,7 +1,7 @@
 /** @format */
 
 import { Grid } from '@mui/material';
-import { ProductItem } from '../atoms';
+import { ProductItem } from '../../components';
 import { useProducts } from '../../hooks';
 
 export const ProductsGrid = () => {

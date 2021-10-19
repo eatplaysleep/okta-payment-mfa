@@ -1,6 +1,6 @@
 /** @format */
 
-import { CartItem } from '../atoms';
+import { CartItem } from '../../components';
 import { useCart } from '../../hooks';
 import { List } from '@mui/material';
 

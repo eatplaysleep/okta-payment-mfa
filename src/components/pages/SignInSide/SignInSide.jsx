@@ -15,7 +15,11 @@ import {
 import { LoadingButton } from '@mui/lab';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useAuthDispatch, useAuthState, useAuthActions } from '../../providers';
+import {
+	useAuthDispatch,
+	useAuthState,
+	useAuthActions,
+} from '../../../providers';
 
 const theme = createTheme();
 

@@ -1,6 +1,6 @@
 /** @format */
 import { forwardRef } from 'react';
-import { Button } from '../index';
+import { Button } from '../../../components';
 
 export const LinkButton = forwardRef((props, ref) => {
 	const { children } = props;

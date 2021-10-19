@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Box, Container, Grid } from '@mui/material';
-import { Button, Snackbar, TextField, Typography } from '../atoms';
+import { Button, Snackbar, TextField, Typography } from '../../components';
 
 export const ProductCTA = () => {
 	const [open, setOpen] = useState(false);

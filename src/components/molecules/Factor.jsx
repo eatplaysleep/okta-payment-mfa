@@ -2,7 +2,7 @@
 
 import { IconButton, TableCell, TableRow } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import { Typography, WebAuthNButton } from './index';
+import { Typography, WebAuthNButton } from '../../components';
 
 export const Factor = ({ factor, onClick }) => {
 	// const { onClick, factorId, status, name, device, type } = props;

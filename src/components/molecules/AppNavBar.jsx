@@ -5,14 +5,15 @@ import { Link } from 'react-router-dom';
 import {
 	AppBar,
 	AuthModal,
+	CartIconButton,
+	LinkIconButton,
 	LoginButton,
 	LogoutButton,
 	Toolbar,
 	Typography,
-} from '../atoms';
+} from '../../components';
 import { Box } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import { CartIconButton, LinkIconButton } from '../index';
 import { useAuthState } from '../../providers';
 
 export const AppNavBar = () => {

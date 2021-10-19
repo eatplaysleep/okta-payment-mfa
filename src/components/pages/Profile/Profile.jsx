@@ -1,8 +1,8 @@
 /** @format */
 import { Fragment, useEffect, useState } from 'react';
 import { Container, Grid } from '@mui/material';
-import { FactorTable, Loader, Paper, Typography } from '../index';
-import { useAuthState } from '../../providers';
+import { FactorTable, Loader, Paper, Typography } from '../../../components';
+import { useAuthState } from '../../../providers';
 
 export const Profile = () => {
 	const { user, profileIsLoading } = useAuthState();

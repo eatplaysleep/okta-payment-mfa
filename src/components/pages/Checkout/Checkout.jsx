@@ -10,14 +10,14 @@ import {
 	PaymentForm,
 	ReviewOrder,
 	Typography,
-} from '../index';
-import withRoot from '../withRoot';
-import { useCart } from '../../hooks';
-import { useAuthDispatch, useAuthState } from '../../providers';
+	withRoot,
+} from '../../../components';
+import { useCart } from '../../../hooks';
+import { useAuthDispatch, useAuthState } from '../../../providers';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function Checkout() {
+const CheckoutRoot = () => {
 	const dispatch = useAuthDispatch();
 	const {
 		authModalIsVisible,
@@ -214,6 +214,6 @@ function Checkout() {
 			</Paper>
 		</Container>
 	);
-}
+};
 
-export default withRoot(Checkout);
+export const Checkout = withRoot(CheckoutRoot);

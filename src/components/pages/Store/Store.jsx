@@ -1,8 +1,7 @@
 /** @format */
 
 import { Box, Container } from '@mui/material';
-import { Typography } from '../atoms';
-import { ProductsGrid } from '../molecules';
+import { ProductsGrid, Typography } from '../../../components';
 
 export const Store = () => {
 	return (

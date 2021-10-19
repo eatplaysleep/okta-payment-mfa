@@ -1,7 +1,7 @@
 /** @format */
 import { useEffect } from 'react';
 // import { useLogin } from '../../hooks';
-import { LoadingOverlay } from '../atoms';
+import { LoadingOverlay } from '../../components';
 import { useAuthActions, useAuthDispatch } from '../../providers';
 
 export const AppLoginCallback = () => {

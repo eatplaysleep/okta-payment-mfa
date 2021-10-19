@@ -4,8 +4,7 @@ import { Fragment } from 'react';
 import { Box, Container, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks';
-import { CartItems } from './index';
-import { LinkButton, Paper, Typography } from '../index';
+import { CartItems, LinkButton, Paper, Typography } from '../../components';
 import { formatNumber } from '../../helpers';
 
 export const Cart = () => {

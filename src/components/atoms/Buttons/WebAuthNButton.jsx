@@ -1,7 +1,7 @@
 /** @format */
 import swal from 'sweetalert';
-import { Button } from './index';
-import { useAuthDispatch, useAuthState } from '../../providers';
+import { Button } from '../../../components';
+import { useAuthDispatch, useAuthState } from '../../../providers';
 
 export const WebAuthNButton = props => {
 	const dispatch = useAuthDispatch();

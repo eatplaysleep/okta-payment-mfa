@@ -1,10 +1,9 @@
 /** @format */
 
 import { Fragment, useEffect, useState } from 'react';
-import { Typography } from '../atoms';
+import { CartItems, Typography } from '../../components';
 import { Divider, Grid } from '@mui/material';
 import { useCart } from '../../hooks';
-import { CartItems } from './index';
 import { formatNumber } from '../../helpers';
 
 export const ReviewOrder = () => {

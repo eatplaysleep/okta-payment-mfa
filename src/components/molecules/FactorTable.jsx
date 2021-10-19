@@ -9,7 +9,13 @@ import {
 	TableRow,
 	Table,
 } from '@mui/material';
-import { Button, Factor, FactorDialog, Loader, Typography } from '../index';
+import {
+	Button,
+	Factor,
+	FactorDialog,
+	Loader,
+	Typography,
+} from '../../components';
 import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const FactorTable = () => {

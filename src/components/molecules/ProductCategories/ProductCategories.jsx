@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { Box, Container } from '@mui/material';
-import { ImageBackdrop, ImageIconButton, Typography } from '../atoms';
+import { ImageIconButton, Typography } from '../../../components';
+import { ImageBackdrop } from './ImageBackdrop';
 
 const images = [
 	{
