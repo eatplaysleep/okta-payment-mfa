@@ -29,6 +29,7 @@ const enrollWebAuthn = async data => {
 				authenticatorAttachment: 'platform',
 			},
 		};
+		console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
 
 		const enrollResp = await navigator.credentials.create({ publicKey });
 
@@ -76,7 +77,13 @@ const verifyWebAuthN = async (url, challenge) => {
 			userVerification: 'required',
 		};
 
-		const assertion = await navigator.credentials.get({ publicKey: publicKey });
+		console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
+		const assertion = await navigator.credentials
+			.get({ publicKey: publicKey })
+			.then(resp => {
+				console.debug('assertion:', JSON.stringify(resp, null, 2));
+				return resp;
+			});
 
 		const request = {
 			method: 'post',

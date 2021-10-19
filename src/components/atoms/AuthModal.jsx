@@ -59,10 +59,7 @@ export const AuthModal = props => {
 		// responseMode: 'okta_post_message',
 		// };
 
-		// const url = 'http://localhost:3000/stepup/callback';
 		const url = process.env.REACT_APP_STEP_UP_URL;
-		// 'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1lk8knsOyCCU8Y1d7/aln177a159h7Zf52X0g8';
-		// 'https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8';
 
 		return setSrc(() => url);
 		// return oktaAuth.token
@@ -90,10 +87,6 @@ export const AuthModal = props => {
 		// 	})
 		// 	.catch(err => console.error(err));
 	};
-
-	// https://expedia-oie.dannyfuhriman.com/home/oidc_client/0oa1kn96tkmBaXZPN1d7/aln177a159h7Zf52X0g8
-
-	// const src2 = `https://expedia-oie.dannyfuhriman.com/oauth2/aus1gb3zbtlqNoCUK1d7/v1/authorize?client_id=0oa1kn96tkmBaXZPN1d7&response_type=code&scope=openid&redirect_uri=http://localhost:3000/login/callback&state=c2i6yuaNNRN1fGb8r0w1uhzKTbDwEq87oa3MSzsio9frd4uztxrlR8y3WU21fueY&nonce=88Uh8NqtyKgyuWYI4nwckGaTCiVIxBZrjWPnjHexoSvkxhYttMToHzJKgf5XPKQd&code_challenge=qq40HN9-BkfGbW2KMkEzmW02irW35pB8PU88ivtIaf8&code_challenge_method=S256&response_mode=okta_post_message`;
 
 	useEffect(() => getUrl(), []);
 	useEffect(() => {
