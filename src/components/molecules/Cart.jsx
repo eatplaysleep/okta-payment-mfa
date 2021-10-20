@@ -2,7 +2,6 @@
 
 import { Fragment } from 'react';
 import { Box, Container, Grid } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks';
 import { CartItems, LinkButton, Paper, Typography } from '../../components';
 import { formatNumber } from '../../helpers';
@@ -57,16 +56,14 @@ export const Cart = () => {
 						</Grid>
 					</Grid>
 					<Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<Link
-							component={LinkButton}
-							variant='contained'
+						<LinkButton
 							to='/checkout'
 							color='inherit'
 							sx={{ mt: 3, ml: 1 }}
 							disabled={itemCount < 1 ? true : false}
 						>
 							Checkout
-						</Link>
+						</LinkButton>
 					</Box>
 				</Fragment>
 			</Paper>

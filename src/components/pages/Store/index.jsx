@@ -1,3 +1,3 @@
 /** @format */
 
-export { Store as default } from './Store';
+export * from './Store';

@@ -1,21 +1,14 @@
 /** @format */
-import { forwardRef } from 'react';
+import { Link } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 
-export const LinkIconButton = forwardRef((props, ref) => {
-	const { children } = props;
-
+export const LinkIconButton = ({ children, ...props }) => {
 	const combinedProps = {
 		size: 'large',
-		ariaLabel: 'profile',
-		ariaControls: 'menu-appbar',
 		color: 'inherit',
+		component: Link,
 		...props,
 	};
 
-	return (
-		<IconButton ref={ref} {...combinedProps}>
-			{children}
-		</IconButton>
-	);
-});
+	return <IconButton {...combinedProps}>{children}</IconButton>;
+};

@@ -1,3 +1,3 @@
 /** @format */
 
-export { SignInSide as default } from './SignInSide';
+export * from './SignInSide';

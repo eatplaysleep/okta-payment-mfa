@@ -1,10 +1,8 @@
 /** @format */
-import { forwardRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../../../components';
 
-export const LinkButton = forwardRef((props, ref) => {
-	const { children } = props;
-
+export const LinkButton = ({ to, children, ...props }) => {
 	const combinedProps = {
 		color: 'secondary',
 		variant: 'contained',
@@ -13,8 +11,8 @@ export const LinkButton = forwardRef((props, ref) => {
 		...props,
 	};
 	return (
-		<Button ref={ref} {...combinedProps}>
+		<Button to={to} {...combinedProps} component={Link}>
 			{children}
 		</Button>
 	);
-});
+};

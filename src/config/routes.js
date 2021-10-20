@@ -1,18 +1,16 @@
 /** @format */
-import { lazy } from 'react';
 import {
 	AppLoginCallback,
 	Cart,
+	Checkout,
+	Home,
 	Privacy,
+	Profile,
+	SignInSide,
 	StepUpLoginCallback,
+	Store,
 	Terms,
 } from '../components';
-
-const Home = lazy(() => import('../components/pages/Home'));
-const Checkout = lazy(() => import('../components/pages/Checkout'));
-const Profile = lazy(() => import('../components/pages/Profile'));
-const SignInSide = lazy(() => import('../components/pages/SignInSide'));
-const Store = lazy(() => import('../components/pages/Store'));
 
 export const routes = [
 	{

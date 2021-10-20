@@ -34,12 +34,12 @@ export const AppNavBar = () => {
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
 					{isAuthenticated && (
 						<div>
-							<Link to='/me' component={LinkIconButton}>
+							<LinkIconButton to='/me'>
 								<AccountCircle />
 								<Typography variant='subtitle1'>
 									&nbsp;&nbsp;{user?.name}
 								</Typography>
-							</Link>
+							</LinkIconButton>
 						</div>
 					)}
 				</Box>

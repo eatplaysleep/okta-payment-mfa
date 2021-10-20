@@ -1,21 +1,11 @@
 /** @format */
-import { forwardRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Badge, IconButton } from '@mui/material';
+import { Badge } from '@mui/material';
 import { ShoppingBag } from '@mui/icons-material';
+import { LinkIconButton } from '../../../components';
 import { useCart } from '../../../hooks';
 
-const LinkIconButton = forwardRef((props, ref) => {
-	const { children } = props;
+export const CartIconButton = ({ children, ...props }) => {
 	const { itemCount } = useCart();
-
-	const combinedProps = {
-		size: 'large',
-		ariaLabel: 'cart',
-		ariaControls: 'menu-appbar',
-		color: 'inherit',
-		...props,
-	};
 
 	return (
 		<div
@@ -26,21 +16,12 @@ const LinkIconButton = forwardRef((props, ref) => {
 				width: '48px',
 			}}
 		>
-			<IconButton ref={ref} {...combinedProps}>
+			<LinkIconButton to='/cart' {...props}>
 				<Badge badgeContent={itemCount} color='secondary'>
 					<ShoppingBag />
 					{children}
 				</Badge>
-			</IconButton>
+			</LinkIconButton>{' '}
 		</div>
 	);
-});
-
-export const CartIconButton = props => {
-	const combinedProps = {
-		component: LinkIconButton,
-		...props,
-	};
-
-	return <Link to='/cart' {...combinedProps} />;
 };

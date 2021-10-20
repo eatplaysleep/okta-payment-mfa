@@ -1,7 +1,6 @@
 /** @format */
 
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { LinkButton, Typography } from '../../../components';
 import { ProductHeroLayout } from './ProductHeroLayout';
 
@@ -34,9 +33,7 @@ export const ProductHero = () => {
 			>
 				Enjoy secret offers up to -70% off the best luxury hotels every Sunday.
 			</Typography>
-			<Link to='/store' component={LinkButton}>
-				Get Started
-			</Link>
+			<LinkButton to='/store'>Get Started</LinkButton>
 			<Typography variant='body2' color='inherit' sx={{ mt: 2 }}>
 				Discover the experience
 			</Typography>

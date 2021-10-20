@@ -1,3 +1,3 @@
 /** @format */
 
-export { Profile as default } from './Profile';
+export * from './Profile';

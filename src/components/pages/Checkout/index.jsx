@@ -1,3 +1,3 @@
 /** @format */
 
-export { Checkout as default } from './Checkout';
+export * from './Checkout';
