@@ -19,7 +19,6 @@ const enrollWebAuthn = async data => {
 			status: data?.status,
 			challenge: CryptoUtil.strToBin(challenge),
 			rp: {
-				id: 'dannyfuhriman.com',
 				...rp,
 			},
 			user: {
@@ -34,12 +33,12 @@ const enrollWebAuthn = async data => {
 		};
 		console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
 
-		const enrollResp = await navigator.credentials.create({ publicKey });
+		const credential = await navigator.credentials.create({ publicKey });
 
 		const attestationBin = CryptoUtil.binToStr(
-				enrollResp?.response?.attestationObject
+				credential?.response?.attestationObject
 			),
-			clientData = CryptoUtil.binToStr(enrollResp?.response?.clientDataJSON),
+			clientData = CryptoUtil.binToStr(credential?.response?.clientDataJSON),
 			requestData = {
 				attestation: attestationBin,
 				clientData: clientData,
@@ -50,6 +49,8 @@ const enrollWebAuthn = async data => {
 				body: JSON.stringify(requestData),
 			};
 
+		console.debug('credential:', credential);
+		console.debug('clientDataJSON:', JSON.stringify(clientData, null, 2));
 		const verification = await fetch(url, options);
 
 		if (verification.ok) {

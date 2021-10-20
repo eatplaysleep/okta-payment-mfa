@@ -6,10 +6,10 @@ export const initialState = {
 };
 
 export const AuthReducer = (state, action) => {
-	console.debug('======= current state =======');
-	console.debug(JSON.stringify(state, null, 2));
-	console.debug('=======    action     =======');
-	console.debug(JSON.stringify(action, null, 2));
+	// console.debug('======= current state =======');
+	// console.debug(JSON.stringify(state, null, 2));
+	// console.debug('=======    action     =======');
+	// console.debug(JSON.stringify(action, null, 2));
 	switch (action.type) {
 		case 'GET_FACTORS':
 		case 'REMOVE_FACTOR':
@@ -51,7 +51,7 @@ export const AuthReducer = (state, action) => {
 				factorsAreLoading: true,
 				isStale: true,
 			};
-			console.debug(JSON.stringify(resp, null, 2));
+			// console.debug(JSON.stringify(resp, null, 2));
 			return resp;
 		case 'MFA_ENROLL_SUCCESS':
 			return {
