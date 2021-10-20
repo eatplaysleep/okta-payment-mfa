@@ -10,12 +10,14 @@ import { useAuthDispatch, useAuthState } from '../../providers';
 export const AuthModal = props => {
 	const { onClose } = props;
 	const dispatch = useAuthDispatch();
-	const { authModalIsVisible, isLoading, iFrameIsVisible } = useAuthState();
+	const { authModalIsVisible, isLoading, iFrameIsVisible, user } =
+		useAuthState();
 
-	const SRC = process.env.REACT_APP_STEP_UP_URL;
-	const ALLOW = process.env.REACT_APP_STEP_UP_ALLOW;
-	const modalWidth = '400px';
-	const modalHeight = '650px';
+	const URL = process.env.REACT_APP_STEP_UP_URL,
+		src = user?.email ? `${URL}?login_hint=${user.email}` : URL,
+		ALLOW = process.env.REACT_APP_STEP_UP_ALLOW,
+		modalWidth = '400px',
+		modalHeight = '650px';
 
 	const onCancel = () => {
 		dispatch({ type: 'STEP_UP_CANCEL' });
@@ -94,9 +96,9 @@ export const AuthModal = props => {
 			</DialogTitle>
 			<DialogContent sx={{ width: modalWidth, height: modalHeight }}>
 				{isLoading && <Loader />}
-				{SRC && iFrameIsVisible && (
+				{src && iFrameIsVisible && (
 					<iframe
-						src={SRC}
+						src={src}
 						name='step-up-auth'
 						title='Step Up Auth'
 						width={modalWidth}
