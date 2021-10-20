@@ -18,7 +18,10 @@ const enrollWebAuthn = async data => {
 		let publicKey = {
 			status: data?.status,
 			challenge: CryptoUtil.strToBin(challenge),
-			rp: rp,
+			rp: {
+				id: 'dannyfuhriman.com',
+				...rp,
+			},
 			user: {
 				...user,
 				id: CryptoUtil.strToBin(user.id),
