@@ -13,6 +13,7 @@ import {
 	Button,
 	Factor,
 	FactorDialog,
+	IdxModal,
 	Loader,
 	Typography,
 } from '../../components';
@@ -20,13 +21,22 @@ import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const FactorTable = () => {
 	const dispatch = useAuthDispatch();
-	const { user, factors, fetchFactors, isStale, factorsAreLoading } =
-		useAuthState();
+	const {
+		user,
+		factors,
+		fetchFactors,
+		idxModalIsVisible,
+		isStale,
+		factorsAreLoading,
+	} = useAuthState();
 	const [handleFactor, removeFactor] = useState(false);
 	const [dialogIsOpen, openDialog] = useState(false);
+	const [idxModalIsOpen, openIdxModal] = useState(false);
 	const [factorId, setFactorId] = useState();
 
 	const handleDialog = () => openDialog(() => !dialogIsOpen);
+
+	const handleIdxModal = () => openIdxModal(() => !idxModalIsOpen);
 
 	const handleRemoveFactor = factorId => {
 		setFactorId(() => factorId);
@@ -106,6 +116,7 @@ export const FactorTable = () => {
 			</TableContainer>
 			<div>
 				<Button onClick={handleDialog}>Add Factor</Button>
+				<Button onClick={handleIdxModal}>Test</Button>
 			</div>
 			{user && (
 				<FactorDialog
@@ -114,6 +125,7 @@ export const FactorTable = () => {
 					user={user?.sub}
 				/>
 			)}
+			<IdxModal open={idxModalIsOpen} onClose={handleIdxModal} />
 		</Fragment>
 	);
 };

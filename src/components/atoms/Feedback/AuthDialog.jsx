@@ -16,9 +16,9 @@ export const AuthDialog = styled(Dialog)(({ theme }) => ({
 		margin: 0,
 	},
 	'& .MuiDialogContent-root': {
-		padding: 0,
+		// padding: 0,
 		overflowY: 'unset',
-		margin: 0,
+		// margin: 0,
 	},
 	'& .MuiDialogTitle-root': {
 		padding: 0,

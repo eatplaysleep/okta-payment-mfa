@@ -89,6 +89,7 @@ export const AuthReducer = (state, action) => {
 		// eslint-disable-next-line no-fallthrough
 		case 'GET_USER_SUCCESS':
 		case 'AUTHN_SUCCESS':
+		case 'IDX_NEXT':
 		case 'SUCCESS':
 			return {
 				...state,
@@ -96,6 +97,8 @@ export const AuthReducer = (state, action) => {
 				...action?.payload,
 				isLoading: false,
 			};
+		case 'LOGIN_CANCEL':
+			state.idxModalIsVisible = false;
 		case 'STEP_UP_CANCEL':
 			return {
 				...state,
