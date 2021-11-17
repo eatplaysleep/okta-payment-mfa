@@ -6,7 +6,7 @@ import {
 	Home,
 	Privacy,
 	Profile,
-	SignInSide,
+	// SignIn,
 	StepUpLoginCallback,
 	Store,
 	Terms,
@@ -29,10 +29,10 @@ export const routes = [
 		path: '/stepup/callback',
 		component: StepUpLoginCallback,
 	},
-	{
-		path: '/login',
-		component: SignInSide,
-	},
+	// {
+	// 	path: '/login',
+	// 	component: SignIn,
+	// },
 	{
 		path: '/me',
 		component: Profile,
