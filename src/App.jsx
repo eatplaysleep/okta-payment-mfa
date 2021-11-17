@@ -9,7 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 import { authConfig, routes } from './config';
 
-import { AppFooter, AppNavBar } from './components';
+import { AppFooter, AppNavBar, SignIn } from './components';
 import { AuthProvider, CartProvider, ProductsProvider } from './providers';
 import './App.css';
 import { Theme } from './theme';
@@ -39,6 +39,7 @@ const App = () => {
 					<AuthProvider>
 						<ProductsProvider>
 							<CartProvider>
+								<Route path='/login' component={SignIn} exact />
 								{!isStepUp && <AppNavBar />}
 								<div>
 									<Switch>
