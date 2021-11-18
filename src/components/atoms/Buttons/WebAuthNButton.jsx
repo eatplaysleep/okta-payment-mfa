@@ -5,11 +5,11 @@ import { useAuthDispatch, useAuthState } from '../../../providers';
 
 export const WebAuthNButton = props => {
 	const dispatch = useAuthDispatch();
-	const { issueMFA } = useAuthState();
-	const { factor, user } = props;
+	const { issueMFA, factors, user } = useAuthState();
+	const { factor } = props;
 
 	const onClick = () =>
-		issueMFA(dispatch, user, factor).then(resp => {
+		issueMFA(dispatch, 'webauthn', factors, factor).then(resp => {
 			let options = {
 				title: 'Success!',
 				text: 'Thank you for completing our additional security verification.',

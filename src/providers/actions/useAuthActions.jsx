@@ -29,6 +29,8 @@ const enrollWebAuthn = async data => {
 			pubKeyCredParams: pubKeyCredParams,
 			authenticatorSelection: {
 				authenticatorAttachment: 'platform',
+				residentKey: 'required',
+				requireResidentKey: true,
 			},
 		};
 		console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
@@ -47,8 +49,10 @@ const enrollWebAuthn = async data => {
 			options = {
 				method: 'post',
 				body: JSON.stringify(requestData),
-			};
+			},
+			extensionResults = credential.getClientExtensionResults();
 
+		console.debug('extensionResults:', extensionResults);
 		console.debug('credential:', credential);
 		console.debug('clientDataJSON:', JSON.stringify(clientData, null, 2));
 		const verification = await fetch(url, options);
@@ -61,54 +65,105 @@ const enrollWebAuthn = async data => {
 	}
 };
 
-const verifyWebAuthN = async (url, challenge) => {
+const verifyWebAuthn = async (url, challenge, factors) => {
 	try {
-		const allowCredentials = [
-			{
-				id: CryptoUtil.strToBin(challenge?.profile?.credentialId),
-				type: 'public-key',
-				transports: ['internal'],
-			},
-		];
+		let allowCredentials = [];
 
-		challenge._embedded.challenge.challenge = CryptoUtil.strToBin(
-			challenge?._embedded?.challenge?.challenge
+		const challengeBin = CryptoUtil.strToBin(
+			challenge._embedded?.challenge?.challenge
 		);
 
+		for (let i = 0; i < factors.length; i++) {
+			let factor = factors[i];
+
+			allowCredentials.push({
+				id: CryptoUtil.strToBin(factor?.device?.id),
+				type: 'public-key',
+				transports: ['internal'],
+			});
+		}
+
+		// const allowCredentials = [
+		// 	{
+		// 		id: CryptoUtil.strToBin(challenge?.profile?.credentialId),
+		// 		type: 'public-key',
+		// 		transports: ['internal'],
+		// 	},
+		// ];
+
 		const publicKey = {
-			...challenge?._embedded.challenge,
-			allowCredentials: allowCredentials,
+			challenge: challengeBin,
+			// allowCredentials: allowCredentials,
 			userVerification: 'required',
 		};
 
 		console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
+
 		const assertion = await navigator.credentials
 			.get({ publicKey: publicKey })
 			.then(resp => {
-				console.debug('assertion:', JSON.stringify(resp, null, 2));
+				console.debug('assertion:', resp);
 				return resp;
 			});
 
-		const request = {
-			method: 'post',
-			body: JSON.stringify({
-				authenticatorData: CryptoUtil.binToStr(
-					assertion?.response?.authenticatorData
-				),
-				clientData: CryptoUtil.binToStr(assertion?.response?.clientDataJSON),
-				signatureData: CryptoUtil.binToStr(assertion?.response?.signature),
-			}),
-		};
+		const _credentialId = assertion?.response?.id,
+			_authenticatorData = CryptoUtil.binToStr(
+				assertion?.response?.authenticatorData
+			),
+			_clientData = CryptoUtil.binToStr(assertion?.response?.clientDataJSON),
+			_signatureData = CryptoUtil.binToStr(assertion?.response?.signature),
+			_userHandle = CryptoUtil.binToStr(assertion?.response?.userHandle),
+			{ factorId } =
+				factors.find(factor => factor?.device?.id === _credentialId) || {},
+			request = {
+				method: 'post',
+				body: {
+					authenticatorData: _authenticatorData,
+					clientData: _clientData,
+					signatureData: _signatureData,
+				},
+			};
 
-		const response = await fetch(url, request).then(resp => {
+		console.debug(
+			'response:',
+			JSON.stringify(
+				{
+					_credentialId,
+					_authenticatorData,
+					_clientData,
+					_signatureData,
+					_userHandle,
+				},
+				null,
+				2
+			)
+		);
+
+		return await fetch(`${url}/factors/${factorId}/verify`, request).then(
+			resp => {
+				if (resp.ok) {
+					return resp.json();
+				} else throw resp;
+			}
+		);
+
+		// return response?.factorResult === 'SUCCESS';
+	} catch (err) {
+		throw err;
+	}
+};
+
+const webAuthnChallenge = async factors => {
+	const userId = factors[0]?.userId;
+	if (userId) {
+		const url = `${window.location.origin}/api/${userId}/factors/webauthn/verify`;
+		const challenge = await fetch(url).then(resp => {
 			if (resp.ok) {
 				return resp.json();
 			} else throw resp;
 		});
 
-		return response?.factorResult === 'SUCCESS';
-	} catch (err) {
-		throw err;
+		return await verifyWebAuthn(url, challenge, factors);
 	}
 };
 
@@ -148,7 +203,9 @@ export const useAuthActions = () => {
 
 	const login = async (dispatch, props) => {
 		try {
-			if (oktaAuth.isLoginRedirect()) {
+			const tokens = props?.tokens;
+
+			if (oktaAuth.isLoginRedirect() || tokens) {
 				console.debug('handling Okta redirect...');
 
 				dispatch({ type: 'LOGIN_REDIRECT' });
@@ -164,7 +221,13 @@ export const useAuthActions = () => {
 
 					return;
 				} else {
-					await oktaAuth.handleLoginRedirect();
+					console.debug('handling redirect...');
+
+					if (tokens) {
+						console.debug('tokens:', tokens);
+					}
+
+					await oktaAuth.handleLoginRedirect(tokens);
 
 					return getUser(oktaAuth, dispatch);
 				}
@@ -206,6 +269,33 @@ export const useAuthActions = () => {
 				dispatch({ type: 'LOGIN_ERROR', error: err });
 			}
 			return console.error('login error:', err);
+		}
+	};
+
+	const idxLogin = async (dispatch, props) => {
+		try {
+			const CLIENT_ID = process.env.REACT_APP_STEP_UP_CLIENT_ID;
+			const { input } = props || {};
+			console.debug('input:', JSON.stringify(input, null, 2));
+			oktaAuth.options.clientId = CLIENT_ID;
+
+			// if (input?.username && input?.password) {
+			// 	input.authenticators = ['email'];
+			// }
+
+			const resp = await oktaAuth.idx.authenticate(input);
+
+			console.debug(resp);
+
+			oktaAuth.options.clientId = process.env.REACT_APP_OKTA_CLIENT_ID;
+
+			return dispatch({
+				type: 'IDX_NEXT',
+				payload: { isStale: false, authStep: resp },
+			});
+			// return resp;
+		} catch (err) {
+			console.error(err);
 		}
 	};
 
@@ -256,22 +346,14 @@ export const useAuthActions = () => {
 		}
 	};
 
-	const issueMFA = async (dispatch, userId, { factorId, factorType }) => {
+	const issueMFA = async (dispatch, method, factors = [], factor) => {
 		try {
 			let message = 'Successfully authenticated!',
 				result = false;
 
-			const url = `${window.location.origin}/api/${userId}/factors/${factorId}/verify`;
-
-			const challenge = await fetch(url).then(resp => {
-				if (resp.ok) {
-					return resp.json();
-				} else throw resp;
-			});
-
-			switch (factorType) {
+			switch (method) {
 				case 'webauthn':
-					result = await verifyWebAuthN(url, challenge);
+					result = await webAuthnChallenge(factors);
 					break;
 				default:
 					break;
@@ -306,6 +388,8 @@ export const useAuthActions = () => {
 					} else throw resp;
 				});
 
+				console.debug(JSON.stringify(factors, null, 2));
+
 				return dispatch({
 					type: 'SUCCESS',
 					payload: { factors, isStale: false, factorsAreLoading: false },
@@ -321,6 +405,7 @@ export const useAuthActions = () => {
 		enrollMFA,
 		fetchFactors,
 		getUser,
+		idxLogin,
 		issueMFA,
 		login,
 		loginWithCredentials,
