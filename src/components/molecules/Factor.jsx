@@ -21,7 +21,6 @@ export const Factor = ({ factor, onClick }) => {
 				{factor?.type === 'webauthn' && (
 					<WebAuthNButton
 						factor={{ factorId: factor.factorId, factorType: factor.type }}
-						user={factor?.userId}
 					/>
 				)}
 			</TableCell>

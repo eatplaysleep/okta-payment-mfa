@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import {
+	Box,
 	TableBody,
 	TableCell,
 	TableContainer,
@@ -16,6 +17,7 @@ import {
 	IdxModal,
 	Loader,
 	Typography,
+	WebAuthNButton,
 } from '../../components';
 import { useAuthDispatch, useAuthState } from '../../providers';
 
@@ -114,10 +116,18 @@ export const FactorTable = () => {
 					</TableBody>
 				</Table>
 			</TableContainer>
-			<div>
-				<Button onClick={handleDialog}>Add Factor</Button>
-				<Button onClick={handleIdxModal}>Test</Button>
-			</div>
+			<Box sx={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
+				<Button variant='contained' onClick={handleDialog}>
+					Add Factor
+				</Button>
+				{/* <Button onClick={handleIdxModal}>Test IDX</Button> */}
+				<div>
+					<WebAuthNButton variant='contained' color='secondary' discover>
+						Discoverable WebAuthn
+					</WebAuthNButton>
+					<WebAuthNButton variant='contained'>Test WebAuthn</WebAuthNButton>
+				</div>
+			</Box>
 			{user && (
 				<FactorDialog
 					open={dialogIsOpen}
