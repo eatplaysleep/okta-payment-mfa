@@ -9,7 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 import { authConfig, routes } from './config';
 import { AuthProvider, CartProvider, ProductsProvider } from './providers';
-import { Theme } from './theme';
+import { Theme } from './styles/Theme';
 import './styles/App.css';
 import { AppFooter, AppNavBar, SignIn } from './components';
 

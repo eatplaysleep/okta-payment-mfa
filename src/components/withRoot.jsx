@@ -1,9 +1,8 @@
 /** @format */
 
-import * as React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Theme } from '../theme';
+import { Theme } from '../styles/Theme';
 
 export const withRoot = Component => {
 	// export default function withRoot(Component) {
