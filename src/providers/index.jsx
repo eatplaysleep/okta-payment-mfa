@@ -1,8 +1,8 @@
 /** @format */
 
 export * from '../hooks/useAuthState';
+export * from '../hooks/useAuthActions';
 
-export * from './actions';
 export * from './contexts';
 export * from './dispatchers';
 export * from './reducers';

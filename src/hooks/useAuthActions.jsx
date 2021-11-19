@@ -2,7 +2,7 @@
 
 import { useOktaAuth } from '@okta/okta-react';
 import base64url from 'base64url';
-import { CryptoUtil, getUserInfo as getUser } from '../../utils';
+import { CryptoUtil, getUserInfo as getUser } from '../utils';
 
 const enrollWebAuthn = async data => {
 	try {
