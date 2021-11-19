@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Box, Container } from '@mui/material';
-import { ImageIconButton, Typography } from '../../../components';
+import { ImageIconButton, Typography } from '../../../..';
 import { ImageBackdrop } from './ImageBackdrop';
 
 const images = [

@@ -16,19 +16,22 @@ import CloseIcon from '@mui/icons-material/Close';
 import EmailIcon from '@mui/icons-material/Email';
 import PasswordIcon from '@mui/icons-material/Password';
 import SmsIcon from '@mui/icons-material/Sms';
-import swal from 'sweetalert';
-import { AuthDialog, Button, Loader, TextField } from '../../components';
-import { useAuthActions, useAuthDispatch, useAuthState } from '../../providers';
+// import swal from 'sweetalert';
+import { AuthDialog, Button, Loader, TextField } from '../../../components';
+import {
+	useAuthActions,
+	useAuthDispatch,
+	useAuthState,
+} from '../../../providers';
 
 export const IdxModal = props => {
 	const { open, onClose } = props || {};
 	const dispatch = useAuthDispatch();
-	const { authModalIsVisible, idxModalIsVisible, isLoading, user, authStep } =
-		useAuthState() || {};
+	const { isLoading, authStep } = useAuthState() || {};
 	const { idxLogin } = useAuthActions() || {};
 	const [formData, updateForm] = useState();
 	const [content, setContent] = useState();
-	const [buttonId, setButtonId] = useState();
+	// const [buttonId, setButtonId] = useState();
 
 	const modalWidth = '400px',
 		modalHeight = '650px';
@@ -113,7 +116,7 @@ export const IdxModal = props => {
 							break;
 					}
 
-					data.push(<TextField key={input.name} {...props} />);
+					return data.push(<TextField key={input.name} {...props} />);
 				});
 			}
 			return setContent(() => data);
@@ -142,7 +145,7 @@ export const IdxModal = props => {
 							break;
 					}
 
-					data.push(
+					return data.push(
 						<ListItem {...props}>
 							<ListItemButton id={authenticator?.value} onClick={handleClick}>
 								<ListItemIcon>{icon}</ListItemIcon>
@@ -161,9 +164,11 @@ export const IdxModal = props => {
 				break;
 			case 'select-authenticator-authenticate':
 				renderAuthenticators(authStep?.nextStep?.options);
+				break;
 			default:
 				break;
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [authStep?.nextStep]);
 
 	return (

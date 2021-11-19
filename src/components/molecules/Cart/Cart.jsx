@@ -2,9 +2,9 @@
 
 import { Fragment } from 'react';
 import { Box, Container, Grid } from '@mui/material';
-import { useCart } from '../../hooks';
-import { CartItems, LinkButton, Paper, Typography } from '../../components';
-import { formatNumber } from '../../helpers';
+import { useCart } from '../../../hooks';
+import { CartItems, LinkButton, Paper, Typography } from '../../../components';
+import { formatNumber } from '../../../helpers';
 
 export const Cart = () => {
 	const { total, cartItems, itemCount } = useCart();

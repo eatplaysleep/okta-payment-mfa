@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { IconButton, DialogContent, DialogTitle } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import swal from 'sweetalert';
-import { AuthDialog, Loader } from '../../components';
-import { useAuthDispatch, useAuthState } from '../../providers';
+import { AuthDialog, Loader } from '../../../components';
+import { useAuthDispatch, useAuthState } from '../../../providers';
 
 export const AuthModal = props => {
 	const { onClose } = props;

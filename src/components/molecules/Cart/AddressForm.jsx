@@ -2,25 +2,12 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
-import { TextField, Typography } from '../../components';
-import { useAuthState } from '../../providers';
+import { TextField, Typography } from '../../../components';
+import { useAuthState } from '../../../providers';
 
 export const AddressForm = () => {
 	const { user, isAuthenticated } = useAuthState();
 	const [address, setAddress] = useState();
-	// eslint-disable-next-line no-unused-vars
-	const [saveAddress, setSaveAddress] = useState(false);
-
-	// useEffect(() => {
-	// 	const storage = JSON.parse(localStorage.getItem('address'));
-
-	// 	if (storage) {
-	// 		return setAddress(() => ({ ...address, ...storage }));
-	// 	} else {
-	// 		localStorage.setItem('address', JSON.stringify(address));
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
 
 	useEffect(() => {
 		if (user && isAuthenticated) {
@@ -171,7 +158,7 @@ export const AddressForm = () => {
 								id='saveAddress'
 								color='secondary'
 								name='saveAddress'
-								checked={address?.saveAddress ?? saveAddress}
+								checked={address?.saveAddress}
 								onChange={handleChange}
 							/>
 						}

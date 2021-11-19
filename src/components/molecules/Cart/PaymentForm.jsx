@@ -1,7 +1,7 @@
 /** @format */
 
 import { Fragment, useState, useEffect } from 'react';
-import { Typography } from '../../components';
+import { Typography } from '../../../components';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
 import CreditCardInput from 'react-credit-card-input';
 

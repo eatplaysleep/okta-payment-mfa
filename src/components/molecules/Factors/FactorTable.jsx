@@ -18,8 +18,8 @@ import {
 	Loader,
 	Typography,
 	WebAuthNButton,
-} from '../../components';
-import { useAuthDispatch, useAuthState } from '../../providers';
+} from '../../../components';
+import { useAuthDispatch, useAuthState } from '../../../providers';
 
 export const FactorTable = () => {
 	const dispatch = useAuthDispatch();

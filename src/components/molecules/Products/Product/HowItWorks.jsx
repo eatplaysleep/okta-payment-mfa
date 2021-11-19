@@ -1,9 +1,7 @@
 /** @format */
 
-import * as React from 'react';
-
 import { Box, Button, Container, Grid } from '@mui/material';
-import { Typography } from '../../components';
+import { Typography } from '../../../../components';
 
 const item = {
 	display: 'flex',
