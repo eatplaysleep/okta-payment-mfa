@@ -2,7 +2,7 @@
 
 import { Box, CssBaseline, Grid, Paper } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { OktaSignInWidget } from '../../../components';
+import { OktaSignInWidget } from '../../components';
 
 const theme = createTheme();
 

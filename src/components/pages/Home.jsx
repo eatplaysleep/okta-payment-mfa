@@ -9,7 +9,7 @@ import {
 	ProductSmokingHero,
 	ProductValues,
 	withRoot,
-} from '../../../components';
+} from '../../components';
 
 const HomeRoot = () => (
 	<React.Fragment>

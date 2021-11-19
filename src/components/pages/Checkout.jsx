@@ -11,9 +11,9 @@ import {
 	ReviewOrder,
 	Typography,
 	withRoot,
-} from '../../../components';
-import { useCart } from '../../../hooks';
-import { useAuthDispatch, useAuthState } from '../../../providers';
+} from '../../components';
+import { useCart } from '../../hooks';
+import { useAuthDispatch, useAuthState } from '../../providers';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
