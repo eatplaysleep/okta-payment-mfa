@@ -14,7 +14,6 @@ export const AuthStateContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 	const { oktaAuth } = useOktaAuth();
-	// const [state, setState] = useState({ isLoading: false });
 	const [state, dispatch] = useReducer(AuthReducer, initialState);
 
 	useEffect(() => {
