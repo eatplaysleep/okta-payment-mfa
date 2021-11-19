@@ -6,7 +6,6 @@ import {
 	Home,
 	Privacy,
 	Profile,
-	// SignIn,
 	StepUpLoginCallback,
 	Store,
 	Terms,
@@ -29,13 +28,11 @@ export const routes = [
 		path: '/stepup/callback',
 		component: StepUpLoginCallback,
 	},
-	// {
-	// 	path: '/login',
-	// 	component: SignIn,
-	// },
 	{
 		path: '/me',
 		component: Profile,
+		isExact: true,
+		isSecure: true,
 	},
 	{
 		path: '/privacy',

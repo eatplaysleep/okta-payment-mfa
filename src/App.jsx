@@ -8,11 +8,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { authConfig, routes } from './config';
-
-import { AppFooter, AppNavBar, SignIn } from './components';
 import { AuthProvider, CartProvider, ProductsProvider } from './providers';
-import './App.css';
 import { Theme } from './theme';
+import './styles/App.css';
+import { AppFooter, AppNavBar, SignIn } from './components';
 
 const oktaAuth = new OktaAuth(authConfig.oidc);
 
@@ -49,7 +48,7 @@ const App = () => {
 													<SecureRoute
 														key={route.path}
 														path={route.path}
-														exact={route?.exact ?? false}
+														exact={route?.isExact ?? false}
 														component={route.component}
 													/>
 												);
