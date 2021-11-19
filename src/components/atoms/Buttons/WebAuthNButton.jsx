@@ -1,6 +1,6 @@
 /** @format */
 import swal from 'sweetalert';
-import { Button } from '../../../components';
+import { LoadingButton } from '../../../components';
 import { useAuthDispatch, useAuthState } from '../../../providers';
 
 export const WebAuthNButton = props => {
@@ -33,8 +33,8 @@ export const WebAuthNButton = props => {
 		);
 
 	return (
-		<Button onClick={onClick} {...props}>
+		<LoadingButton onClick={onClick} {...props}>
 			{children ?? 'Try me'}
-		</Button>
+		</LoadingButton>
 	);
 };

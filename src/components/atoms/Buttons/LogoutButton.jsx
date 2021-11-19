@@ -1,19 +1,26 @@
 /** @format */
 
-import { IconButton } from '@mui/material';
+import { CircularProgress, IconButton } from '@mui/material';
 import { Logout } from '@mui/icons-material';
-import { Button } from '../../../components';
-import { useAuthDispatch, useAuthActions } from '../../../providers';
+import { LoadingButton } from '../../../components';
+import { useAuthState, useAuthDispatch } from '../../../providers';
 
 export const LogoutButton = props => {
+	const { loader } = props || {};
 	const isIconButton = props?.isiconbutton === 'true' ? true : false;
 	const dispatch = useAuthDispatch();
-	const { logout } = useAuthActions();
+	const { logout, isLoadingLogout } = useAuthState();
 
+	const onClick = () => {
+		dispatch({ type: 'LOGOUT' });
+
+		return logout(dispatch);
+	};
 	props = {
-		onClick: () => logout(dispatch),
-		children: 'Login',
+		onClick: onClick,
+		children: 'Logout',
 		color: 'inherit',
+		loading: isLoadingLogout,
 		...props,
 	};
 
@@ -22,6 +29,15 @@ export const LogoutButton = props => {
 			size: 'large',
 			...props,
 		};
+
+		// TODO fix padding/positioning
+		const loaderProps = {
+			color: 'secondary',
+			size: 16,
+			...loader,
+		};
+
+		const loaderComponent = <CircularProgress {...loaderProps} />;
 
 		return (
 			<div
@@ -33,9 +49,10 @@ export const LogoutButton = props => {
 				}}
 			>
 				<IconButton {...props}>
-					<Logout />
+					{props.loading && loaderComponent}
+					{!props.loading && <Logout />}
 				</IconButton>
 			</div>
 		);
-	} else return <Button {...props} />;
+	} else return <LoadingButton {...props} />;
 };

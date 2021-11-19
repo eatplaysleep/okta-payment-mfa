@@ -1,9 +1,11 @@
 /** @format */
 
+import * as React from 'react';
 import { experimentalStyled as styled } from '@mui/material/styles';
-import MuiButton from '@mui/material/Button';
+import { CircularProgress } from '@mui/material';
+import MuiLoadingButton from '@mui/lab/LoadingButton';
 
-const ButtonRoot = styled(MuiButton)(({ theme, size }) => ({
+const LoadingButtonRoot = styled(MuiLoadingButton)(({ theme, size }) => ({
 	borderRadius: 0,
 	fontWeight: theme.typography.fontWeightMedium,
 	fontFamily: theme.typography.h1.fontFamily,
@@ -24,6 +26,20 @@ const ButtonRoot = styled(MuiButton)(({ theme, size }) => ({
 }));
 
 // See https://mui.com/guides/typescript/#usage-of-component-prop for why the types uses `C`.
-export const Button = props => {
-	return <ButtonRoot {...props} />;
+export const LoadingButton = props => {
+	const { loader } = props;
+
+	const loaderProps = {
+		color: 'secondary',
+		size: 16,
+		...loader,
+	};
+
+	const loaderComponent = <CircularProgress {...loaderProps} />;
+
+	const buttonProps = {
+		loadingIndicator: loaderComponent,
+		...props,
+	};
+	return <LoadingButtonRoot {...buttonProps} />;
 };
