@@ -1,5 +1,6 @@
 /** @format */
 
+export * from './activateFactor';
 export * from './deleteFactor';
 export * from './enrollFactor';
 export * from './getAvailableFactors';
