@@ -12,9 +12,7 @@ const index = async (req: VercelRequest, res: VercelResponse) => {
 		if (factorId && factorId === 'catalog') {
 			return getAvailableFactors(req, res);
 		} else {
-			const response = await deleteFactor(req, res);
-
-			return res.status(response?.status).send(await response.json());
+			return deleteFactor(req, res);
 		}
 	} catch (error) {
 		console.error(error);
