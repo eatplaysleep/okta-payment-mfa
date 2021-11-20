@@ -29,7 +29,10 @@ interface OktaFactors extends UserFactor {
 	enrollment?: string;
 }
 
-const getAvailableFactors = async (req: VercelRequest, res: VercelResponse) => {
+export const getAvailableFactors = async (
+	req: VercelRequest,
+	res: VercelResponse
+) => {
 	try {
 		let factors: Factors[] = [];
 
@@ -83,5 +86,3 @@ const factorMap = {
 	u2f: 'Hardware U2F',
 	webauthn: 'WebAuthN',
 };
-
-export default getAvailableFactors;
