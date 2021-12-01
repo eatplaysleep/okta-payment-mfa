@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
 	AppBar,
@@ -9,19 +9,39 @@ import {
 	LinkIconButton,
 	LoginButton,
 	LogoutButton,
+	Snackbar,
 	Toolbar,
 	Typography,
 } from '../../components';
 import { Box } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import { useAuthState } from '../../providers';
+import { useAuthDispatch, useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
-	const { authModalIsVisible, isAuthenticated, user } = useAuthState();
+	const dispatch = useAuthDispatch();
 
-	// useEffect(() => {
-	// 	console.debug('isAuthenticated:', isAuthenticated);
-	// }, [isAuthenticated]);
+	const {
+		error,
+		authModalIsVisible,
+		isError,
+		isAuthenticated,
+		isLoadingLogin,
+		isLoadingProfile,
+		isLoadingLogout,
+		silentAuth,
+		user,
+	} = useAuthState();
+
+	const handleSnackbar = () => {
+		dispatch({ type: 'DISMISS_ERROR' });
+	};
+
+	useEffect(() => {
+		if (!isAuthenticated) {
+			return silentAuth(dispatch);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<AppBar>
@@ -29,6 +49,12 @@ export const AppNavBar = () => {
 				loginhint={user?.login}
 				open={authModalIsVisible}
 				onClose={() => {}}
+			/>
+			<Snackbar
+				open={isError}
+				onClose={handleSnackbar}
+				severity='error'
+				children={error}
 			/>
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
@@ -62,25 +88,27 @@ export const AppNavBar = () => {
 					}}
 				>
 					<CartIconButton />
-					{isAuthenticated && (
+					{!isLoadingProfile && !isLoadingLogin && isAuthenticated && (
 						<Fragment>
 							<LogoutButton
 								isiconbutton='true'
 								sx={{ color: 'secondary.main' }}
+								loading={isLoadingLogout}
 							/>
 						</Fragment>
 					)}
-					{!isAuthenticated && (
+					{(isLoadingLogin || isLoadingProfile || !isAuthenticated) && (
 						<Fragment>
 							<div>
 								<LoginButton
 									loginhint='signup'
 									variant='text'
 									children='Sign Up'
+									loading={isLoadingLogin || isLoadingProfile}
 								/>
 							</div>
 							<div>
-								<LoginButton />
+								<LoginButton loading={isLoadingLogin || isLoadingProfile} />
 							</div>
 						</Fragment>
 					)}

@@ -1,6 +1,5 @@
 /** @format */
 
-import * as React from 'react';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import { CircularProgress } from '@mui/material';
 import MuiLoadingButton from '@mui/lab/LoadingButton';

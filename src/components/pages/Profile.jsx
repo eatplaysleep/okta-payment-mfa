@@ -5,7 +5,7 @@ import { FactorTable, Loader, Paper, Typography } from '../../components';
 import { useAuthState } from '../../providers';
 
 export const Profile = () => {
-	const { user, profileIsLoading } = useAuthState();
+	const { user, isLoadingProfile } = useAuthState();
 	const [profile, setProfile] = useState();
 
 	useEffect(() => {
@@ -65,7 +65,7 @@ export const Profile = () => {
 								minHeight: '200px',
 							}}
 						>
-							{profileIsLoading && <Loader />}
+							{isLoadingProfile && <Loader />}
 							{profile}
 						</Grid>
 					</Fragment>
