@@ -5,7 +5,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Typography } from '../../../../components';
 import { useCart } from '../../../../hooks';
-import { formatNumber } from '../../../../helpers';
+import { formatNumber } from '../../../../utils';
 
 const item = {
 	display: 'flex',

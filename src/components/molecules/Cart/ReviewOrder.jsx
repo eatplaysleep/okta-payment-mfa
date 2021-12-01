@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { CartItems, Typography } from '../../../components';
 import { Divider, Grid } from '@mui/material';
 import { useCart } from '../../../hooks';
-import { formatNumber } from '../../../helpers';
+import { formatNumber } from '../../../utils';
 
 export const ReviewOrder = () => {
 	const { total, cartItems, itemCount } = useCart();
