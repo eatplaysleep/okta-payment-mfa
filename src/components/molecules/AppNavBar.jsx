@@ -53,7 +53,14 @@ export const AppNavBar = () => {
 						Atko International
 					</Typography>
 				</Link>
-				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+				<Box
+					sx={{
+						flex: 1,
+						display: 'flex',
+						justifyContent: 'flex-end',
+						alignItems: 'center',
+					}}
+				>
 					<CartIconButton />
 					{isAuthenticated && (
 						<Fragment>
@@ -66,7 +73,11 @@ export const AppNavBar = () => {
 					{!isAuthenticated && (
 						<Fragment>
 							<div>
-								<LoginButton loginhint='signup' children='Sign Up' />
+								<LoginButton
+									loginhint='signup'
+									variant='text'
+									children='Sign Up'
+								/>
 							</div>
 							<div>
 								<LoginButton />
