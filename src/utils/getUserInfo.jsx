@@ -11,7 +11,7 @@ export const getUserInfo = async (oktaAuth, dispatch) => {
 			});
 		}
 
-		let payload = { isAuthenticated, profileIsLoading: false };
+		let payload = { isAuthenticated, isLoadingProfile: false };
 
 		if (isAuthenticated) {
 			console.debug('Fetching user info...');
@@ -30,10 +30,10 @@ export const getUserInfo = async (oktaAuth, dispatch) => {
 			}
 		}
 		return payload;
-	} catch (err) {
+	} catch (error) {
 		if (dispatch) {
-			console.error(err);
-			dispatch({ type: 'LOGIN_ERROR', error: err });
-		} else throw err;
+			console.error(error);
+			dispatch({ type: 'LOGIN_ERROR', error: error });
+		} else throw error;
 	}
 };

@@ -116,6 +116,9 @@ export const AuthReducer = (state, action) => {
 		// eslint-disable-next-line no-fallthrough
 		case 'GET_USER_SUCCESS':
 		case 'SILENT_AUTH_SUCCESS':
+			state.authModalIsVisible = false;
+			state.iFrameIsVisible = false;
+		// eslint-disable-next-line no-fallthrough
 		case 'SILENT_AUTH_CANCEL':
 		case 'AUTHN_SUCCESS':
 		case 'IDX_NEXT':
