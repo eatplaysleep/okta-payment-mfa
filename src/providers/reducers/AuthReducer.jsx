@@ -8,6 +8,7 @@ export const initialState = {
 	isLoadingLogin: false,
 	isAuthenticated: false,
 	isLoadingProfile: false,
+	authModalIsVisible: false,
 };
 
 export const AuthReducer = (state, action) => {

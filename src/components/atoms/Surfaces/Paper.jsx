@@ -21,7 +21,7 @@ export const Paper = props => {
 		<PaperRoot
 			square
 			elevation={0}
-			background={background}
+			background={background || 'main'}
 			padding={padding}
 			className={className}
 			{...other}
