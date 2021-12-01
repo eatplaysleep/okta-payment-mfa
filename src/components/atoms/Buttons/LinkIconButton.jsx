@@ -1,6 +1,13 @@
 /** @format */
 import { Link } from 'react-router-dom';
-import { IconButton } from '@mui/material';
+import { experimentalStyled as styled } from '@mui/material/styles';
+import MuiIconButton from '@mui/material/IconButton';
+
+const IconButtonRoot = styled(MuiIconButton)(({ theme }) => ({
+	'&:hover': {
+		backgroundColor: `${theme.palette.secondary.main}0a`,
+	},
+}));
 
 export const LinkIconButton = ({ children, ...props }) => {
 	const combinedProps = {
@@ -10,5 +17,5 @@ export const LinkIconButton = ({ children, ...props }) => {
 		...props,
 	};
 
-	return <IconButton {...combinedProps}>{children}</IconButton>;
+	return <IconButtonRoot {...combinedProps}>{children}</IconButtonRoot>;
 };

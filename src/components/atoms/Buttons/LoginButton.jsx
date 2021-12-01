@@ -9,10 +9,11 @@ export const LoginButton = props => {
 
 	props = {
 		onClick: () => dispatch({ type: 'LOGIN_MODAL_START' }),
-		color: 'primary',
+		color: 'secondary',
 		children: 'Login',
 		loading: isLoadingLogin ?? isLoadingProfile ?? false,
-		variant: 'outline',
+		size: 'small',
+		variant: 'contained',
 		...props,
 	};
 
