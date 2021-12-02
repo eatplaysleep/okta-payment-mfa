@@ -97,6 +97,7 @@ export const FactorTable = () => {
 							<TableCell key='status'>
 								<Typography variant='h6'>Status</Typography>
 							</TableCell>
+							<TableCell key='try' />
 							<TableCell key='remove' />
 						</TableRow>
 					</TableHead>
