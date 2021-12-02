@@ -26,11 +26,12 @@ const LoadingButtonRoot = styled(MuiLoadingButton)(({ theme, size }) => ({
 
 // See https://mui.com/guides/typescript/#usage-of-component-prop for why the types uses `C`.
 export const LoadingButton = props => {
-	const { loader } = props;
+	const { loader, loading } = props;
 
 	const loaderProps = {
 		color: 'secondary',
 		size: 16,
+		loading: loading?.toString() || false,
 		...loader,
 	};
 

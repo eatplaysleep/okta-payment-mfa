@@ -9,11 +9,12 @@ const IconButtonRoot = styled(MuiIconButton)(({ theme }) => ({
 	},
 }));
 
-export const LinkIconButton = ({ children, ...props }) => {
+export const LinkIconButton = ({ children, loading, ...props }) => {
 	const combinedProps = {
 		size: 'large',
 		color: 'inherit',
 		component: Link,
+		loading: loading ? 'true' : 'false',
 		...props,
 	};
 
