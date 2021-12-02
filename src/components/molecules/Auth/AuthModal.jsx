@@ -136,7 +136,7 @@ export const AuthModal = props => {
 
 		return () => resolve();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [authModalIsVisible]);
 
 	return (
 		<AuthDialog open={authModalIsVisible} onClose={onClose}>

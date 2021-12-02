@@ -65,7 +65,7 @@ export const Profile = () => {
 								minHeight: '200px',
 							}}
 						>
-							{isLoadingProfile && <Loader />}
+							{(isLoadingProfile || !profile) && <Loader />}
 							{profile}
 						</Grid>
 					</Fragment>

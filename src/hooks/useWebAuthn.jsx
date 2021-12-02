@@ -2,7 +2,7 @@
 import base64url from 'base64url';
 import { CryptoUtil } from '../utils';
 
-const generatePublicKeyRequest = async (challenge, { discover }) => {
+const generatePublicKeyRequest = async (challenge, { discover, factor }) => {
 	try {
 		const { _embedded } = challenge || {};
 
@@ -17,7 +17,8 @@ const generatePublicKeyRequest = async (challenge, { discover }) => {
 			publicKey = {
 				...publicKey,
 				allowCredentials: await generateAllowedCredentials(
-					_embedded?.enrolledFactors
+					_embedded?.enrolledFactors,
+					factor
 				),
 			};
 		}
@@ -32,14 +33,13 @@ const generatePublicKeyRequest = async (challenge, { discover }) => {
 	}
 };
 
-const generateAllowedCredentials = async (
-	credentials = [],
-	discover = false
-) => {
+const generateAllowedCredentials = async (credentials = [], factor) => {
 	try {
 		let allowCredentials = [];
 
-		console.debug(credentials.length, 'enrolled credentials');
+		if (factor?.id) {
+			credentials = [factor];
+		}
 
 		for (let i = 0; i < credentials.length; i++) {
 			let credential = credentials[i];
@@ -56,8 +56,8 @@ const generateAllowedCredentials = async (
 			}
 		}
 
-		console.debug('=== allowCredentials ===');
-		console.debug(allowCredentials);
+		// console.debug('=== allowCredentials ===');
+		// console.debug(allowCredentials);
 
 		return allowCredentials;
 	} catch (error) {
@@ -225,7 +225,7 @@ export const useWebAuthn = () => {
 		}
 	};
 
-	const webAuthnAssert = async options => {
+	const webAuthnAssert = async (dispatch, options) => {
 		try {
 			const userId = options?.factors[0]?.userId;
 
@@ -261,10 +261,25 @@ export const useWebAuthn = () => {
 			console.debug('=== result ===');
 			console.debug(result);
 
-			return result;
+			return { success: true };
 		} catch (error) {
-			console.error(`useWebAuthn error [${error}]`);
-			throw new Error(error);
+			let result = {
+				success: false,
+				code: 'WEBAUTHN_ERROR',
+				error: error,
+			};
+
+			if (error?.name === 'NotAllowedError') {
+				result.success = false;
+				result.code = 'USER_CANCELLED';
+				result.errorMessage = 'User cancelled or action not allowed';
+			} else {
+				dispatch({ type: result.code, error: error });
+			}
+
+			return result;
+
+			// throw new Error(`useWebAuthn error [${error}]`);
 		}
 	};
 

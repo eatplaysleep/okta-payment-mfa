@@ -18,14 +18,16 @@ export const WebAuthNButton = props => {
 					icon: 'success',
 				};
 
-				if (!resp) {
+				if (!resp?.success && resp?.message) {
 					options = {
 						...options,
 						title: 'Uh oh!',
-						text: 'Something went wrong. We are so sorry!',
+						text: resp.message,
 						button: 'Drats',
 						icon: 'error',
 					};
+				} else if (!resp?.success) {
+					return;
 				}
 
 				return swal(options);

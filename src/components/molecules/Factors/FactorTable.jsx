@@ -27,9 +27,10 @@ export const FactorTable = () => {
 		user,
 		factors,
 		fetchFactors,
-		idxModalIsVisible,
+		// idxModalIsVisible,
 		isStale,
 		factorsAreLoading,
+		hasWebAuthn,
 	} = useAuthState();
 	const [handleFactor, removeFactor] = useState(false);
 	const [dialogIsOpen, openDialog] = useState(false);
@@ -100,12 +101,13 @@ export const FactorTable = () => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{factorsAreLoading && <Loader />}
-
+						{(factorsAreLoading || !Array.isArray(factors)) && (
+							<Loader component='tr' />
+						)}
 						{Array.isArray(factors) ? (
 							factors.map(factor => (
 								<Factor
-									key={factor.factorId}
+									key={factor.id}
 									factor={factor}
 									onClick={handleRemoveFactor}
 								/>
@@ -121,12 +123,18 @@ export const FactorTable = () => {
 					Add Factor
 				</Button>
 				{/* <Button onClick={handleIdxModal}>Test IDX</Button> */}
-				<div>
-					<WebAuthNButton variant='contained' color='secondary' discover>
-						Discoverable WebAuthn
-					</WebAuthNButton>
-					<WebAuthNButton variant='contained'>Test WebAuthn</WebAuthNButton>
-				</div>
+				{hasWebAuthn && (
+					<div>
+						<WebAuthNButton
+							variant='contained'
+							color='secondary'
+							discover='true'
+						>
+							Discoverable WebAuthn
+						</WebAuthNButton>
+						<WebAuthNButton variant='contained'>Test WebAuthn</WebAuthNButton>
+					</div>
+				)}
 			</Box>
 			{user && (
 				<FactorDialog

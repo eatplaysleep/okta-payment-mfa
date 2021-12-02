@@ -7,8 +7,9 @@ type FactorDevice = {
 	id: string;
 	type?: string;
 };
-type Factor = {
-	type: string;
+interface Factor extends Omit<OktaFactor, '_links'> {
+	userId: string;
+	id: string;
 	name:
 		| 'call'
 		| 'email'
@@ -22,13 +23,11 @@ type Factor = {
 		| 'u2f'
 		| 'webauthn'
 		| 'unknown';
-	status: string;
 	isRequired: boolean;
-	provider: string;
-	device?: FactorDevice;
-};
+	_links?: { [name: string]: unknown };
+}
 
-interface OktaFactor extends UserFactor {
+interface OktaFactor extends Omit<UserFactor, 'delete'> {
 	enrollment?: string;
 	profile?: {
 		credentialId: string;
@@ -42,22 +41,22 @@ export const parseFactors = async (
 ): Promise<Factor[]> => {
 	try {
 		if (res.ok) {
-			const body = (await res.json()) as OktaFactor[];
+			const url = new URL(res.url),
+				paths = url.pathname.split('/'),
+				userId = paths[paths.indexOf('users') + 1],
+				body = (await res.json()) as OktaFactor[];
 
 			let factors: Factor[] = [];
 
 			body.forEach(factor => {
 				let resp: Factor = {
-					type: factor?.factorType as string,
+					userId: userId,
 					name: factorMap[factor?.factorType as string] ?? 'Unknown',
-					status: factor?.status as string,
 					isRequired: factor?.enrollment === 'REQUIRED' ? true : false,
-					provider: factor?.provider as string,
-					device: {
-						id: factor?.profile?.credentialId,
-						type: factor?.profile?.authenticatorName,
-					},
+					...factor,
 				};
+
+				delete resp._links;
 
 				if (filter) {
 					if (

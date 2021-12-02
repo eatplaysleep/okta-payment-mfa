@@ -3,11 +3,8 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { removeNils } from '@okta/okta-auth-js';
 import { useWebAuthn } from '../hooks';
-import {
-	exchangeCodeForTokens,
-	getUserInfo as getUser,
-	toQueryString,
-} from '../utils';
+import { getUserInfo as getUser, toQueryString } from '../utils';
+import * as _ from 'lodash';
 
 const oAuthParamMap = {
 	clientId: 'client_id',
@@ -85,25 +82,25 @@ export const useAuthActions = () => {
 			}
 		};
 
-		const signInWithRedirect = async (dispatch, options) => {
-			try {
-				const { loginHint } = options || {};
+		// const signInWithRedirect = async (dispatch, options) => {
+		// 	try {
+		// 		const { loginHint } = options || {};
 
-				if (loginHint) {
-					console.debug('loginHint:', loginHint);
-				}
+		// 		if (loginHint) {
+		// 			console.debug('loginHint:', loginHint);
+		// 		}
 
-				console.debug('doing signInWithRedirect...');
+		// 		console.debug('doing signInWithRedirect...');
 
-				dispatch({ type: 'LOGIN' });
+		// 		dispatch({ type: 'LOGIN' });
 
-				return oktaAuth.signInWithRedirect({
-					loginHint: loginHint,
-				});
-			} catch (error) {
-				throw new Error(error);
-			}
-		};
+		// 		return oktaAuth.signInWithRedirect({
+		// 			loginHint: loginHint,
+		// 		});
+		// 	} catch (error) {
+		// 		throw new Error(error);
+		// 	}
+		// };
 
 		const iFrameAuth = async (dispatch, options) => {
 			try {
@@ -157,8 +154,8 @@ export const useAuthActions = () => {
 						dispatch({ type: 'LOGIN_ERROR', error: err });
 					} else throw err;
 				}
-			} catch (err) {
-				return console.error('loginWithCredentials error:', err);
+			} catch (error) {
+				return console.error('loginWithCredentials error:', error);
 			}
 		};
 
@@ -172,7 +169,9 @@ export const useAuthActions = () => {
 
 				if (isCodeExchange) {
 					console.log(tokenParams);
-					const response = await exchangeCodeForTokens(oktaAuth, tokenParams);
+					const response = await oktaAuth.token.exchangeCodeForTokens(
+						tokenParams
+					);
 
 					if (!response?.tokens) {
 						return dispatch({
@@ -312,25 +311,26 @@ export const useAuthActions = () => {
 
 				switch (options?.method) {
 					case 'webauthn':
-						result = await webAuthnAssert(options);
+						result = await webAuthnAssert(dispatch, options);
 						break;
 					default:
 						break;
 				}
 
-				if (!result) {
+				if (result?.success) {
+					dispatch({
+						type: 'MFA_SUCCESS',
+						payload: { message, factorsAreLoading: false, isStale: false },
+					});
+				} else if (result?.code === 'USER_CANCELLED') {
+					return { success: false };
+				} else {
 					message = 'Something went awry.';
 				}
 
-				dispatch({
-					type: 'STEP_UP_SUCCESS',
-					payload: { message, factorsAreLoading: false, isStale: false },
-				});
-
-				return message;
-			} catch (err) {
-				console.error(err);
-				return dispatch({ type: 'MFA_ERROR', error: err });
+				return { message, success: result?.success };
+			} catch (error) {
+				return dispatch({ type: 'MFA_ERROR', error: error });
 			}
 		};
 
@@ -347,11 +347,18 @@ export const useAuthActions = () => {
 						} else throw resp;
 					});
 
-					console.debug(JSON.stringify(factors, null, 2));
+					// console.debug(JSON.stringify(factors, null, 2));
+					const hasWebAuthn =
+						_.findIndex(factors, { factorType: 'webauthn' }) > 0;
 
 					return dispatch({
 						type: 'SUCCESS',
-						payload: { factors, isStale: false, factorsAreLoading: false },
+						payload: {
+							factors,
+							isStale: false,
+							factorsAreLoading: false,
+							hasWebAuthn,
+						},
 					});
 				} else throw new Error('Missing userId!');
 			} catch (err) {
