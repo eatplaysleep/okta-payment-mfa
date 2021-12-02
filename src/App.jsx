@@ -1,77 +1,91 @@
 /** @format */
+import { Fragment, useEffect } from 'react';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { SecureRoute } from '@okta/okta-react';
+import { useSnackbar } from 'notistack';
 
-import React, { Suspense } from 'react';
-import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
-import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security, SecureRoute } from '@okta/okta-react';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { Button, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { authConfig, routes } from './config';
-import { AuthProvider, CartProvider, ProductsProvider } from './providers';
-import { Theme } from './styles/Theme';
+import { routes } from './config';
+import {
+	CartProvider,
+	ProductsProvider,
+	useAuthDispatch,
+	useAuthState,
+} from './providers';
 import './styles/App.css';
 import { AppFooter, AppNavBar, SignIn } from './components';
 
-const oktaAuth = new OktaAuth(authConfig.oidc);
-
-oktaAuth.start();
-
 const App = () => {
 	const isStepUp = useRouteMatch('/stepup/callback');
-	const history = useHistory();
-	const restoreOriginalUri = async (_oktaAuth, originalUri) =>
-		history.replace(toRelativeUrl(originalUri || '/', window.location.origin));
-	const customAuthHandler = () => {
-		history.push('/login');
-	};
+
+	const dispatch = useAuthDispatch();
+
+	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+	const { errors } = useAuthState();
+
+	useEffect(() => {
+		const dismissSnackbar = errorId => {
+			let newErrors = errors.filter((_, index) => index !== errorId);
+
+			dispatch({ type: 'DISMISS_ERROR', errors: newErrors });
+		};
+
+		if (Array.isArray(errors) && errors.length > 0) {
+			errors.forEach((error, index) =>
+				enqueueSnackbar(error?.message ?? 'Unknown Error', {
+					variant: 'error',
+					action: key => (
+						<Fragment>
+							<Button size='small' onClick={() => alert(error?.stack)}>
+								Details
+							</Button>
+							<IconButton size='small' onClick={() => closeSnackbar(key)}>
+								<CloseIcon />
+							</IconButton>
+						</Fragment>
+					),
+					onExit: () => dismissSnackbar(index),
+				})
+			);
+		}
+	}, [errors, dispatch, enqueueSnackbar, closeSnackbar]);
 
 	return (
-		<ThemeProvider theme={Theme}>
-			<CssBaseline />
-			<Suspense fallback={<div>Loading...</div>}>
-				<Security
-					oktaAuth={oktaAuth}
-					restoreOriginalUri={restoreOriginalUri}
-					onAuthRequired={customAuthHandler}
-				>
-					<AuthProvider>
-						<ProductsProvider>
-							<CartProvider>
-								<Route path='/login' component={SignIn} exact />
-								{!isStepUp && <AppNavBar />}
-								<div>
-									<Switch>
-										{routes.map(route => {
-											if (route?.isSecure) {
-												return (
-													<SecureRoute
-														key={route.path}
-														path={route.path}
-														exact={route?.isExact ?? false}
-														component={route.component}
-													/>
-												);
-											} else {
-												return (
-													<Route
-														key={route.path}
-														path={route.path}
-														exact={route?.isExact ?? false}
-														component={route.component}
-													/>
-												);
-											}
-										})}
-									</Switch>
-								</div>
-								{!isStepUp && <AppFooter />}
-							</CartProvider>
-						</ProductsProvider>
-					</AuthProvider>
-				</Security>
-			</Suspense>
-		</ThemeProvider>
+		<ProductsProvider>
+			<CartProvider>
+				<Route path='/login' component={SignIn} exact />
+				{!isStepUp && <AppNavBar />}
+				<div>
+					<Switch>
+						{routes.map(route => {
+							if (route?.isSecure) {
+								return (
+									<SecureRoute
+										key={route.path}
+										path={route.path}
+										exact={route?.isExact ?? false}
+										component={route.component}
+									/>
+								);
+							} else {
+								return (
+									<Route
+										key={route.path}
+										path={route.path}
+										exact={route?.isExact ?? false}
+										component={route.component}
+									/>
+								);
+							}
+						})}
+					</Switch>
+				</div>
+				{!isStepUp && <AppFooter />}
+			</CartProvider>
+		</ProductsProvider>
 	);
 };
 
