@@ -1,26 +1,9 @@
 /** @format */
 
-import { useState } from 'react';
 import { Box, Container, Grid } from '@mui/material';
-import {
-	Button,
-	Snackbar,
-	TextField,
-	Typography,
-} from '../../../../components';
+import { Button, TextField, Typography } from '../../../../components';
 
 export const ProductCTA = () => {
-	const [open, setOpen] = useState(false);
-
-	const handleSubmit = event => {
-		event.preventDefault();
-		setOpen(true);
-	};
-
-	const handleClose = () => {
-		setOpen(false);
-	};
-
 	return (
 		<Container component='section' sx={{ mt: 10, display: 'flex' }}>
 			<Grid container>
@@ -36,7 +19,7 @@ export const ProductCTA = () => {
 					>
 						<Box
 							component='form'
-							onSubmit={handleSubmit}
+							// onSubmit={handleSubmit}
 							sx={{ maxWidth: 400 }}
 						>
 							<Typography variant='h2' component='h2' gutterBottom>
@@ -95,11 +78,6 @@ export const ProductCTA = () => {
 					/>
 				</Grid>
 			</Grid>
-			<Snackbar
-				open={open}
-				closeFunc={handleClose}
-				message='We will send you our best offers, once a week.'
-			/>
 		</Container>
 	);
 };
