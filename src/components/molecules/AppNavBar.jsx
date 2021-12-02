@@ -9,7 +9,6 @@ import {
 	LinkIconButton,
 	LoginButton,
 	LogoutButton,
-	Snackbar,
 	Toolbar,
 	Typography,
 } from '../../components';
@@ -21,9 +20,7 @@ export const AppNavBar = () => {
 	const dispatch = useAuthDispatch();
 
 	const {
-		error,
 		authModalIsVisible,
-		isError,
 		isAuthenticated,
 		isLoadingLogin,
 		isLoadingProfile,
@@ -31,10 +28,6 @@ export const AppNavBar = () => {
 		silentAuth,
 		user,
 	} = useAuthState();
-
-	const handleSnackbar = () => {
-		dispatch({ type: 'DISMISS_ERROR' });
-	};
 
 	useEffect(() => {
 		if (!isAuthenticated) {
@@ -49,12 +42,6 @@ export const AppNavBar = () => {
 				loginhint={user?.login}
 				open={authModalIsVisible}
 				onClose={() => {}}
-			/>
-			<Snackbar
-				open={isError}
-				onClose={handleSnackbar}
-				severity='error'
-				children={error}
 			/>
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>

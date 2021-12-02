@@ -6,4 +6,3 @@ export * from './Auth';
 export * from './Cart';
 export * from './Factors';
 export * from './Products';
-export * from './Snackbar';
