@@ -18,14 +18,26 @@ export const FactorDialog = props => {
 
 	const [availableFactors, setAvailableFactors] = useState();
 	const [factor, enrollFactor] = useState();
+	const [selection, setSelection] = useState();
 
-	const onSelect = event => {
+	const onChange = event => {
 		event.preventDefault();
 
-		enrollFactor(() => event?.target?.value);
+		setSelection(event?.target?.value);
+	};
+
+	const handleSubmit = event => {
+		event.preventDefault();
+		enrollFactor(() => selection);
 	};
 
 	useEffect(() => {
+		const resetState = () => {
+			setAvailableFactors(() => undefined);
+			enrollFactor(() => undefined);
+			setSelection(() => undefined);
+		};
+
 		const url = `${window.location.origin}/api/${user}/factors/catalog`;
 
 		if (!availableFactors) {
@@ -38,6 +50,8 @@ export const FactorDialog = props => {
 				.then(resp => setAvailableFactors(() => resp))
 				.catch(err => console.error(err));
 		}
+
+		return () => resetState();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [availableFactors]);
 
@@ -59,11 +73,12 @@ export const FactorDialog = props => {
 				<DialogTitle>Enroll Factor</DialogTitle>
 				<DialogContent>
 					{availableFactors?.length > 0 && (
-						<FactorList factors={availableFactors} onChange={onSelect} />
+						<FactorList factors={availableFactors} onChange={onChange} />
 					)}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose}>Cancel</Button>
+					<Button onClick={handleSubmit}>Submit</Button>
 				</DialogActions>
 			</Dialog>
 		</Fragment>

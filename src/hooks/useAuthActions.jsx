@@ -26,7 +26,7 @@ const oAuthParamMap = {
 	grantType: 'grant_type',
 };
 
-const factorMap = {
+const factorProviderMap = {
 	webauthn: 'FIDO',
 };
 
@@ -278,9 +278,11 @@ export const useAuthActions = () => {
 			try {
 				const url = `${window.location.origin}/api/${userId}/factors`;
 
+				const factorType = factor.toLowerCase();
+
 				const request = {
-					factorType: factor,
-					provider: factorMap[factor],
+					factorType: factorType,
+					provider: factorProviderMap[factorType],
 				};
 
 				const options = {
@@ -291,9 +293,9 @@ export const useAuthActions = () => {
 				const resp = await fetch(url, options);
 
 				if (resp.ok) {
-					switch (factor) {
+					switch (factorType) {
 						case 'webauthn':
-							return await webAuthnAttest(await resp.json());
+							return await webAuthnAttest(dispatch, await resp.json());
 						default:
 							break;
 					}

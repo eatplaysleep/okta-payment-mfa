@@ -2,12 +2,59 @@
 import base64url from 'base64url';
 import { CryptoUtil } from '../utils';
 
-const generatePublicKeyRequest = async (challenge, { discover, factor }) => {
+const generatePublicKeyAttestationRequest = async ({ _embedded }) => {
 	try {
-		const { _embedded } = challenge || {};
+		const {
+			user,
+			rp,
+			attestation,
+			pubKeyCredParams,
+			// excludeCredentials,
+			challenge,
+		} = _embedded.activation;
 
+		const publicKey = {
+			attestation,
+			authenticatorSelection: {
+				authenticatorAttachment: 'platform',
+				residentKey: 'required',
+				requireResidentKey: true,
+				userVerification: 'preferred',
+			},
+			challenge: CryptoUtil.strToBin(challenge),
+			// excludeCredentials: excludeCredentials.map(credential => ({
+			// 	...credential,
+			// 	id: CryptoUtil.strToBin(credential.id),
+			// })),
+			pubKeyCredParams,
+			rp,
+			user: {
+				...user,
+				id: CryptoUtil.strToBin(user.id),
+			},
+		};
+
+		console.debug('=== publicKey ===');
+		console.debug(publicKey);
+
+		return publicKey;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+const generatePublicKeyAssertionRequest = async options => {
+	try {
+		const { discover, factor } = options;
+
+		// get challenge from Okta
+		const challenge = await getWebAuthnChallenge(options),
+			{ _embedded } = challenge;
+
+		// generate base publicKeyRequest
 		let publicKey = {
-			challenge: CryptoUtil.strToBin(_embedded?.challenge?.challenge),
+			challenge: CryptoUtil.strToBin(_embedded.challenge.challenge),
 			userVerification: 'required',
 		};
 
@@ -17,7 +64,7 @@ const generatePublicKeyRequest = async (challenge, { discover, factor }) => {
 			publicKey = {
 				...publicKey,
 				allowCredentials: await generateAllowedCredentials(
-					_embedded?.enrolledFactors,
+					challenge?._embedded?.enrolledFactors,
 					factor
 				),
 			};
@@ -26,7 +73,7 @@ const generatePublicKeyRequest = async (challenge, { discover, factor }) => {
 		console.debug('=== publicKey ===');
 		console.debug(publicKey);
 
-		return publicKey;
+		return { publicKey, challenge };
 	} catch (error) {
 		console.error(error);
 		throw error;
@@ -84,15 +131,14 @@ const lookupOktaFactorId = async (credentials = [], _credentialId) => {
 	}
 };
 
-const buildOktaRequest = async (assertion, credentials) => {
+const buildAssertionVerificationRequest = async (response, factorId) => {
 	try {
-		const _authenticatorData = CryptoUtil.binToStr(
-				assertion?.response?.authenticatorData
-			),
-			_clientData = CryptoUtil.binToStr(assertion?.response?.clientDataJSON),
-			_credentialId = assertion?.id,
-			_signatureData = CryptoUtil.binToStr(assertion?.response?.signature),
-			factorId = await lookupOktaFactorId(credentials, _credentialId),
+		const { authenticatorData, clientDataJSON, signature, userHandle } =
+			response;
+
+		const _authenticatorData = CryptoUtil.binToStr(authenticatorData),
+			_clientData = CryptoUtil.binToStr(clientDataJSON),
+			_signatureData = CryptoUtil.binToStr(signature),
 			body = {
 				authenticatorData: _authenticatorData,
 				clientData: _clientData,
@@ -103,7 +149,7 @@ const buildOktaRequest = async (assertion, credentials) => {
 				body: JSON.stringify(body),
 			};
 
-		const _userHandle = CryptoUtil.binToStr(assertion?.response?.userHandle),
+		const _userHandle = CryptoUtil.binToStr(userHandle),
 			_clientDataJSON = JSON.parse(base64url.decode(_clientData));
 
 		console.debug('=== factorId ===');
@@ -119,7 +165,7 @@ const buildOktaRequest = async (assertion, credentials) => {
 		console.debug('=== clientData ===');
 		console.debug(_clientDataJSON);
 
-		return { request, factorId };
+		return request;
 	} catch (error) {
 		console.error(error);
 		throw error;
@@ -139,89 +185,148 @@ const getWebAuthnAssertion = async publicKey => {
 	}
 };
 
-const getWebAuthnChallenge = async ({ userId, factor }) => {
-	const factorId = factor?.factorId ?? 'webauthn';
+const verifyAssertion = async ({ id, response }, { _embedded }, userId) => {
+	try {
+		// get Okta factorId
+		const { enrolledFactors } = _embedded,
+			factorId = await lookupOktaFactorId(enrolledFactors, id);
 
-	// get challenge from Okta
-	if (userId) {
-		const url = `${window.location.origin}/api/${userId}/factors/${factorId}/verify`;
-		const challenge = await fetch(url).then(resp => {
+		// build Okta request
+		const request = await buildAssertionVerificationRequest(response, factorId);
+
+		// call Okta to verify assertion
+		const result = await fetch(
+			`${window.location.origin}/api/${userId}/factors/${factorId}/verify`,
+			request
+		).then(resp => {
 			if (resp.ok) {
 				return resp.json();
 			} else throw resp;
 		});
 
-		console.debug('=== challenge ===');
-		console.debug(challenge);
+		console.debug('=== result ===');
+		console.debug(result);
 
-		return challenge;
-	} else {
-		throw new Error('no userId provided!');
+		return { success: true };
+	} catch (error) {
+		throw error;
+	}
+};
+
+const getWebAuthnChallenge = async ({ userId, factor }) => {
+	try {
+		// get challenge from Okta
+
+		const factorId = factor?.id ?? 'webauthn';
+
+		if (userId) {
+			let url = `${window.location.origin}/api/${userId}/factors`;
+
+			if (factorId) {
+				url = `${url}/${factorId}/verify`;
+			}
+			const challenge = await fetch(url).then(resp => {
+				if (resp.ok) {
+					return resp.json();
+				} else throw resp;
+			});
+
+			console.debug('=== challenge ===');
+			console.debug(challenge);
+
+			return challenge;
+		} else {
+			throw new Error('no userId provided!');
+		}
+	} catch (error) {
+		throw error;
 	}
 };
 
 export const useWebAuthn = () => {
-	const webAuthnAttest = async data => {
+	const webAuthnAttest = async (dispatch, factor) => {
+		console.debug('enrolling WebAuthN...');
+
 		try {
-			console.debug('enrolling WebAuthN...');
+			// Generate PublicKeyCredentialRequestOptions
+			const publicKey = await generatePublicKeyAttestationRequest(factor),
+				factorId = factor.id,
+				userId = factor._embedded.activation.user.id;
 
-			const _embedded = data?._embedded?.activation,
-				user = _embedded?.user,
-				factorId = data?.id,
-				challenge = _embedded?.challenge,
-				rp = _embedded?.rp,
-				attestation = _embedded?.attestation,
-				pubKeyCredParams = _embedded?.pubKeyCredParams;
+			// const _embedded = data?._embedded?.activation,
+			// 	user = _embedded?.user,
+			// 	factorId = data?.id,
+			// 	challenge = _embedded?.challenge,
+			// 	rp = _embedded?.rp,
+			// 	attestation = _embedded?.attestation,
+			// 	pubKeyCredParams = _embedded?.pubKeyCredParams;
 
-			let publicKey = {
-				status: data?.status,
-				challenge: CryptoUtil.strToBin(challenge),
-				rp: {
-					...rp,
-				},
-				user: {
-					...user,
-					id: CryptoUtil.strToBin(user.id),
-				},
-				attestation: attestation,
-				pubKeyCredParams: pubKeyCredParams,
-				authenticatorSelection: {
-					authenticatorAttachment: 'platform',
-					residentKey: 'required',
-					requireResidentKey: true,
-					userVerification: 'preferred',
-				},
-			};
-			console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
+			// let publicKey = {
+			// 	status: data?.status,
+			// 	challenge: CryptoUtil.strToBin(challenge),
+			// 	rp: {
+			// 		...rp,
+			// 	},
+			// 	user: {
+			// 		...user,
+			// 		id: CryptoUtil.strToBin(user.id),
+			// 	},
+			// 	attestation: attestation,
+			// 	pubKeyCredParams: pubKeyCredParams,
+			// 	authenticatorSelection: {
+			// 		authenticatorAttachment: 'platform',
+			// 		residentKey: 'required',
+			// 		requireResidentKey: true,
+			// 		userVerification: 'preferred',
+			// 	},
+			// };
+			// console.debug('publicKey:', JSON.stringify(publicKey, null, 2));
 
-			const credential = await navigator.credentials.create({ publicKey });
+			// create WebAuthn credential
+			const credential = await navigator.credentials.create({ publicKey }),
+				{ attestationObject, clientDataJSON } = credential;
 
-			const attestationBin = CryptoUtil.binToStr(
-					credential?.response?.attestationObject
-				),
-				clientData = CryptoUtil.binToStr(credential?.response?.clientDataJSON),
+			const attestationBin = CryptoUtil.binToStr(attestationObject),
+				clientData = CryptoUtil.binToStr(clientDataJSON),
 				requestData = {
 					attestation: attestationBin,
 					clientData: clientData,
 				},
-				url = `${window.location.origin}/api/${user?.id}/factors/${factorId}/activate`,
+				url = `${window.location.origin}/api/${userId}/factors/${factorId}/activate`,
 				options = {
 					method: 'post',
 					body: JSON.stringify(requestData),
 				},
 				extensionResults = credential.getClientExtensionResults();
 
-			console.debug('extensionResults:', extensionResults);
-			console.debug('credential:', credential);
-			console.debug('clientDataJSON:', JSON.stringify(clientData, null, 2));
+			console.debug('===== extensionResults =====');
+			console.debug(extensionResults);
+			console.debug('===== credential =====');
+			console.debug(credential);
+			console.debug('===== clientDataJSON =====');
+			console.debug(JSON.stringify(clientData, null, 2));
+
 			const verification = await fetch(url, options);
 
 			if (verification.ok) {
 				return true;
 			}
 		} catch (error) {
-			console.error(`attestation error [${error}]`);
-			throw error;
+			let result = {
+				success: false,
+				code: 'WEBAUTHN_ERROR',
+				error: error,
+			};
+
+			if (error?.name === 'NotAllowedError') {
+				result.success = false;
+				result.code = 'USER_CANCELLED';
+				result.errorMessage = 'User cancelled or action not allowed';
+			} else {
+				dispatch({ type: result.code, error: error });
+			}
+
+			return result;
 		}
 	};
 
@@ -230,38 +335,44 @@ export const useWebAuthn = () => {
 			const userId = options?.factors[0]?.userId;
 
 			// get challenge from Okta
-			const challenge = await getWebAuthnChallenge({
+			// const challenge = await getWebAuthnChallenge({
+			// 	...options,
+			// 	userId,
+			// });
+
+			// Generate PublicKeyCredentialRequestOptions
+			const { publicKey, challenge } = await generatePublicKeyAssertionRequest({
 				...options,
 				userId,
 			});
 
-			// Generate PublicKeyCredentialRequestOptions
-			const publicKey = await generatePublicKeyRequest(challenge, options);
-
 			// Do navigator.credentials.get()
 			const assertion = await getWebAuthnAssertion(publicKey);
 
+			// Verify assertion
+			return await verifyAssertion(assertion, challenge, userId);
+
 			// build Okta verify request
-			const { request, factorId } =
-				(await buildOktaRequest(
-					assertion,
-					challenge?._embedded?.enrolledFactors
-				)) || {};
+			// const { request, factorId } =
+			// 	(await buildOktaRequest(
+			// 		assertion,
+			// 		challenge?._embedded?.enrolledFactors
+			// 	)) || {};
 
-			// call Okta to verify assertion
-			const result = await fetch(
-				`${window.location.origin}/api/${userId}/factors/${factorId}/verify`,
-				request
-			).then(resp => {
-				if (resp.ok) {
-					return resp.json();
-				} else throw resp;
-			});
+			// // call Okta to verify assertion
+			// const result = await fetch(
+			// 	`${window.location.origin}/api/${userId}/factors/${factorId}/verify`,
+			// 	request
+			// ).then(resp => {
+			// 	if (resp.ok) {
+			// 		return resp.json();
+			// 	} else throw resp;
+			// });
 
-			console.debug('=== result ===');
-			console.debug(result);
+			// console.debug('=== result ===');
+			// console.debug(result);
 
-			return { success: true };
+			// return { success: true };
 		} catch (error) {
 			let result = {
 				success: false,

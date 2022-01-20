@@ -46,11 +46,7 @@ export const AuthReducer = (state, action) => {
 					isLoadingLogin: true,
 				});
 			case 'SILENT_AUTH_END':
-				return _.merge({}, state, action?.payload, {
-					isLoadingLogin: false,
-					authModalIsVisible: false,
-					iFrameIsVisible: false,
-				});
+				return _.merge({}, state, action?.payload, { isLoadingLogin: false });
 			case 'STEP_UP_STARTED':
 				return _.merge({}, state, action?.payload, {
 					isLoadingLogin: false,

@@ -21,7 +21,8 @@ const RootApp = () => {
 	const restoreOriginalUri = async (_oktaAuth, originalUri) =>
 		history.replace(toRelativeUrl(originalUri || '/', window.location.origin));
 	const customAuthHandler = () => {
-		history.push('/login');
+		console.debug('authentication required!');
+		history.push('/');
 	};
 	return (
 		<ThemeProvider theme={Theme}>

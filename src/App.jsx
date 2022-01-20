@@ -39,9 +39,11 @@ const App = () => {
 					variant: 'error',
 					action: key => (
 						<Fragment>
-							<Button size='small' onClick={() => alert(error?.stack)}>
-								Details
-							</Button>
+							{error?.stack && (
+								<Button size='small' onClick={() => alert(error?.stack)}>
+									Details
+								</Button>
+							)}
 							<IconButton size='small' onClick={() => closeSnackbar(key)}>
 								<CloseIcon />
 							</IconButton>
