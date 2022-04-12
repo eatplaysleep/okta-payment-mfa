@@ -7,15 +7,22 @@ import { useSnackbar } from 'notistack';
 import { Button, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { routes } from './config';
-import {
-	CartProvider,
-	ProductsProvider,
-	useAuthDispatch,
-	useAuthState,
-} from './providers';
+import { CartProvider, ProductsProvider, useAuthDispatch, useAuthState } from './providers';
 import './styles/App.css';
-import { AppFooter, AppNavBar, SignIn } from './components';
+import {
+	AppFooter,
+	AppLoginCallback,
+	AppNavBar,
+	Cart,
+	Checkout,
+	Home,
+	Privacy,
+	Profile,
+	SignIn,
+	StepUpLoginCallback,
+	Store,
+	Terms,
+} from './components';
 
 const App = () => {
 	const isStepUp = useRouteMatch('/stepup/callback');
@@ -27,7 +34,7 @@ const App = () => {
 	const { errors } = useAuthState();
 
 	useEffect(() => {
-		const dismissSnackbar = errorId => {
+		const dismissSnackbar = (errorId) => {
 			let newErrors = errors.filter((_, index) => index !== errorId);
 
 			dispatch({ type: 'DISMISS_ERROR', errors: newErrors });
@@ -37,7 +44,7 @@ const App = () => {
 			errors.forEach((error, index) =>
 				enqueueSnackbar(error?.message ?? 'Unknown Error', {
 					variant: 'error',
-					action: key => (
+					action: (key) => (
 						<Fragment>
 							<Button size='small' onClick={() => alert(error?.stack)}>
 								Details
@@ -56,33 +63,18 @@ const App = () => {
 	return (
 		<ProductsProvider>
 			<CartProvider>
-				<Route path='/login' component={SignIn} exact />
 				{!isStepUp && <AppNavBar />}
-				<div>
-					<Switch>
-						{routes.map(route => {
-							if (route?.isSecure) {
-								return (
-									<SecureRoute
-										key={route.path}
-										path={route.path}
-										exact={route?.isExact ?? false}
-										component={route.component}
-									/>
-								);
-							} else {
-								return (
-									<Route
-										key={route.path}
-										path={route.path}
-										exact={route?.isExact ?? false}
-										component={route.component}
-									/>
-								);
-							}
-						})}
-					</Switch>
-				</div>
+				<Switch>
+					<SecureRoute path='/me' exact={true} component={Profile} />
+					<Route path='/cart' exact component={Cart} />
+					<Route path='/checkout' exact component={Checkout} />
+					<Route path='/login/callback' exact component={AppLoginCallback} />
+					<Route path='/stepup/callback' exact component={StepUpLoginCallback} />
+					<Route path='/privacy' exact component={Privacy} />
+					<Route path='/store' exact component={Store} />
+					<Route path='/terms' exact component={Terms} />
+					<Route path='*' component={Home} />
+				</Switch>
 				{!isStepUp && <AppFooter />}
 			</CartProvider>
 		</ProductsProvider>
