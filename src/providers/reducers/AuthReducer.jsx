@@ -19,6 +19,8 @@ export const AuthReducer = (state, action) => {
 	console.debug(JSON.stringify(action, null, 2));
 	try {
 		switch (action.type) {
+			// merge the basics: state, payload, errors
+			case 'FACTOR_ENROLL_DIALOG':
 			case 'DISMISS_ERROR':
 				return _.merge({}, state, action?.payload, action?.errors);
 			case 'GET_FACTORS':

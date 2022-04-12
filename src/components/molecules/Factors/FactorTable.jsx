@@ -13,15 +13,16 @@ export const FactorTable = () => {
 		fetchFactors,
 		// idxModalIsVisible,
 		isStale,
+		isVisibleFactorDialog,
 		factorsAreLoading,
 		hasWebAuthn,
 	} = useAuthState();
 	const { removeFactor } = useAuthActions();
 
-	const [dialogIsOpen, openDialog] = useState(false);
 	const [idxModalIsOpen, openIdxModal] = useState(false);
 
-	const handleDialog = () => openDialog(() => !dialogIsOpen);
+	const handleDialog = () =>
+		dispatch({ type: 'FACTOR_ENROLL_DIALOG', payload: { isVisibleFactorDialog: !isVisibleFactorDialog } });
 
 	const handleIdxModal = () => openIdxModal(() => !idxModalIsOpen);
 
@@ -77,7 +78,7 @@ export const FactorTable = () => {
 					</div>
 				)}
 			</Box>
-			{user && <FactorDialog open={dialogIsOpen} onClose={handleDialog} user={user?.sub} />}
+			{user && <FactorDialog open={isVisibleFactorDialog} onClose={handleDialog} user={user?.sub} />}
 			<IdxModal open={idxModalIsOpen} onClose={handleIdxModal} />
 		</Fragment>
 	);
