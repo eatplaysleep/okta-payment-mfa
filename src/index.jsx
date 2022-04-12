@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import RootApp from './RootApp';
-import './styles/Index.css';
+import './styles/index.css';
 import reportWebVitals from './reportWebVitals';
 
 const ErrorHandler = ({ error }) => {
