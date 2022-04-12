@@ -82,6 +82,8 @@ export const AuthReducer = (state, action) => {
 			case 'LOGIN_WITH_CREDENTIALS':
 			case 'LOGIN':
 				return _.merge({}, state, action?.payload, { isLoadingLogin: true });
+			case 'REMOVE_FACTOR_SUCCESS':
+			case 'REMOVE_FACTOR_ERROR':
 			case 'REFRESH_FACTORS':
 				return _.merge({}, state, action?.payload, {
 					factorsAreLoading: true,
@@ -125,6 +127,13 @@ export const AuthReducer = (state, action) => {
 				delete state.tokenParams;
 				return _.merge({}, state, { isStale: true }, action?.payload, {
 					isLoadingLogin: false,
+				});
+			case 'FETCH_FACTORS_SUCCESS':
+				delete state.factors;
+
+				return _.merge({}, state, action?.payload, {
+					isStale: false,
+					factorsAreLoading: false,
 				});
 			case 'SUCCESS':
 				return _.merge({}, state, action?.payload, {

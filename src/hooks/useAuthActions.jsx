@@ -62,8 +62,7 @@ export const useAuthActions = () => {
 					config.redirectUri = `${window.location.origin}/login/callback`;
 				}
 
-				const { tokens } =
-					(await oktaAuth.token.getWithoutPrompt(config)) || {};
+				const { tokens } = (await oktaAuth.token.getWithoutPrompt(config)) || {};
 
 				if (tokens) {
 					await oktaAuth.tokenManager.setTokens(tokens);
@@ -169,9 +168,7 @@ export const useAuthActions = () => {
 
 				if (isCodeExchange) {
 					console.log(tokenParams);
-					const response = await oktaAuth.token.exchangeCodeForTokens(
-						tokenParams
-					);
+					const response = await oktaAuth.token.exchangeCodeForTokens(tokenParams);
 
 					if (!response?.tokens) {
 						return dispatch({
@@ -269,9 +266,7 @@ export const useAuthActions = () => {
 
 			localStorage.removeItem('user');
 
-			return oktaAuth
-				.signOut(config)
-				.then(() => dispatch({ type: 'LOGOUT_SUCCESS' }));
+			return oktaAuth.signOut(config).then(() => dispatch({ type: 'LOGOUT_SUCCESS' }));
 		};
 
 		const enrollMFA = async (dispatch, userId, factor) => {
@@ -341,22 +336,19 @@ export const useAuthActions = () => {
 
 					let url = `${window.location.origin}/api/${userId}/factors`;
 
-					const factors = await fetch(url).then(resp => {
+					const factors = await fetch(url).then((resp) => {
 						if (resp.ok) {
 							return resp.json();
 						} else throw resp;
 					});
 
 					// console.debug(JSON.stringify(factors, null, 2));
-					const hasWebAuthn =
-						_.findIndex(factors, { factorType: 'webauthn' }) > 0;
+					const hasWebAuthn = _.findIndex(factors, { factorType: 'webauthn' }) > 0;
 
 					return dispatch({
-						type: 'SUCCESS',
+						type: 'FETCH_FACTORS_SUCCESS',
 						payload: {
 							factors,
-							isStale: false,
-							factorsAreLoading: false,
 							hasWebAuthn,
 						},
 					});
@@ -364,6 +356,30 @@ export const useAuthActions = () => {
 			} catch (err) {
 				console.error(err);
 				return dispatch({ type: 'FETCH_ERROR', error: err });
+			}
+		};
+
+		const removeFactor = async (dispatch, { userId, factorId }) => {
+			try {
+				const url = `${window.location.origin}/api/${userId}/factors/${factorId}`;
+				const options = {
+					method: 'DELETE',
+				};
+
+				dispatch({ type: 'REMOVE_FACTOR' });
+				console.log('deleting factor...');
+				const response = await fetch(url, options);
+
+				if (!response.ok) {
+					throw response;
+				}
+
+				dispatch({ type: 'REMOVE_FACTOR_SUCCESS' });
+
+				return factorId;
+			} catch (err) {
+				console.error(err);
+				return dispatch({ type: 'REMOVE_FACTOR_ERROR' });
 			}
 		};
 
@@ -376,6 +392,7 @@ export const useAuthActions = () => {
 			login,
 			loginWithCredentials,
 			logout,
+			removeFactor,
 			silentAuth,
 		};
 	} catch (error) {
@@ -384,7 +401,7 @@ export const useAuthActions = () => {
 	}
 };
 
-const generateAuthUrl = async sdk => {
+const generateAuthUrl = async (sdk) => {
 	try {
 		const tokenParams = await sdk.token.prepareTokenParams(),
 			{ issuer, authorizeUrl } = sdk.options || {};
@@ -401,7 +418,7 @@ const generateAuthUrl = async sdk => {
 		throw new Error(`Unable to generate auth url [${error}]`);
 	}
 };
-const buildAuthorizeParams = tokenParams => {
+const buildAuthorizeParams = (tokenParams) => {
 	let params = {};
 
 	for (const [key, value] of Object.entries(tokenParams)) {

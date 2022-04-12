@@ -1,17 +1,11 @@
 /** @format */
 
 import { Fragment, useEffect, useState } from 'react';
-import {
-	Button,
-	Dialog,
-	DialogActions,
-	DialogTitle,
-	DialogContent,
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
 import { FactorList } from '../../../components';
 import { useAuthState, useAuthDispatch } from '../../../providers';
 
-export const FactorDialog = props => {
+export const FactorDialog = (props) => {
 	const { open, user, onClose } = props;
 	const dispatch = useAuthDispatch();
 	const { enrollMFA } = useAuthState();
@@ -19,10 +13,10 @@ export const FactorDialog = props => {
 	const [availableFactors, setAvailableFactors] = useState();
 	const [factor, enrollFactor] = useState();
 
-	const onSelect = event => {
+	const onSelect = (event) => {
 		event.preventDefault();
 
-		enrollFactor(() => event?.target?.value);
+		enrollFactor(() => event?.target?.value?.toLowerCase());
 	};
 
 	useEffect(() => {
@@ -30,20 +24,20 @@ export const FactorDialog = props => {
 
 		if (!availableFactors) {
 			return fetch(url)
-				.then(resp => {
+				.then((resp) => {
 					if (resp.ok) {
 						return resp.json();
 					}
 				})
-				.then(resp => setAvailableFactors(() => resp))
-				.catch(err => console.error(err));
+				.then((resp) => setAvailableFactors(() => resp))
+				.catch((err) => console.error(err));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [availableFactors]);
 
 	useEffect(() => {
 		if (factor) {
-			return enrollMFA(dispatch, user, factor).then(resp => {
+			return enrollMFA(dispatch, user, factor).then((resp) => {
 				if (resp) {
 					dispatch({ type: 'REFRESH_FACTORS' });
 					return onClose();
@@ -58,9 +52,7 @@ export const FactorDialog = props => {
 			<Dialog open={open} onClose={onClose}>
 				<DialogTitle>Enroll Factor</DialogTitle>
 				<DialogContent>
-					{availableFactors?.length > 0 && (
-						<FactorList factors={availableFactors} onChange={onSelect} />
-					)}
+					{availableFactors?.length > 0 && <FactorList factors={availableFactors} onChange={onSelect} />}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose}>Cancel</Button>

@@ -21,6 +21,10 @@ export const deleteFactor = async (req: VercelRequest, res: VercelResponse) => {
 
 		const response = await client.http.http(url, request as RequestOptions);
 
+		if (response?.status === 204) {
+			return res.status(response?.status).send('');
+		}
+
 		return res.status(response?.status).send(await response.json());
 	} catch (error) {
 		console.error(error);

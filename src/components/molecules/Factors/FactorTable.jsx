@@ -1,25 +1,9 @@
 /** @format */
 
 import { Fragment, useEffect, useState } from 'react';
-import {
-	Box,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Table,
-} from '@mui/material';
-import {
-	Button,
-	Factor,
-	FactorDialog,
-	IdxModal,
-	Loader,
-	Typography,
-	WebAuthNButton,
-} from '../../../components';
-import { useAuthDispatch, useAuthState } from '../../../providers';
+import { Box, TableBody, TableCell, TableContainer, TableHead, TableRow, Table } from '@mui/material';
+import { Button, Factor, FactorDialog, IdxModal, Loader, Typography, WebAuthNButton } from '../../../components';
+import { useAuthDispatch, useAuthState, useAuthActions } from '../../../providers';
 
 export const FactorTable = () => {
 	const dispatch = useAuthDispatch();
@@ -32,19 +16,16 @@ export const FactorTable = () => {
 		factorsAreLoading,
 		hasWebAuthn,
 	} = useAuthState();
-	const [handleFactor, removeFactor] = useState(false);
+	const { removeFactor } = useAuthActions();
+
 	const [dialogIsOpen, openDialog] = useState(false);
 	const [idxModalIsOpen, openIdxModal] = useState(false);
-	const [factorId, setFactorId] = useState();
 
 	const handleDialog = () => openDialog(() => !dialogIsOpen);
 
 	const handleIdxModal = () => openIdxModal(() => !idxModalIsOpen);
 
-	const handleRemoveFactor = factorId => {
-		setFactorId(() => factorId);
-		removeFactor(() => true);
-	};
+	const handleRemoveFactor = (factorId) => removeFactor(dispatch, { userId: user.sub, factorId });
 
 	useEffect(() => {
 		if (user?.sub && (isStale || !factors)) {
@@ -52,35 +33,6 @@ export const FactorTable = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isStale]);
-
-	useEffect(() => {
-		const deleteFactor = async factorId => {
-			const url = `${window.location.origin}/api/${user?.sub}/factors/${factorId}`;
-			const options = {
-				method: 'DELETE',
-			};
-
-			return fetch(url, options)
-				.then(resp => {
-					if (resp.ok) {
-						return;
-					} else throw resp;
-				})
-				.then(() => setFactorId(() => undefined))
-				.catch(err => console.error(err));
-		};
-
-		if (factorId && handleFactor) {
-			dispatch({ type: 'REMOVE_FACTOR' });
-			console.log('deleting factor...');
-			removeFactor(() => false);
-
-			return deleteFactor(factorId).then(() =>
-				dispatch({ type: 'REFRESH_FACTORS' })
-			);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [handleFactor, factorId]);
 
 	return (
 		<Fragment>
@@ -102,17 +54,9 @@ export const FactorTable = () => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{(factorsAreLoading || !Array.isArray(factors)) && (
-							<Loader component='tr' />
-						)}
+						{(factorsAreLoading || !Array.isArray(factors)) && <Loader component='tr' />}
 						{Array.isArray(factors) ? (
-							factors.map(factor => (
-								<Factor
-									key={factor.id}
-									factor={factor}
-									onClick={handleRemoveFactor}
-								/>
-							))
+							factors.map((factor) => <Factor key={factor.id} factor={factor} onClick={handleRemoveFactor} />)
 						) : (
 							<></>
 						)}
@@ -126,24 +70,14 @@ export const FactorTable = () => {
 				{/* <Button onClick={handleIdxModal}>Test IDX</Button> */}
 				{hasWebAuthn && (
 					<div>
-						<WebAuthNButton
-							variant='contained'
-							color='secondary'
-							discover='true'
-						>
+						<WebAuthNButton variant='contained' color='secondary' discover='true'>
 							Discoverable WebAuthn
 						</WebAuthNButton>
 						<WebAuthNButton variant='contained'>Test WebAuthn</WebAuthNButton>
 					</div>
 				)}
 			</Box>
-			{user && (
-				<FactorDialog
-					open={dialogIsOpen}
-					onClose={handleDialog}
-					user={user?.sub}
-				/>
-			)}
+			{user && <FactorDialog open={dialogIsOpen} onClose={handleDialog} user={user?.sub} />}
 			<IdxModal open={idxModalIsOpen} onClose={handleIdxModal} />
 		</Fragment>
 	);
