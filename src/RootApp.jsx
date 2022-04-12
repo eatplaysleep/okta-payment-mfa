@@ -21,17 +21,13 @@ const RootApp = () => {
 	const restoreOriginalUri = async (_oktaAuth, originalUri) =>
 		history.replace(toRelativeUrl(originalUri || '/', window.location.origin));
 	const customAuthHandler = () => {
-		history.push('/login');
+		history.push('/');
 	};
 	return (
 		<ThemeProvider theme={Theme}>
 			<CssBaseline />
 			<React.Suspense fallback={<div>Loading...</div>}>
-				<Security
-					oktaAuth={oktaAuth}
-					restoreOriginalUri={restoreOriginalUri}
-					onAuthRequired={customAuthHandler}
-				>
+				<Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri} onAuthRequired={customAuthHandler}>
 					<AuthProvider>
 						<SnackbarProvider preventDuplicate={true} autoHideDuration='10000'>
 							<App />
