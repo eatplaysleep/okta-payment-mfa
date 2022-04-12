@@ -18,7 +18,6 @@ import {
 	Home,
 	Privacy,
 	Profile,
-	SignIn,
 	StepUpLoginCallback,
 	Store,
 	Terms,
