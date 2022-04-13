@@ -5,81 +5,53 @@ import { IconButton, DialogContent, DialogTitle } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import swal from 'sweetalert';
 import { AuthDialog, Loader } from '../../../components';
-import { useAuthDispatch, useAuthState } from '../../../providers';
+import { useAuthActions, useAuthDispatch, useAuthState } from '../../../providers';
 
 const ENV = process.env.NODE_ENV;
-const ORIGINS = process.env.REACT_APP_ORIGIN_ALLOW?.split(/, {0,2}/) || [
-	window.location.origin,
-];
+const ORIGINS = process.env.REACT_APP_ORIGIN_ALLOW?.split(/, {0,2}/) || [window.location.origin];
 
-export const AuthModal = props => {
+export const AuthModal = (props) => {
 	const { onClose } = props;
 	const dispatch = useAuthDispatch();
-	const {
-		authModalIsVisible,
-		isLoadingLogin,
-		iFrameIsVisible,
-		login,
-		authUrl,
-		tokenParams,
-	} = useAuthState();
+	const { isVisibleAuthModal, isLoadingLogin, isVisibleIframe, authUrl, tokenParams } = useAuthState();
+	const { login } = useAuthActions();
 
 	const ALLOW = process.env.REACT_APP_STEP_UP_ALLOW,
 		modalWidth = '400px',
 		modalHeight = '650px';
 
 	const onCancel = () => {
-		dispatch({ type: 'LOGIN_CANCEL' });
+		dispatch({ type: 'LOGIN_CANCELLED' });
 		return onClose();
 	};
-	useEffect(() => {
-		console.debug('authModalIsVisible:', authModalIsVisible);
-		if (authModalIsVisible) {
-			login(dispatch, { authModalIsVisible });
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [authModalIsVisible]);
-	useEffect(() => {
-		if (tokenParams?.authorizationCode) {
-			return login(dispatch, {
-				tokenParams,
-				authModalIsVisible,
-			});
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [tokenParams]);
+	// useEffect(() => {
+	// 	if (tokenParams?.authorizationCode) {
+	// 		return login(dispatch, {
+	// 			tokenParams,
+	// 			isVisibleAuthModal,
+	// 		});
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [tokenParams]);
 	useEffect(() => {
 		const responseHandler = ({ origin, data }) => {
 			if (ENV === 'production') {
 				const isAllowed = ORIGINS.includes(origin);
 				if (!isAllowed) {
 					return dispatch({
-						type: 'LOGIN_ERROR',
-						payload: {
-							iFrameIsVisible: false,
-							authModalIsVisible: false,
-						},
+						type: 'LOGIN_IFRAME_FAILED',
 						error: `'origin' [${origin}] not allowed`,
 					});
 				}
 			}
 
 			if (data?.code) {
-				dispatch({
-					type: 'EXCHANGE_CODE',
-					payload: {
-						tokenParams: {
-							...tokenParams,
-							authorizationCode: data?.code,
-							interactionCode: data?.interaction_code,
-						},
-					},
-				});
+				login(dispatch, data);
 			} else {
 				switch (data?.type) {
 					case 'onload':
 						if (data?.result === 'success') {
-							return dispatch({ type: 'LOGIN_STARTED' });
+							return dispatch({ type: 'LOGIN_IFRAME_LOADED' });
 						}
 						break;
 					case 'callback':
@@ -120,7 +92,7 @@ export const AuthModal = props => {
 			}
 		};
 
-		const resolve = error => {
+		const resolve = (error) => {
 			if (error) {
 				throw error;
 			}
@@ -129,17 +101,17 @@ export const AuthModal = props => {
 			window.removeEventListener('message', responseHandler);
 		};
 
-		if (authModalIsVisible) {
+		if (isVisibleAuthModal) {
 			console.debug('adding listener...');
 			window.addEventListener('message', responseHandler);
 		}
 
 		return () => resolve();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [authModalIsVisible]);
+	}, [isVisibleAuthModal]);
 
 	return (
-		<AuthDialog open={authModalIsVisible} onClose={onClose}>
+		<AuthDialog open={isVisibleAuthModal} onClose={onClose}>
 			<DialogTitle>
 				<IconButton
 					edge='end'
@@ -160,7 +132,7 @@ export const AuthModal = props => {
 			</DialogTitle>
 			<DialogContent sx={{ width: modalWidth, height: modalHeight }}>
 				{isLoadingLogin && <Loader />}
-				{authUrl && iFrameIsVisible && (
+				{authUrl && isVisibleIframe && (
 					<iframe
 						src={authUrl}
 						name='iframe-auth'

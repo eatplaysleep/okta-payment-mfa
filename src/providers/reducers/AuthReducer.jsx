@@ -1,15 +1,29 @@
+/* eslint-disable no-fallthrough */
 /** @format */
 
 import * as _ from 'lodash';
 
-export const initialState = {
-	isError: false,
-	isLoading: false,
+const initialLoginState = {
 	isLoadingLogin: false,
+	isVisibleAuthModal: false,
+	isVisibleIframe: false,
 	isAuthenticated: false,
+};
+
+export const initialState = {
+	// isLoading == general 'is busy' indicator that locks the entire app with a loading overlay
+	isLoading: false,
+
+	isLoadingFactors: false,
+	isLoadingFactorCatalog: false,
+	isLoadingLogout: false,
 	isLoadingProfile: false,
-	authModalIsVisible: false,
+	// isStaleFactors == if 'true', fetch new factors
+	isStaleFactors: false,
+	isStaleUser: false,
+
 	errors: [],
+	...initialLoginState,
 };
 
 export const AuthReducer = (state, action) => {
@@ -18,31 +32,142 @@ export const AuthReducer = (state, action) => {
 	console.debug('=======    dispatch     =======');
 	console.debug(JSON.stringify(action, null, 2));
 	try {
+		// reset the temp state
+		let tempState = {};
+
 		switch (action.type) {
-			// merge the basics: state, payload, errors
-			case 'FACTOR_ENROLL_DIALOG':
+			case 'MFA_ISSUE_STARTED':
+				tempState = { isLoadingLogin: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'MFA_ISSUE_USER_CANCELLED':
+			case 'MFA_ISSUE_SUCCEEDED':
+				tempState = { isLoadingLogin: false, isLoadingFactors: false, isStaleFactors: false };
+				return { ...state, ...tempState, ...action?.payload };
+
+			// FACTOR ENROLLMENT
+			case 'FACTOR_ENROLL_DIALOG_TOGGLED':
+			case 'FACTOR_ENROLL_STARTED':
+				tempState = { isLoading: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			// 'default'
+			case 'FACTOR_ENROLL_SUCCEEDED':
+				return { ...state, ...action?.payload };
+
+			// FACTOR MANAGEMENT
+			case 'FACTORS_REMOVE_STARTED':
+			case 'FACTORS_FETCH_STARTED':
+				tempState = { isLoadingFactors: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'FACTORS_FETCH_AVAILABLE_STARTED':
+				tempState = { isLoadingFactorCatalog: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'FACTORS_FETCH_AVAILABLE_SUCCESS':
+				tempState = { isLoadingFactorCatalog: false };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'FACTORS_REMOVE_SUCCEEDED':
+			case 'FACTORS_FETCH_SUCCEEDED':
+				tempState = { isStaleFactors: false, isLoadingFactors: false };
+				return { ...state, ...tempState, ...action?.payload };
+
+			// LOGIN
+			case 'LOGIN_CODE_EXCHANGE_STARTED':
+			case 'LOGIN_STARTED':
+				tempState = { isLoadingLogin: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_IFRAME_STARTED':
+				tempState = { isVisibleAuthModal: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_IFRAME_LOADED':
+				tempState = { isLoadingLogin: false };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_TOKEN_PARAMS_GENERATED':
+				tempState = { isVisibleIframe: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_REDIRECT_STARTED':
+				tempState = { isLoadingLogin: true };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_CANCELLED':
+			case 'LOGIN_COMPLETED':
+				delete state.tokenParams;
+				tempState = { ...initialLoginState };
+				return { ...state, ...tempState, ...action?.payload };
+
+			case 'LOGIN_CODE_EXCHANGED':
+				// 'default'
+				return { ...state, ...action?.payload };
+
+			// LOGOUT
+			case 'LOGOUT_STARTED':
+				tempState = { isLoadingLogout: true };
+				return { ...state, ...tempState, ...action?.payload };
+			case 'LOGOUT_SUCCEEDED':
+				tempState = { ...initialState };
+				return { ...state, ...tempState, ...action?.payload };
+
+			// WEBAUTHN
+			case 'WEBAUTHN_ATTEST_STARTED':
+				// 'default'
+				return { ...state, ...action?.payload };
+
+			// ERRORS
+			case 'ERROR_DISMISSED':
+			case 'MFA_ISSUE_FAILED':
+			case 'FACTOR_ENROLL_FAILED':
+			case 'FACTOR_REMOVE_FAILED':
+			case 'FACTORS_FETCH_FAILED':
+			case 'FACTORS_FETCH_AVAILABLE_FAILED':
+			case 'LOGIN_FAILED':
+			case 'LOGIN_IFRAME_FAILED':
+			case 'LOGIN_CODE_EXCHANGE_FAILED':
+				const errors = [...(state.errors ?? []), ...(action?.errors ?? [])];
+
+				if (action?.error) {
+					errors.push(action.error);
+				}
+
+				const result = {
+					...state,
+					...initialState,
+					errors,
+					...action?.payload,
+				};
+
+				console.debug('=== result ===');
+				console.debug(result);
+
+				return result;
+
+			// ===
+
 			case 'DISMISS_ERROR':
-				return _.merge({}, state, action?.payload, action?.errors);
-			case 'GET_FACTORS':
-			case 'REMOVE_FACTOR':
-				return _.merge({}, state, action?.payload, { factorsAreLoading: true });
+				return _.merge({}, state, action?.payload, { isLoadingFactors: true });
 			case 'GET_USER':
 				return _.merge({}, state, action?.payload, { isLoadingProfile: true });
 			case 'LOGIN_AUTHORIZE':
-			case 'LOGIN_STARTED':
-				return _.merge({}, state, action?.payload, {
-					iFrameIsVisible: true,
-					authModalIsVisible: true,
-					isLoadingLogin: false,
-				});
-			case 'LOGIN_START':
-				return _.merge({}, state, action?.payload, { isLoadingLogin: true });
-			case 'LOGIN_MODAL_START':
-				return _.merge({}, state, action?.payload, {
-					iFrameIsVisible: true,
-					authModalIsVisible: true,
-					isLoadingLogin: true,
-				});
+			// case 'LOGIN_STARTED':
+			// 	return _.merge({}, state, action?.payload, {
+			// 		iFrameIsVisible: true,
+			// 		authModalIsVisible: true,
+			// 		isLoadingLogin: false,
+			// 	});
+			// case 'LOGIN_START':
+			// 	return _.merge({}, state, action?.payload, { isLoadingLogin: true });
+			// case 'LOGIN_MODAL_START':
+			// 	return _.merge({}, state, action?.payload, {
+			// 		iFrameIsVisible: true,
+			// 		authModalIsVisible: true,
+			// 		isLoadingLogin: true,
+			// 	});
 			case 'SILENT_AUTH_START':
 				return _.merge({}, state, action?.payload, {
 					isLoadingLogin: true,
@@ -84,20 +209,18 @@ export const AuthReducer = (state, action) => {
 			case 'LOGIN_WITH_CREDENTIALS':
 			case 'LOGIN':
 				return _.merge({}, state, action?.payload, { isLoadingLogin: true });
-			case 'REMOVE_FACTOR_SUCCESS':
-			case 'REMOVE_FACTOR_ERROR':
 			case 'REFRESH_FACTORS':
 				return _.merge({}, state, action?.payload, {
 					factorsAreLoading: true,
-					isStale: true,
+					isStaleFactors: true,
 				});
 			case 'MFA_ENROLL_SUCCESS':
 				return _.merge({}, state, action?.payload, {
 					isLoading: false,
-					isStale: true,
+					isStaleFactors: true,
 				});
 			case 'STEP_UP_COMPLETE':
-				return _.merge({}, state, { isStale: false }, action?.payload, {
+				return _.merge({}, state, { isStaleFactors: false }, action?.payload, {
 					isLoading: false,
 					iFrameIsVisible: false,
 					authModalIsVisible: false,
@@ -125,18 +248,13 @@ export const AuthReducer = (state, action) => {
 			case 'SILENT_AUTH_CANCEL':
 			case 'AUTHN_SUCCESS':
 			case 'IDX_NEXT':
-			case 'LOGIN_SUCCESS':
-				delete state.tokenParams;
-				return _.merge({}, state, { isStale: true }, action?.payload, {
-					isLoadingLogin: false,
-				});
-			case 'FETCH_FACTORS_SUCCESS':
-				delete state.factors;
+			// case 'LOGIN_SUCCESS':
+			// 	delete state.tokenParams;
+			// 	return _.merge({}, state, { isStale: true }, action?.payload, {
+			// 		isLoadingLogin: false,
+			// 	});
 
-				return _.merge({}, state, action?.payload, {
-					isStale: false,
-					factorsAreLoading: false,
-				});
+			case 'FACTOR_ENROLL_SUCCESS':
 			case 'SUCCESS':
 				return _.merge({}, state, action?.payload, {
 					isLoading: false,
@@ -151,25 +269,25 @@ export const AuthReducer = (state, action) => {
 				});
 			case 'LOGOUT_SUCCESS':
 				return _.merge({}, state, action?.payload, { isLoadingLogout: false });
-			case 'LOGOUT':
-				return _.merge({}, state, action?.payload, { isLoadingLogout: true });
-			case 'MFA_ERROR':
+
+			// bad stuff
 			case 'WEBAUTHN_ERROR':
 			case 'STEP_UP_ERROR':
+
 			case 'FETCH_ERROR':
 			case 'LOGIN_ERROR':
-				let errors = _.merge([], state?.errors ?? [], [action?.error]);
+			// let errors = _.merge([], state?.errors ?? [], [action?.error]);
 
-				let result = _.merge({}, state, initialState, action?.payload, {
-					errors,
-				});
-				console.debug('=== result ===');
-				console.debug(result);
-				if (action?.error) {
-					console.error(action.error);
-					delete action.error;
-				}
-				return result;
+			// let result = _.merge({}, state, initialState, action?.payload, {
+			// 	errors,
+			// });
+			// console.debug('=== result ===');
+			// console.debug(result);
+			// if (action?.error) {
+			// 	console.error(action.error);
+			// 	delete action.error;
+			// }
+			// return result;
 			default:
 				let error = new Error(`Unhandled action type: ${action.type}`);
 				console.error(error);

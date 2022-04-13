@@ -12,7 +12,7 @@ export const FactorTable = () => {
 		factors,
 		fetchFactors,
 		// idxModalIsVisible,
-		isStale,
+		isStaleFactors,
 		isVisibleFactorDialog,
 		factorsAreLoading,
 		hasWebAuthn,
@@ -22,18 +22,18 @@ export const FactorTable = () => {
 	const [idxModalIsOpen, openIdxModal] = useState(false);
 
 	const handleDialog = () =>
-		dispatch({ type: 'FACTOR_ENROLL_DIALOG', payload: { isVisibleFactorDialog: !isVisibleFactorDialog } });
+		dispatch({ type: 'FACTOR_ENROLL_DIALOG_TOGGLED', payload: { isVisibleFactorDialog: !isVisibleFactorDialog } });
 
 	const handleIdxModal = () => openIdxModal(() => !idxModalIsOpen);
 
 	const handleRemoveFactor = (factorId) => removeFactor(dispatch, { userId: user.sub, factorId });
 
 	useEffect(() => {
-		if (user?.sub && (isStale || !factors)) {
+		if (user?.sub && (isStaleFactors || !factors)) {
 			return fetchFactors(dispatch, user.sub);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isStale]);
+	}, [isStaleFactors]);
 
 	return (
 		<Fragment>

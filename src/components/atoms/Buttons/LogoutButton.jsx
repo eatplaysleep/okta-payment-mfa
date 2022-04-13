@@ -3,19 +3,17 @@
 import { CircularProgress, IconButton } from '@mui/material';
 import { Logout } from '@mui/icons-material';
 import { LoadingButton } from '../../../components';
-import { useAuthState, useAuthDispatch } from '../../../providers';
+import { useAuthActions, useAuthState, useAuthDispatch } from '../../../providers';
 
-export const LogoutButton = props => {
+export const LogoutButton = (props) => {
 	const { loader } = props || {};
 	const isIconButton = props?.isiconbutton === 'true' ? true : false;
 	const dispatch = useAuthDispatch();
-	const { logout, isLoadingLogout } = useAuthState();
+	const { isLoadingLogout } = useAuthState();
+	const { logout } = useAuthActions();
 
-	const onClick = () => {
-		dispatch({ type: 'LOGOUT' });
+	const onClick = () => logout(dispatch);
 
-		return logout(dispatch);
-	};
 	props = {
 		onClick: onClick,
 		children: 'Logout',

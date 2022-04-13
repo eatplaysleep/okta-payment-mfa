@@ -1,7 +1,7 @@
 /** @format */
 
 import { useOktaAuth } from '@okta/okta-react';
-import { removeNils } from '@okta/okta-auth-js';
+import { removeNils, getOAuthUrls } from '@okta/okta-auth-js';
 import { useWebAuthn } from '../hooks';
 import { getUserInfo as getUser, toQueryString } from '../utils';
 import * as _ from 'lodash';
@@ -103,12 +103,13 @@ export const useAuthActions = () => {
 
 		const iFrameAuth = async (dispatch, options) => {
 			try {
-				const { authModalIsVisible, loginHint } = options || {};
+				const { loginHint } = options || {};
+				dispatch({ type: 'LOGIN_IFRAME_STARTED' });
 
-				if (!authModalIsVisible) {
-					console.debug('authModal is not visible, cancelling login');
-					return dispatch({ type: 'LOGIN_CANCEL' });
-				}
+				// if (!isVisibleAuthModal) {
+				// 	console.debug('authModal is not visible, cancelling login');
+				// 	return dispatch({ type: 'LOGIN_CANCELLED' });
+				// }
 
 				if (loginHint) {
 					console.debug('loginHint:', loginHint);
@@ -116,16 +117,16 @@ export const useAuthActions = () => {
 
 				console.debug('generating URL...');
 
-				dispatch({ type: 'LOGIN_START' });
-
 				const { authUrl, tokenParams } = await generateAuthUrl(oktaAuth);
 
 				console.debug('authState:', authState);
 
-				return dispatch({
-					type: 'LOGIN_AUTHORIZE',
-					payload: { authUrl, tokenParams },
-				});
+				if (authUrl && tokenParams) {
+					return dispatch({
+						type: 'LOGIN_TOKEN_PARAMS_GENERATED',
+						payload: { authUrl, tokenParams },
+					});
+				}
 			} catch (error) {
 				throw new Error(error);
 			}
@@ -160,32 +161,48 @@ export const useAuthActions = () => {
 
 		const login = async (dispatch, props) => {
 			try {
-				const { tokens, tokenParams, authModalIsVisible } = props || {};
+				const {
+					tokens,
+					state,
+					code: authorizationCode,
+					interaction_code: interactionCode,
+					isVisibleAuthModal,
+				} = props || {};
 
-				const { authorizationCode, interaction_code } = tokenParams || {};
-
-				const isCodeExchange = authorizationCode || interaction_code || false;
+				const isCodeExchange = authorizationCode || interactionCode || false;
 
 				if (isCodeExchange) {
-					console.log(tokenParams);
-					const response = await oktaAuth.token.exchangeCodeForTokens(tokenParams);
+					dispatch({ type: 'LOGIN_CODE_EXCHANGE_STARTED' });
+
+					const tokenParams = oktaAuth.transactionManager.load({ oauth: true, pkce: true, state });
+
+					const response = await oktaAuth.token.exchangeCodeForTokens({
+						...tokenParams,
+						authorizationCode,
+						interactionCode,
+					});
 
 					if (!response?.tokens) {
 						return dispatch({
-							type: 'LOGIN_ERROR',
+							type: 'LOGIN_CODE_EXCHANGE_FAILED',
 							error: `No tokens in response. Something went wrong! [${response}]`,
 						});
 					}
 
+					dispatch({ type: 'LOGIN_CODE_EXCHANGED' });
+
 					await oktaAuth.tokenManager.setTokens(response.tokens);
 
-					await oktaAuth.authStateManager.updateAuthState();
+					const { isAuthenticated } = await oktaAuth.authStateManager.updateAuthState();
 
-					return dispatch({ type: 'LOGIN_SUCCESS' });
+					return dispatch({
+						type: 'LOGIN_COMPLETED',
+						payload: { isAuthenticated, isStaleUser: true },
+					});
 				} else if (oktaAuth.isLoginRedirect() || tokens) {
 					console.debug('handling Okta redirect...');
 
-					dispatch({ type: 'LOGIN_REDIRECT' });
+					dispatch({ type: 'LOGIN_REDIRECT_STARTED' });
 
 					await oktaAuth.storeTokensFromRedirect();
 
@@ -193,8 +210,9 @@ export const useAuthActions = () => {
 
 					await oktaAuth.authStateManager.updateAuthState();
 
-					return;
+					return dispatch({ type: 'LOGIN_COMPLETED' });
 				} else if (!authState?.isAuthenticated) {
+					dispatch({ type: 'LOGIN_STARTED' });
 					console.debug('setting original uri...');
 
 					oktaAuth.setOriginalUri(window.location.href);
@@ -210,18 +228,19 @@ export const useAuthActions = () => {
 
 						return await iFrameAuth(dispatch, {
 							loginHint,
-							authModalIsVisible,
+							isVisibleAuthModal,
 						});
 					} else {
 						return await silentAuth(dispatch, {
 							hasSession,
-							authModalIsVisible,
+							isVisibleAuthModal,
 						});
 					}
 				}
+				console.log('no login action to take');
 			} catch (error) {
 				if (dispatch) {
-					dispatch({ type: 'LOGIN_ERROR', error: error });
+					dispatch({ type: 'LOGIN_FAILED', error: error });
 				}
 				return console.error('login error:', error);
 			}
@@ -262,16 +281,18 @@ export const useAuthActions = () => {
 			}
 
 			console.info('executing logout...');
-			dispatch({ type: 'LOGOUT' });
+			dispatch({ type: 'LOGOUT_STARTED' });
 
 			localStorage.removeItem('user');
 
-			return oktaAuth.signOut(config).then(() => dispatch({ type: 'LOGOUT_SUCCESS' }));
+			return oktaAuth.signOut(config).then(() => dispatch({ type: 'LOGOUT_SUCCEEDED' }));
 		};
 
 		const enrollMFA = async (dispatch, userId, factor) => {
 			try {
 				const url = `${window.location.origin}/api/${userId}/factors`;
+
+				dispatch({ type: 'FACTOR_ENROLL_STARTED' });
 
 				const request = {
 					factorType: factor,
@@ -288,14 +309,18 @@ export const useAuthActions = () => {
 				if (resp.ok) {
 					switch (factor) {
 						case 'webauthn':
-							return await webAuthnAttest(await resp.json());
+							await webAuthnAttest(dispatch, await resp.json());
+							break;
 						default:
 							break;
 					}
 				}
-			} catch (err) {
-				console.error(err);
-				return dispatch({ type: 'MFA_ERROR', error: err });
+
+				await fetchFactors(dispatch, userId);
+
+				return dispatch({ type: 'FACTOR_ENROLL_SUCCEEDED' });
+			} catch (error) {
+				return dispatch({ type: 'FACTOR_ENROLL_FAILED', error });
 			}
 		};
 
@@ -303,6 +328,8 @@ export const useAuthActions = () => {
 			try {
 				let message = 'Successfully authenticated!',
 					result = false;
+
+				dispatch({ type: 'MFA_ISSUE_STARTED' });
 
 				switch (options?.method) {
 					case 'webauthn':
@@ -314,10 +341,10 @@ export const useAuthActions = () => {
 
 				if (result?.success) {
 					dispatch({
-						type: 'MFA_SUCCESS',
+						type: 'MFA_ISSUE_SUCCEEDED',
 						payload: { message, factorsAreLoading: false, isStale: false },
 					});
-				} else if (result?.code === 'USER_CANCELLED') {
+				} else if (result?.code === 'MFA_ISSUE_USER_CANCELLED') {
 					return { success: false };
 				} else {
 					message = 'Something went awry.';
@@ -325,14 +352,37 @@ export const useAuthActions = () => {
 
 				return { message, success: result?.success };
 			} catch (error) {
-				return dispatch({ type: 'MFA_ERROR', error: error });
+				return dispatch({ type: 'MFA_ISSUE_FAILED', error: error });
+			}
+		};
+
+		const fetchAvailableFactors = async (dispatch, userId) => {
+			try {
+				dispatch({ type: 'FACTORS_FETCH_AVAILABLE_STARTED' });
+
+				const url = `${window.location.origin}/api/${userId}/factors/catalog`;
+
+				const response = await fetch(url);
+
+				if (!response.ok) {
+					throw response;
+				}
+
+				const availableFactors = await response.json();
+
+				dispatch({
+					type: 'FACTORS_FETCH_AVAILABLE_SUCCESS',
+					payload: { availableFactors },
+				});
+			} catch (error) {
+				return dispatch({ type: 'FACTORS_FETCH_AVAILABLE_FAILED', error });
 			}
 		};
 
 		const fetchFactors = async (dispatch, userId) => {
 			try {
 				if (userId) {
-					dispatch({ type: 'GET_FACTORS' });
+					dispatch({ type: 'FACTORS_FETCH_STARTED' });
 
 					let url = `${window.location.origin}/api/${userId}/factors`;
 
@@ -346,16 +396,16 @@ export const useAuthActions = () => {
 					const hasWebAuthn = _.findIndex(factors, { factorType: 'webauthn' }) > 0;
 
 					return dispatch({
-						type: 'FETCH_FACTORS_SUCCESS',
+						type: 'FACTORS_FETCH_SUCCEEDED',
 						payload: {
 							factors,
 							hasWebAuthn,
 						},
 					});
 				} else throw new Error('Missing userId!');
-			} catch (err) {
-				console.error(err);
-				return dispatch({ type: 'FETCH_ERROR', error: err });
+			} catch (error) {
+				console.error(error);
+				return dispatch({ type: 'FACTORS_FETCH_FAILED', error });
 			}
 		};
 
@@ -366,7 +416,7 @@ export const useAuthActions = () => {
 					method: 'DELETE',
 				};
 
-				dispatch({ type: 'REMOVE_FACTOR' });
+				dispatch({ type: 'FACTOR_REMOVE_STARTED' });
 				console.log('deleting factor...');
 				const response = await fetch(url, options);
 
@@ -374,17 +424,21 @@ export const useAuthActions = () => {
 					throw response;
 				}
 
-				dispatch({ type: 'REMOVE_FACTOR_SUCCESS' });
+				// refresh the factors
+				await fetchFactors(dispatch, userId);
+
+				dispatch({ type: 'FACTOR_REMOVE_SUCCEEDED' });
 
 				return factorId;
 			} catch (err) {
 				console.error(err);
-				return dispatch({ type: 'REMOVE_FACTOR_ERROR' });
+				return dispatch({ type: 'FACTOR_REMOVE_FAILED' });
 			}
 		};
 
 		return {
 			enrollMFA,
+			fetchAvailableFactors,
 			fetchFactors,
 			getUser,
 			idxLogin,
@@ -406,12 +460,22 @@ const generateAuthUrl = async (sdk) => {
 		const tokenParams = await sdk.token.prepareTokenParams(),
 			{ issuer, authorizeUrl } = sdk.options || {};
 
+		const urls = getOAuthUrls(sdk, tokenParams);
+
+		const meta = {
+			issuer,
+			urls,
+			...tokenParams,
+		};
+
 		// Use the query params to build the authorize url
 
 		// Get authorizeUrl and issuer
 		const url = authorizeUrl ?? `${issuer}/v1/authorize`;
 
 		const authUrl = url + buildAuthorizeParams(tokenParams);
+
+		sdk.transactionManager.save(meta, { oauth: true });
 
 		return { authUrl, tokenParams };
 	} catch (error) {

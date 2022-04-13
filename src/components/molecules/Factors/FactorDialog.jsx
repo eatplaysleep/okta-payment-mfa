@@ -3,41 +3,34 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
 import { FactorList } from '../../../components';
-import { useAuthState, useAuthDispatch } from '../../../providers';
+import { useAuthActions, useAuthState, useAuthDispatch } from '../../../providers';
 
 export const FactorDialog = (props) => {
-	const { open, user, onClose } = props;
+	const { open, userId, onClose } = props;
 	const dispatch = useAuthDispatch();
-	const { enrollMFA } = useAuthState();
+	const { fetchAvailableFactors } = useAuthActions();
+	const { enrollMFA, isLoadingFactorCatalog, availableFactors } = useAuthState();
 
-	const [availableFactors, setAvailableFactors] = useState();
 	const [factor, enrollFactor] = useState();
 
 	const onSelect = (event) => {
 		event.preventDefault();
 
-		enrollFactor(() => event?.target?.value?.toLowerCase());
+		const factor = event?.target?.value?.toLowerCase();
+
+		return enrollMFA(dispatch, userId, factor);
 	};
 
 	useEffect(() => {
-		const url = `${window.location.origin}/api/${user}/factors/catalog`;
-
-		if (!availableFactors) {
-			return fetch(url)
-				.then((resp) => {
-					if (resp.ok) {
-						return resp.json();
-					}
-				})
-				.then((resp) => setAvailableFactors(() => resp))
-				.catch((err) => console.error(err));
+		if (!availableFactors || (Array.isArray(availableFactors) && availableFactors.length < 1)) {
+			fetchAvailableFactors(dispatch, userId);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [availableFactors]);
+	}, [availableFactors, userId]);
 
 	useEffect(() => {
 		if (factor) {
-			return enrollMFA(dispatch, user, factor).then((resp) => {
+			return enrollMFA(dispatch, userId, factor).then((resp) => {
 				if (resp) {
 					dispatch({ type: 'REFRESH_FACTORS' });
 					return onClose();

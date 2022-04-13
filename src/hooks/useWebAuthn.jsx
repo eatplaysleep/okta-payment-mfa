@@ -16,10 +16,7 @@ const generatePublicKeyRequest = async (challenge, { discover, factor }) => {
 		if (!discover) {
 			publicKey = {
 				...publicKey,
-				allowCredentials: await generateAllowedCredentials(
-					_embedded?.enrolledFactors,
-					factor
-				),
+				allowCredentials: await generateAllowedCredentials(_embedded?.enrolledFactors, factor),
 			};
 		}
 
@@ -45,10 +42,7 @@ const generateAllowedCredentials = async (credentials = [], factor) => {
 			let credential = credentials[i];
 
 			console.debug(credential);
-			if (
-				credential?.factorType === 'webauthn' &&
-				credential?.status === 'ACTIVE'
-			) {
+			if (credential?.factorType === 'webauthn' && credential?.status === 'ACTIVE') {
 				allowCredentials.push({
 					id: CryptoUtil.strToBin(credential?.profile?.credentialId),
 					type: 'public-key',
@@ -68,7 +62,7 @@ const generateAllowedCredentials = async (credentials = [], factor) => {
 
 const lookupOktaFactorId = async (credentials = [], _credentialId) => {
 	try {
-		const credential = credentials.find(factor => {
+		const credential = credentials.find((factor) => {
 			return factor?.profile?.credentialId === _credentialId;
 		});
 
@@ -86,9 +80,7 @@ const lookupOktaFactorId = async (credentials = [], _credentialId) => {
 
 const buildOktaRequest = async (assertion, credentials) => {
 	try {
-		const _authenticatorData = CryptoUtil.binToStr(
-				assertion?.response?.authenticatorData
-			),
+		const _authenticatorData = CryptoUtil.binToStr(assertion?.response?.authenticatorData),
 			_clientData = CryptoUtil.binToStr(assertion?.response?.clientDataJSON),
 			_credentialId = assertion?.id,
 			_signatureData = CryptoUtil.binToStr(assertion?.response?.signature),
@@ -126,7 +118,7 @@ const buildOktaRequest = async (assertion, credentials) => {
 	}
 };
 
-const getWebAuthnAssertion = async publicKey => {
+const getWebAuthnAssertion = async (publicKey) => {
 	try {
 		const assertion = await navigator.credentials.get({ publicKey: publicKey });
 
@@ -145,7 +137,7 @@ const getWebAuthnChallenge = async ({ userId, factor }) => {
 	// get challenge from Okta
 	if (userId) {
 		const url = `${window.location.origin}/api/${userId}/factors/${factorId}/verify`;
-		const challenge = await fetch(url).then(resp => {
+		const challenge = await fetch(url).then((resp) => {
 			if (resp.ok) {
 				return resp.json();
 			} else throw resp;
@@ -161,9 +153,9 @@ const getWebAuthnChallenge = async ({ userId, factor }) => {
 };
 
 export const useWebAuthn = () => {
-	const webAuthnAttest = async data => {
+	const webAuthnAttest = async (dispatch, data) => {
 		try {
-			console.debug('enrolling WebAuthN...');
+			dispatch({ type: 'WEBAUTHN_ATTEST_STARTED' });
 
 			const _embedded = data?._embedded?.activation,
 				user = _embedded?.user,
@@ -196,9 +188,7 @@ export const useWebAuthn = () => {
 
 			const credential = await navigator.credentials.create({ publicKey });
 
-			const attestationBin = CryptoUtil.binToStr(
-					credential?.response?.attestationObject
-				),
+			const attestationBin = CryptoUtil.binToStr(credential?.response?.attestationObject),
 				clientData = CryptoUtil.binToStr(credential?.response?.clientDataJSON),
 				requestData = {
 					attestation: attestationBin,
@@ -242,21 +232,16 @@ export const useWebAuthn = () => {
 			const assertion = await getWebAuthnAssertion(publicKey);
 
 			// build Okta verify request
-			const { request, factorId } =
-				(await buildOktaRequest(
-					assertion,
-					challenge?._embedded?.enrolledFactors
-				)) || {};
+			const { request, factorId } = (await buildOktaRequest(assertion, challenge?._embedded?.enrolledFactors)) || {};
 
 			// call Okta to verify assertion
-			const result = await fetch(
-				`${window.location.origin}/api/${userId}/factors/${factorId}/verify`,
-				request
-			).then(resp => {
-				if (resp.ok) {
-					return resp.json();
-				} else throw resp;
-			});
+			const result = await fetch(`${window.location.origin}/api/${userId}/factors/${factorId}/verify`, request).then(
+				(resp) => {
+					if (resp.ok) {
+						return resp.json();
+					} else throw resp;
+				}
+			);
 
 			console.debug('=== result ===');
 			console.debug(result);

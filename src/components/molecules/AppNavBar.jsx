@@ -14,20 +14,14 @@ import {
 } from '../../components';
 import { Box } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import { useAuthDispatch, useAuthState } from '../../providers';
+import { useAuthActions, useAuthDispatch, useAuthState } from '../../providers';
 
 export const AppNavBar = () => {
 	const dispatch = useAuthDispatch();
 
-	const {
-		authModalIsVisible,
-		isAuthenticated,
-		isLoadingLogin,
-		isLoadingProfile,
-		isLoadingLogout,
-		silentAuth,
-		user,
-	} = useAuthState();
+	const { isVisibleAuthModal, isAuthenticated, isLoadingLogin, isLoadingProfile, isLoadingLogout, user } =
+		useAuthState();
+	const { silentAuth } = useAuthActions();
 
 	useEffect(() => {
 		if (!isAuthenticated) {
@@ -38,31 +32,20 @@ export const AppNavBar = () => {
 
 	return (
 		<AppBar>
-			<AuthModal
-				loginhint={user?.login}
-				open={authModalIsVisible}
-				onClose={() => {}}
-			/>
+			<AuthModal loginhint={user?.login} open={isVisibleAuthModal} onClose={() => {}} />
 			<Toolbar>
 				<Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
 					{isAuthenticated && (
 						<div>
 							<LinkIconButton to='/me'>
 								<AccountCircle />
-								<Typography variant='subtitle1'>
-									&nbsp;&nbsp;{user?.name}
-								</Typography>
+								<Typography variant='subtitle1'>&nbsp;&nbsp;{user?.name}</Typography>
 							</LinkIconButton>
 						</div>
 					)}
 				</Box>
 				<Link to='/' style={{ textDecoration: 'none' }}>
-					<Typography
-						variant='h6'
-						component='div'
-						color='white'
-						sx={{ fontSize: 24, textAlign: 'center' }}
-					>
+					<Typography variant='h6' component='div' color='white' sx={{ fontSize: 24, textAlign: 'center' }}>
 						Atko International
 					</Typography>
 				</Link>
@@ -77,11 +60,7 @@ export const AppNavBar = () => {
 					<CartIconButton />
 					{!isLoadingProfile && !isLoadingLogin && isAuthenticated && (
 						<Fragment>
-							<LogoutButton
-								isiconbutton='true'
-								sx={{ color: 'secondary.main' }}
-								loading={isLoadingLogout}
-							/>
+							<LogoutButton isiconbutton='true' sx={{ color: 'secondary.main' }} loading={isLoadingLogout} />
 						</Fragment>
 					)}
 					{(isLoadingLogin || isLoadingProfile || !isAuthenticated) && (
@@ -95,7 +74,7 @@ export const AppNavBar = () => {
 								/>
 							</div>
 							<div>
-								<LoginButton loading={isLoadingLogin || isLoadingProfile} />
+								<LoginButton />
 							</div>
 						</Fragment>
 					)}

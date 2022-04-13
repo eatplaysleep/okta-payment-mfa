@@ -3,44 +3,18 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Box, Container, Paper, Stepper, Step, StepLabel } from '@mui/material';
 import swal from 'sweetalert';
-import {
-	AddressForm,
-	Button,
-	Loader,
-	PaymentForm,
-	ReviewOrder,
-	Typography,
-	withRoot,
-} from '../../components';
+import { AddressForm, Button, Loader, PaymentForm, ReviewOrder, Typography, withRoot } from '../../components';
 import { useCart } from '../../hooks';
-import { useAuthDispatch, useAuthState } from '../../providers';
+import { useAuthActions, useAuthDispatch, useAuthState } from '../../providers';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 const CheckoutRoot = () => {
 	const dispatch = useAuthDispatch();
-	const {
-		authModalIsVisible,
-		factors,
-		fetchFactors,
-		fidoMFA,
-		isLoading,
-		isStepUpRequired,
-		isStale,
-		issueMFA,
-		user,
-	} = useAuthState();
-	// const [activeStep, setActiveStep] = useState(0);
-	const {
-		activeStep,
-		clearCart,
-		itemCount,
-		handleCheckout,
-		nextStep,
-		previousStep,
-		total,
-		totalSteps,
-	} = useCart();
+	const { isVisibleAuthModal, factors, fidoMFA, isLoading, isStepUpRequired, isStaleFactors, user } = useAuthState();
+	const { fetchFactors, issueMFA } = useAuthActions();
+
+	const { activeStep, clearCart, itemCount, handleCheckout, nextStep, previousStep, total, totalSteps } = useCart();
 	const [factorId, setFactorId] = useState();
 
 	const doWebAuth = () => {
@@ -49,16 +23,15 @@ const CheckoutRoot = () => {
 	};
 
 	useEffect(() => {
-		if (user?.sub && (isStale || !factors)) {
+		if (user?.sub && (isStaleFactors || !factors)) {
 			return fetchFactors(dispatch, user?.sub);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isStale]);
+	}, [isStaleFactors]);
 
 	useEffect(() => {
 		if (factors?.length > 0) {
-			const webAuthNFactors =
-				factors.filter(factor => factor.type === 'webauthn') || [];
+			const webAuthNFactors = factors.filter((factor) => factor.type === 'webauthn') || [];
 
 			if (webAuthNFactors.length === 1) {
 				setFactorId(() => webAuthNFactors[0].factorId);
@@ -82,13 +55,13 @@ const CheckoutRoot = () => {
 			}
 
 			dispatch({ type: 'STEP_UP_START' });
-			return swal(options).then(resp => {
+			return swal(options).then((resp) => {
 				if (resp) {
 					if (factorId && fidoMFA) {
 						issueMFA(dispatch, user.sub, {
 							factorId,
 							factorType: 'webauthn',
-						}).then(resp => {
+						}).then((resp) => {
 							let options = {
 								title: 'Success!',
 								text: 'Thank you for completing our additional security verification.',
@@ -130,17 +103,14 @@ const CheckoutRoot = () => {
 
 	return (
 		<Container component='main' maxWidth='sm' sx={{ mb: 4 }}>
-			<Paper
-				variant='outlined'
-				sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 }, position: 'relative' }}
-			>
+			<Paper variant='outlined' sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 }, position: 'relative' }}>
 				{activeStep < 3 && (
 					<Fragment>
 						<Typography component='h1' variant='h4' align='center'>
 							Checkout
 						</Typography>
 						<Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
-							{steps.map(label => (
+							{steps.map((label) => (
 								<Step key={label}>
 									<StepLabel>{label}</StepLabel>
 								</Step>
@@ -152,19 +122,15 @@ const CheckoutRoot = () => {
 					{activeStep === 0 && <AddressForm />}
 					{activeStep === 1 && <PaymentForm />}
 					{activeStep === 2 && <ReviewOrder />}
-					{!authModalIsVisible &&
-						activeStep === totalSteps &&
-						isStepUpRequired &&
-						isLoading && <Loader />}
+					{!isVisibleAuthModal && activeStep === totalSteps && isStepUpRequired && isLoading && <Loader />}
 					{activeStep === totalSteps && !isStepUpRequired && (
 						<Fragment>
 							<Typography variant='h5' gutterBottom>
 								Thank you for your order.
 							</Typography>
 							<Typography variant='subtitle1'>
-								Your order number is #2001539. We have emailed your order
-								confirmation, and will send you an update when your order has
-								shipped.
+								Your order number is #2001539. We have emailed your order confirmation, and will send you an update when
+								your order has shipped.
 							</Typography>
 						</Fragment>
 					)}

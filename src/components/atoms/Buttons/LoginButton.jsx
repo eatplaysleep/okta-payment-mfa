@@ -1,14 +1,15 @@
 /** @format */
 
 import { LoadingButton } from './LoadingButton';
-import { useAuthState, useAuthDispatch } from '../../../providers';
+import { useAuthActions, useAuthState, useAuthDispatch } from '../../../providers';
 
-export const LoginButton = props => {
+export const LoginButton = (props) => {
 	const dispatch = useAuthDispatch();
 	const { isLoadingLogin, isLoadingProfile } = useAuthState();
+	const { login } = useAuthActions();
 
 	props = {
-		onClick: () => dispatch({ type: 'LOGIN_MODAL_START' }),
+		onClick: () => login(dispatch),
 		color: 'secondary',
 		children: 'Login',
 		loading: isLoadingLogin ?? isLoadingProfile ?? false,
