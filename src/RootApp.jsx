@@ -29,7 +29,7 @@ const RootApp = () => {
 			<React.Suspense fallback={<div>Loading...</div>}>
 				<Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri} onAuthRequired={customAuthHandler}>
 					<AuthProvider>
-						<SnackbarProvider preventDuplicate={true} autoHideDuration='10000'>
+						<SnackbarProvider preventDuplicate={true}>
 							<App />
 						</SnackbarProvider>
 					</AuthProvider>

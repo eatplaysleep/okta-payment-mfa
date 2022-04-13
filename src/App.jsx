@@ -33,10 +33,11 @@ const App = () => {
 	const { errors } = useAuthState();
 
 	useEffect(() => {
-		const dismissSnackbar = (errorId) => {
-			let newErrors = errors.filter((_, index) => index !== errorId);
+		const dismissSnackbar = (errorId, key) => {
+			errors.splice(errorId, 1);
 
-			dispatch({ type: 'DISMISS_ERROR', errors: newErrors });
+			dispatch({ type: 'ERROR_DISMISSED', errors });
+			closeSnackbar(key);
 		};
 
 		if (Array.isArray(errors) && errors.length > 0) {
@@ -48,12 +49,13 @@ const App = () => {
 							<Button size='small' onClick={() => alert(error?.stack)}>
 								Details
 							</Button>
-							<IconButton size='small' onClick={() => closeSnackbar(key)}>
+							<IconButton size='small' onClick={() => dismissSnackbar(index, key)}>
 								<CloseIcon />
 							</IconButton>
 						</Fragment>
 					),
-					onExit: () => dismissSnackbar(index),
+					// onExit: () => dismissSnackbar(index),
+					persist: true,
 				})
 			);
 		}
