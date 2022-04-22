@@ -23,7 +23,7 @@ export const Profile = () => {
 			}
 
 			if (profile.length > 0) {
-				return profile.map(attribute => (
+				return profile.map((attribute) => (
 					<Fragment key={attribute.key}>
 						<Grid item xs={6}>
 							<Typography gutterBottom>{attribute.key}</Typography>
@@ -48,10 +48,7 @@ export const Profile = () => {
 				<Typography variant='h4' marked='center' align='center' component='h2'>
 					Profile
 				</Typography>
-				<Paper
-					variant='outlined'
-					sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
-				>
+				<Paper variant='outlined' sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
 					<Fragment>
 						<Typography variant='h5' gutterBottom sx={{ mt: 2 }}>
 							ATTRIBUTES
@@ -72,20 +69,10 @@ export const Profile = () => {
 				</Paper>
 			</Container>
 			<Container component='section' sx={{ mt: 8, mb: 4 }}>
-				<Paper
-					variant='outlined'
-					sx={{ marginY: { xs: 3, md: 6 }, padding: { xs: 2, md: 3 } }}
-				>
+				<Paper variant='outlined' sx={{ marginY: { xs: 3, md: 6 }, padding: { xs: 2, md: 3 } }}>
 					<FactorTable />
 				</Paper>
 			</Container>
-			{/* {user && (
-				<FactorDialog
-					open={dialogIsOpen}
-					onClose={handleDialog}
-					user={user?.sub}
-				/>
-			)} */}
 		</Fragment>
 	);
 };
