@@ -35,10 +35,7 @@ interface OktaFactor extends Omit<UserFactor, 'delete'> {
 	};
 }
 
-export const parseFactors = async (
-	res: Response,
-	filter?: { status: string; type: string }
-): Promise<Factor[]> => {
+export const parseFactors = async (res: Response, filter?: { status: string; type: string }): Promise<Factor[]> => {
 	try {
 		if (res.ok) {
 			const url = new URL(res.url),
@@ -48,7 +45,7 @@ export const parseFactors = async (
 
 			let factors: Factor[] = [];
 
-			body.forEach(factor => {
+			body.forEach((factor) => {
 				let resp: Factor = {
 					userId: userId,
 					name: factorMap[factor?.factorType as string] ?? 'Unknown',
@@ -59,10 +56,7 @@ export const parseFactors = async (
 				delete resp._links;
 
 				if (filter) {
-					if (
-						factor?.factorType === filter?.type ||
-						factor?.status === filter?.status
-					) {
+					if (factor?.factorType === filter?.type || factor?.status === filter?.status) {
 						factors.push(resp);
 					}
 				} else {
@@ -80,7 +74,21 @@ export const parseFactors = async (
 	}
 };
 
-const factorMap = {
+type FactorMap = {
+	call: 'Call';
+	email: 'Email';
+	push: 'Okta Verify';
+	question: 'Security Question';
+	sms: 'SMS';
+	'token:hardware': 'Hardware TOTP';
+	'token:hotp': 'Custom HOTP';
+	'token:software:totp': 'Software TOTP';
+	token: 'OTP Device/Application';
+	u2f: 'Hardware U2F';
+	webauthn: 'WebAuthN';
+};
+
+const factorMap: FactorMap = {
 	call: 'Call',
 	email: 'Email',
 	push: 'Okta Verify',
