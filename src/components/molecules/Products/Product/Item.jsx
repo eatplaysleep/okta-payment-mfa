@@ -4,7 +4,7 @@ import { Box, Grid, IconButton } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Typography } from '../../../../components';
-import { useCart } from '../../../../hooks';
+import { useCart, useAuthDispatch } from '../../../../hooks';
 import { formatNumber } from '../../../../utils';
 
 const item = {
@@ -16,10 +16,11 @@ const item = {
 };
 
 export const ProductItem = ({ product }) => {
+	const authDispatch = useAuthDispatch();
 	const { addProduct, cartItems, removeProduct } = useCart();
 
-	const isInCart = product => {
-		return !!cartItems.find(item => item.id === product.id);
+	const isInCart = (product) => {
+		return !!cartItems.find((item) => item.id === product.id);
 	};
 
 	// console.log(product);
@@ -27,13 +28,7 @@ export const ProductItem = ({ product }) => {
 	return (
 		<Grid item xs={12} md={4}>
 			<Box sx={item}>
-				<Box
-					component='img'
-					src={product.photo}
-					alt={product.name}
-					id={product.id}
-					sx={{ maxHeight: 200 }}
-				/>
+				<Box component='img' src={product.photo} alt={product.name} id={product.id} sx={{ maxHeight: 200 }} />
 				<Typography variant='h6' sx={{ my: 5 }}>
 					{product.name}
 				</Typography>
@@ -54,7 +49,7 @@ export const ProductItem = ({ product }) => {
 						aria-label='remove'
 						size='small'
 						color='primary'
-						onClick={() => removeProduct(product)}
+						onClick={() => removeProduct({ product, authDispatch })}
 					>
 						<RemoveCircleOutlineIcon />
 					</IconButton>
@@ -65,7 +60,7 @@ export const ProductItem = ({ product }) => {
 						aria-label='add'
 						size='small'
 						color='primary'
-						onClick={() => addProduct(product)}
+						onClick={() => addProduct({ product, authDispatch })}
 					>
 						<AddCircleIcon />
 					</IconButton>

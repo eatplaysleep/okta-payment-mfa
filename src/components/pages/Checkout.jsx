@@ -11,16 +11,11 @@ const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 const CheckoutRoot = () => {
 	const dispatch = useAuthDispatch();
-	const { isVisibleAuthModal, factors, fidoMFA, isLoading, isStepUpRequired, isStaleFactors, user } = useAuthState();
-	const { fetchFactors, issueMFA } = useAuthActions();
+	const { factors, hasWebAuthn, isLoadingStepUp, isStepUpRequired, isStaleFactors, user } = useAuthState();
+	const { fetchFactors, webAuthnStepUp } = useAuthActions();
 
-	const { activeStep, clearCart, itemCount, handleCheckout, nextStep, previousStep, total, totalSteps } = useCart();
+	const { activeStep, checkout, clearCart, itemCount, handleCheckout, nextStep, previousStep } = useCart();
 	const [factorId, setFactorId] = useState();
-
-	const doWebAuth = () => {
-		dispatch({ type: 'STEP_UP_REQUIRED_FIDO' });
-		handleCheckout();
-	};
 
 	useEffect(() => {
 		if (user?.sub && (isStaleFactors || !factors)) {
@@ -40,66 +35,52 @@ const CheckoutRoot = () => {
 	}, [factors]);
 
 	useEffect(() => {
-		if (activeStep === totalSteps && isStepUpRequired) {
+		if (checkout && isStepUpRequired) {
 			let options = {
 				title: 'Payment Authorization',
 				text: 'In order to continue with processing your order, we need to perform additional security verification.',
 				buttons: ['Cancel', 'Continue'],
 			};
 
-			if (fidoMFA) {
+			if (hasWebAuthn) {
 				options = {
 					...options,
 					text: `${options.text}\n\nYou will now be prompted for biometric authorization.`,
 				};
 			}
 
-			dispatch({ type: 'STEP_UP_START' });
-			return swal(options).then((resp) => {
-				if (resp) {
-					if (factorId && fidoMFA) {
-						issueMFA(dispatch, user.sub, {
-							factorId,
-							factorType: 'webauthn',
-						}).then((resp) => {
-							let options = {
-								title: 'Success!',
-								text: 'Thank you for completing our additional security verification.',
-								button: 'Continue',
-								icon: 'success',
-							};
+			return swal(options).then((willContinue) => {
+				if (willContinue && hasWebAuthn) {
+					webAuthnStepUp(dispatch, { userId: user.sub, discover: true }).then((success) => {
+						if (!success) {
+							dispatch({ type: 'STEP_UP_FAILED' });
 
-							if (!resp) {
-								options = {
-									...options,
-									title: 'Uh oh!',
-									text: 'Something went wrong. We are so sorry!',
-									button: 'Drats',
-									icon: 'error',
-								};
-							}
+							return swal({
+								...options,
+								title: 'Uh oh!',
+								text: 'Something went wrong. We are so sorry! Please try again.',
+								button: 'Drats',
+								icon: 'error',
+							});
+						}
 
-							return swal(options).then(() => clearCart());
-						});
-					} else {
-						dispatch({ type: 'STEP_UP_MODAL_START' });
-						handleCheckout();
-					}
+						dispatch({ type: 'STEP_UP_COMPLETED' });
+
+						return swal({
+							title: 'Success!',
+							text: 'Thank you for completing our additional security verification.',
+							button: 'Continue',
+							icon: 'success',
+						}).then(() => clearCart());
+					});
 				} else {
-					dispatch({ type: 'STEP_UP_CANCEL' });
+					dispatch({ type: 'STEP_UP_CANCELLED' });
 					previousStep();
 				}
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeStep]);
-
-	useEffect(() => {
-		if (activeStep < 3 && total >= 30) {
-			dispatch({ type: 'STEP_UP_REQUIRED' });
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeStep]);
+	}, [checkout, isStepUpRequired]);
 
 	return (
 		<Container component='main' maxWidth='sm' sx={{ mb: 4 }}>
@@ -122,8 +103,8 @@ const CheckoutRoot = () => {
 					{activeStep === 0 && <AddressForm />}
 					{activeStep === 1 && <PaymentForm />}
 					{activeStep === 2 && <ReviewOrder />}
-					{!isVisibleAuthModal && activeStep === totalSteps && isStepUpRequired && isLoading && <Loader />}
-					{activeStep === totalSteps && !isStepUpRequired && (
+					{checkout && isStepUpRequired && isLoadingStepUp && <Loader />}
+					{checkout && !isStepUpRequired && (
 						<Fragment>
 							<Typography variant='h5' gutterBottom>
 								Thank you for your order.
@@ -135,7 +116,7 @@ const CheckoutRoot = () => {
 						</Fragment>
 					)}
 					<Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-						{activeStep > 0 && activeStep < totalSteps && (
+						{activeStep > 0 && (
 							<Button onClick={previousStep} sx={{ mt: 3, ml: 1 }}>
 								Back
 							</Button>
@@ -143,20 +124,10 @@ const CheckoutRoot = () => {
 
 						{activeStep < 3 && (
 							<Fragment>
-								{activeStep === 2 && isStepUpRequired && factorId && (
-									<Button
-										variant='contained'
-										onClick={doWebAuth}
-										sx={{ mt: 3, ml: 1 }}
-										disabled={itemCount < 1 ? true : false}
-									>
-										Place order (Factor API)
-									</Button>
-								)}
 								{activeStep === 2 && (
 									<Button
 										variant='contained'
-										onClick={handleCheckout}
+										onClick={() => handleCheckout({ authDispatch: dispatch, isStepUpRequired })}
 										sx={{ mt: 3, ml: 1 }}
 										disabled={itemCount < 1 ? true : false}
 									>

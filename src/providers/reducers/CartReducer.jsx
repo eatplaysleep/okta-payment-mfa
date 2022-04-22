@@ -1,18 +1,16 @@
-/** @format */
-
-const Storage = cartItems => {
+const Storage = (cartItems) => {
 	localStorage.setItem('cart', JSON.stringify(cartItems ?? []));
 };
 
-export const sumItems = cartItems => {
+export const sumItems = (cartItems, dispatch) => {
 	Storage(cartItems);
-	let itemCount = cartItems.reduce(
-		(total, product) => total + product.quantity,
-		0
-	);
-	let total = cartItems
-		.reduce((total, product) => total + product.price * product.quantity, 0)
-		.toFixed(2);
+	let itemCount = cartItems.reduce((total, product) => total + product.quantity, 0);
+	let total = cartItems.reduce((total, product) => total + product.price * product.quantity, 0).toFixed(2);
+
+	if (dispatch) {
+		dispatch({ type: 'STEP_UP_STATUS_UPDATED', payload: { isStepUpRequired: total >= 30 } });
+	}
+
 	return { itemCount, total };
 };
 
@@ -20,41 +18,36 @@ export const CartReducer = (state, action) => {
 	console.debug(action?.type);
 	switch (action?.type) {
 		case 'ADD_ITEM':
-			if (!state.cartItems.find(item => item.id === action.payload.id)) {
+			if (!state.cartItems.find((item) => item.id === action?.product?.id)) {
 				state.cartItems.push({
-					...action.payload,
+					...action.product,
 					quantity: 1,
 				});
 			}
 
 			return {
 				...state,
-				...sumItems(state.cartItems),
+				...sumItems(state.cartItems, action?.authDispatch),
 				cartItems: [...state.cartItems],
 			};
 		case 'REMOVE_ITEM':
 			return {
 				...state,
 				...sumItems(
-					state.cartItems.filter(item => item.id !== action.payload.id)
+					state.cartItems.filter((item) => item.id !== action?.product?.id),
+					action?.authDispatch
 				),
-				cartItems: [
-					...state.cartItems.filter(item => item.id !== action.payload.id),
-				],
+				cartItems: [...state.cartItems.filter((item) => item.id !== action?.product?.id)],
 			};
 		case 'INCREASE':
-			state.cartItems[
-				state.cartItems.findIndex(item => item.id === action.payload.id)
-			].quantity++;
+			state.cartItems[state.cartItems.findIndex((item) => item.id === action?.product?.id)].quantity++;
 			return {
 				...state,
 				...sumItems(state.cartItems),
 				cartItems: [...state.cartItems],
 			};
 		case 'DECREASE':
-			state.cartItems[
-				state.cartItems.findIndex(item => item.id === action.payload.id)
-			].quantity--;
+			state.cartItems[state.cartItems.findIndex((item) => item.id === action?.product?.id)].quantity--;
 			return {
 				...state,
 				...sumItems(state.cartItems),
