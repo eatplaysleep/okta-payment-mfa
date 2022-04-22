@@ -2,11 +2,16 @@
 
 import * as okta from '@okta/okta-sdk-nodejs';
 
-const API_KEY = process.env.API_OKTA_KEY;
-// const CLIENT_ID = process.env.API_OKTA_CLIENT_ID;
-export const ORG_URL = 'https://expedia-oie.dannyfuhriman.com';
+const CLIENT_ID = process.env.API_CLIENT_ID;
+const SCOPES = process.env.API_SCOPES.split(' ');
+const KEY = process.env.API_JWK;
+
+export const ORG_URL = process.env.REACT_APP_OKTA_URL;
 
 export const client = new okta.Client({
 	orgUrl: ORG_URL,
-	token: API_KEY,
+	authorizationMode: 'PrivateKey',
+	clientId: CLIENT_ID,
+	scopes: SCOPES,
+	privateKey: KEY,
 });
