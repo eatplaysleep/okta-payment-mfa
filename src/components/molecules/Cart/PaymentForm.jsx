@@ -1,27 +1,31 @@
 /** @format */
 
 import { Fragment, useState, useEffect } from 'react';
-import { Typography } from '../../../components';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
-import CreditCardInput from 'react-credit-card-input';
+import Cards from 'elt-react-credit-cards';
+import 'elt-react-credit-cards/es/styles-compiled.css';
+
+import { TextField, Typography } from '../../../components';
 
 export const PaymentForm = () => {
 	const [billing, setBilling] = useState({
-		cardNumber: '5103 6328 7917 4428',
-		cardExpiry: '01 / 30',
+		name: 'Harry Potter',
+		number: '5103 6328 7917 4428',
+		expiry: '01 / 30',
 		cvc: '123',
 	});
 	const [savePayment, setSavePayment] = useState();
+	const [focus, setFocus] = useState('name');
 
 	useEffect(() => {
 		let storage = JSON.parse(localStorage.getItem('billing')),
 			address = JSON.parse(localStorage.getItem('address')),
-			cardHolder = `${address?.firstName} ${address?.lastName}`;
+			name = `${address?.firstName} ${address?.lastName}`;
 
 		if (storage && address?.firstName) {
 			storage = {
 				...storage,
-				cardHolder: cardHolder,
+				name: name,
 			};
 		}
 
@@ -33,7 +37,7 @@ export const PaymentForm = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const handleChange = e => {
+	const handleChange = (e) => {
 		e.preventDefault();
 		console.log(e.target);
 
@@ -46,16 +50,19 @@ export const PaymentForm = () => {
 		}
 
 		let newBilling = {
-				[id]: value,
-			},
-			result = {
-				...billing,
-				...newBilling,
-			};
+			...billing,
+			[id]: value,
+		};
 
-		setBilling(() => result);
+		setBilling(() => newBilling);
 
-		localStorage.setItem('billing', JSON.stringify(result));
+		localStorage.setItem('billing', JSON.stringify(newBilling));
+	};
+
+	const handleFocusChange = (e) => {
+		e.preventDefault();
+
+		setFocus(() => e.target.name);
 	};
 
 	return (
@@ -63,7 +70,80 @@ export const PaymentForm = () => {
 			<Typography variant='h6' gutterBottom>
 				Payment method
 			</Typography>
-			<CreditCardInput
+			<Grid container spacing={4} sx={{ alignItems: 'center' }}>
+				<Grid item xs={7}>
+					<Cards
+						cvc={billing?.cvc ?? ''}
+						expiry={billing?.expiry ?? ''}
+						name={billing?.name ?? ''}
+						number={billing?.number ?? ''}
+						focused={focus}
+					/>
+				</Grid>
+				<Grid item xs={5}>
+					<Grid container spacing={3}>
+						<Grid item xs={12}>
+							<TextField
+								onChange={handleChange}
+								onFocus={handleFocusChange}
+								required
+								placeholder='0000 0000 0000 0000'
+								id='number'
+								name='number'
+								label='Card Number'
+								fullWidth
+								value={billing?.number ?? ''}
+								autoComplete='cc-number'
+								size='small'
+								autoFocus
+							/>
+						</Grid>
+						<Grid item xs={12}>
+							<TextField
+								required
+								id='name'
+								name='name'
+								label='Cardholder'
+								fullWidth
+								value={billing?.name ?? ''}
+								autoComplete='cc-name'
+								onChange={handleChange}
+								onFocus={handleFocusChange}
+								size='small'
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								required
+								id='expiry'
+								name='expiry'
+								label='Expires'
+								fullWidth
+								value={billing?.expiry ?? ''}
+								autoComplete='cc-exp'
+								onChange={handleChange}
+								onFocus={handleFocusChange}
+								size='small'
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								required
+								id='cvc'
+								name='cvc'
+								label='CVC'
+								fullWidth
+								value={billing?.cvc ?? ''}
+								autoComplete='cc-csc'
+								onChange={handleChange}
+								onFocus={handleFocusChange}
+								size='small'
+							/>
+						</Grid>
+					</Grid>
+				</Grid>
+			</Grid>
+			{/* <CreditCardInput
 				cardNumberInputProps={{
 					id: 'cardNumber',
 					value: billing?.cardNumber ?? '',
@@ -78,7 +158,7 @@ export const PaymentForm = () => {
 					value: billing?.cvc ?? '',
 					onChange: handleChange,
 				}}
-			/>
+			/> */}
 			<Grid item xs={12}>
 				<FormControlLabel
 					control={
