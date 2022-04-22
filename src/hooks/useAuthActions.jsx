@@ -4,6 +4,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import { removeNils, getOAuthUrls } from '@okta/okta-auth-js';
 import { useWebAuthn } from '../hooks';
 import { getUserInfo as getUser, toQueryString } from '../utils';
+
 import * as _ from 'lodash';
 
 const oAuthParamMap = {
@@ -26,20 +27,20 @@ const oAuthParamMap = {
 	grantType: 'grant_type',
 };
 
-const factorMap = {
-	webauthn: 'FIDO',
-};
-
 export const useAuthActions = () => {
 	try {
 		const { authState, oktaAuth } = useOktaAuth();
 		const { webAuthnAssert, webAuthnAttest } = useWebAuthn();
 
 		const silentAuth = async (dispatch, options) => {
-			let { hasSession, authModalIsVisible } = options || {};
+			let { hasSession } = options || {};
 
 			try {
 				let config = {};
+
+				dispatch({
+					type: 'SILENT_AUTH_STARTED',
+				});
 
 				if (hasSession === undefined) {
 					console.debug('checking for existing Okta session...');
@@ -49,57 +50,56 @@ export const useAuthActions = () => {
 					console.debug('session:', hasSession);
 				}
 
-				if (!hasSession) {
-					dispatch({ type: 'SILENT_AUTH_END' });
-					return;
+				if (hasSession) {
+					if (!options) {
+						config.redirectUri = `${window.location.origin}/login/callback`;
+					}
+
+					const { tokens } = (await oktaAuth.token.getWithoutPrompt(config)) || {};
+
+					if (tokens) {
+						oktaAuth.tokenManager.setTokens(tokens);
+
+						dispatch({ type: 'SILENT_AUTH_SUCCEEDED' });
+
+						return getUser(oktaAuth, dispatch);
+					}
 				}
 
-				dispatch({
-					type: 'SILENT_AUTH_START',
-				});
-
-				if (!options) {
-					config.redirectUri = `${window.location.origin}/login/callback`;
-				}
-
-				const { tokens } = (await oktaAuth.token.getWithoutPrompt(config)) || {};
-
-				if (tokens) {
-					await oktaAuth.tokenManager.setTokens(tokens);
-
-					dispatch({ type: 'SILENT_AUTH_SUCCESS' });
-					return getUser(oktaAuth, dispatch);
-				} else return;
+				return dispatch({ type: 'SILENT_AUTH_ATTEMPTED' });
 			} catch (error) {
 				if (error?.errorCode === 'login_required') {
 					console.debug(error);
-					dispatch({ type: 'SILENT_AUTH_CANCEL' });
-					return iFrameAuth(dispatch, { authModalIsVisible });
-				} else {
-					throw new Error(error);
+
+					dispatch({ type: 'SILENT_AUTH_ATTEMPTED' });
+
+					return iFrameAuth(dispatch);
 				}
+
+				throw new Error(error);
 			}
 		};
 
-		// const signInWithRedirect = async (dispatch, options) => {
-		// 	try {
-		// 		const { loginHint } = options || {};
+		const signInWithRedirect = async (dispatch, options) => {
+			try {
+				console.error('NOT IMPLEMENTED');
+				// const { loginHint } = options || {};
 
-		// 		if (loginHint) {
-		// 			console.debug('loginHint:', loginHint);
-		// 		}
+				// if (loginHint) {
+				// 	console.debug('loginHint:', loginHint);
+				// }
 
-		// 		console.debug('doing signInWithRedirect...');
+				// console.debug('doing signInWithRedirect...');
 
-		// 		dispatch({ type: 'LOGIN' });
+				// dispatch({ type: 'LOGIN' });
 
-		// 		return oktaAuth.signInWithRedirect({
-		// 			loginHint: loginHint,
-		// 		});
-		// 	} catch (error) {
-		// 		throw new Error(error);
-		// 	}
-		// };
+				// return oktaAuth.signInWithRedirect({
+				// 	loginHint: loginHint,
+				// });
+			} catch (error) {
+				throw new Error(error);
+			}
+		};
 
 		const iFrameAuth = async (dispatch, options) => {
 			try {
@@ -134,26 +134,27 @@ export const useAuthActions = () => {
 
 		const loginWithCredentials = async (dispatch, userLogin) => {
 			try {
-				try {
-					// execute the login
-					console.debug('executing loginWithCredentials...');
-					dispatch({ type: 'LOGIN_WITH_CREDENTIALS' });
+				console.error('NOT IMPLEMENTED');
+				// try {
+				// 	// execute the login
+				// 	console.debug('executing loginWithCredentials...');
+				// 	dispatch({ type: 'LOGIN_WITH_CREDENTIALS' });
 
-					const transaction = await oktaAuth.signInWithCredentials({
-						sendFingerprint: true,
-						...userLogin,
-					});
+				// 	const transaction = await oktaAuth.signInWithCredentials({
+				// 		sendFingerprint: true,
+				// 		...userLogin,
+				// 	});
 
-					if (transaction?.status === 'AUTHN_SUCCESS') {
-						oktaAuth.signInWithRedirect({
-							sessionToken: transaction.sessionToken,
-						});
-					}
-				} catch (err) {
-					if (dispatch) {
-						dispatch({ type: 'LOGIN_ERROR', error: err });
-					} else throw err;
-				}
+				// 	if (transaction?.status === 'AUTHN_SUCCESS') {
+				// 		oktaAuth.signInWithRedirect({
+				// 			sessionToken: transaction.sessionToken,
+				// 		});
+				// 	}
+				// } catch (err) {
+				// 	if (dispatch) {
+				// 		dispatch({ type: 'LOGIN_ERROR', error: err });
+				// 	} else throw err;
+				// }
 			} catch (error) {
 				return console.error('loginWithCredentials error:', error);
 			}
@@ -248,25 +249,26 @@ export const useAuthActions = () => {
 
 		const idxLogin = async (dispatch, props) => {
 			try {
-				const CLIENT_ID = process.env.REACT_APP_STEP_UP_CLIENT_ID;
-				const { input } = props || {};
-				console.debug('input:', JSON.stringify(input, null, 2));
-				oktaAuth.options.clientId = CLIENT_ID;
+				console.error('NOT IMPLEMENTED');
+				// const CLIENT_ID = process.env.REACT_APP_STEP_UP_CLIENT_ID;
+				// const { input } = props || {};
+				// console.debug('input:', JSON.stringify(input, null, 2));
+				// oktaAuth.options.clientId = CLIENT_ID;
 
-				// if (input?.username && input?.password) {
-				// 	input.authenticators = ['email'];
-				// }
+				// // if (input?.username && input?.password) {
+				// // 	input.authenticators = ['email'];
+				// // }
 
-				const resp = await oktaAuth.idx.authenticate(input);
+				// const resp = await oktaAuth.idx.authenticate(input);
 
-				console.debug(resp);
+				// console.debug(resp);
 
-				oktaAuth.options.clientId = process.env.REACT_APP_OKTA_CLIENT_ID;
+				// oktaAuth.options.clientId = process.env.REACT_APP_OKTA_CLIENT_ID;
 
-				return dispatch({
-					type: 'IDX_NEXT',
-					payload: { isStale: false, authStep: resp },
-				});
+				// return dispatch({
+				// 	type: 'IDX_NEXT',
+				// 	payload: { isStale: false, authStep: resp },
+				// });
 				// return resp;
 			} catch (err) {
 				console.error(err);
@@ -290,30 +292,14 @@ export const useAuthActions = () => {
 
 		const enrollMFA = async (dispatch, userId, factor) => {
 			try {
-				const url = `${window.location.origin}/api/${userId}/factors`;
-
 				dispatch({ type: 'FACTOR_ENROLL_STARTED' });
 
-				const request = {
-					factorType: factor,
-					provider: factorMap[factor],
-				};
-
-				const options = {
-					method: 'post',
-					body: JSON.stringify(request),
-				};
-
-				const resp = await fetch(url, options);
-
-				if (resp.ok) {
-					switch (factor) {
-						case 'webauthn':
-							await webAuthnAttest(dispatch, await resp.json());
-							break;
-						default:
-							break;
-					}
+				switch (factor) {
+					case 'webauthn':
+						await webAuthnAttest(dispatch, userId);
+						break;
+					default:
+						break;
 				}
 
 				await fetchFactors(dispatch, userId);
@@ -342,9 +328,9 @@ export const useAuthActions = () => {
 				if (result?.success) {
 					dispatch({
 						type: 'MFA_ISSUE_SUCCEEDED',
-						payload: { message, factorsAreLoading: false, isStale: false },
 					});
-				} else if (result?.code === 'MFA_ISSUE_USER_CANCELLED') {
+				} else if (result?.cancelled) {
+					dispatch({ type: result?.code });
 					return { success: false };
 				} else {
 					message = 'Something went awry.';
@@ -416,7 +402,7 @@ export const useAuthActions = () => {
 					method: 'DELETE',
 				};
 
-				dispatch({ type: 'FACTOR_REMOVE_STARTED' });
+				dispatch({ type: 'FACTORS_REMOVE_STARTED' });
 				console.log('deleting factor...');
 				const response = await fetch(url, options);
 
@@ -427,12 +413,39 @@ export const useAuthActions = () => {
 				// refresh the factors
 				await fetchFactors(dispatch, userId);
 
-				dispatch({ type: 'FACTOR_REMOVE_SUCCEEDED' });
+				dispatch({ type: 'FACTORS_REMOVE_SUCCEEDED' });
 
 				return factorId;
 			} catch (err) {
 				console.error(err);
-				return dispatch({ type: 'FACTOR_REMOVE_FAILED' });
+				return dispatch({ type: 'FACTORS_REMOVE_FAILED' });
+			}
+		};
+
+		const webAuthnStepUp = async (dispatch, options) => {
+			try {
+				dispatch({ type: 'STEP_UP_WEBAUTHN_STARTED' });
+
+				const { success } = await issueMFA(dispatch, { ...options, method: 'webauthn' });
+
+				dispatch({ type: 'STEP_UP_WEBAUTHN_COMPLETED' });
+
+				return success;
+			} catch (error) {
+				console.error(error);
+				return dispatch({ type: 'STEP_UP_WEBAUTHN_FAILED' });
+			}
+		};
+
+		const stepUpAuth = async (dispatch, { username }) => {
+			try {
+				console.error('NOT IMPLEMENTED');
+				// dispatch({ type: 'STEP_UP_STARTED' });
+
+				// dispatch({ type: 'STEP_UP_COMPLETED' })
+			} catch (error) {
+				console.error(error);
+				return dispatch({ type: 'STEP_UP_WEBAUTHN_FAILED' });
 			}
 		};
 
@@ -448,6 +461,7 @@ export const useAuthActions = () => {
 			logout,
 			removeFactor,
 			silentAuth,
+			webAuthnStepUp,
 		};
 	} catch (error) {
 		console.error(`init error [${error}]`);
