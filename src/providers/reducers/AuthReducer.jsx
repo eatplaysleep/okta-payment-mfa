@@ -1,8 +1,6 @@
 /* eslint-disable no-fallthrough */
 /** @format */
 
-import * as _ from 'lodash';
-
 const initialLoginState = {
 	isLoadingLogin: false,
 	isVisibleAuthModal: false,

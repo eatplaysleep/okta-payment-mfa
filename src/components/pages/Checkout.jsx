@@ -15,6 +15,7 @@ const CheckoutRoot = () => {
 	const { fetchFactors, webAuthnStepUp } = useAuthActions();
 
 	const { activeStep, checkout, clearCart, itemCount, handleCheckout, nextStep, previousStep } = useCart();
+	// eslint-disable-next-line no-unused-vars
 	const [factorId, setFactorId] = useState();
 
 	useEffect(() => {

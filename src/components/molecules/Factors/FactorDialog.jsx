@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect } from 'react';
 import { Button, CircularProgress, Container, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
-import { FactorList, Loader } from '../../../components';
+import { FactorList } from '../../../components';
 import { useAuthActions, useAuthState, useAuthDispatch } from '../../../providers';
 
 export const FactorDialog = (props) => {

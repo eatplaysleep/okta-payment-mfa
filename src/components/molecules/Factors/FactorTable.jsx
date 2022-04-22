@@ -13,7 +13,6 @@ export const FactorTable = () => {
 		// idxModalIsVisible,
 		isStaleFactors,
 		isVisibleFactorDialog,
-		isLoadingFactors,
 		hasWebAuthn,
 	} = useAuthState();
 	const { fetchFactors, removeFactor } = useAuthActions();

@@ -8,13 +8,6 @@ interface RequestOptions {
 	discover?: boolean;
 }
 
-interface OktaFactor extends Omit<OktaEnrolledFactor, 'profile'> {
-	isRequired?: boolean;
-	name: string;
-	userId: string;
-	device: OktaDeviceProfile;
-}
-
 type OktaDeviceProfile = {
 	appId?: string;
 	authenticatorName: string;
