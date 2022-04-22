@@ -13,7 +13,7 @@ const ORIGINS = process.env.REACT_APP_ORIGIN_ALLOW?.split(/, {0,2}/) || [window.
 export const AuthModal = (props) => {
 	const { onClose } = props;
 	const dispatch = useAuthDispatch();
-	const { isVisibleAuthModal, isLoadingLogin, isVisibleIframe, authUrl, tokenParams } = useAuthState();
+	const { isVisibleAuthModal, isLoadingLogin, isVisibleIframe, authUrl } = useAuthState();
 	const { login } = useAuthActions();
 
 	const ALLOW = process.env.REACT_APP_STEP_UP_ALLOW,

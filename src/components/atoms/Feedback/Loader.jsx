@@ -1,12 +1,13 @@
 /** @format */
 
 import { Box, CircularProgress, TableCell } from '@mui/material';
+import PropTypes from 'prop-types';
 
-export const Loader = ({ size, component }) => {
+const LoaderRoot = ({ color, size, component }) => {
 	let progress = (
 		<CircularProgress
-			color='secondary'
-			size={size ?? 65}
+			color={color}
+			size={size}
 			sx={{
 				// position: 'absolute',
 				left: '50%',
@@ -42,3 +43,16 @@ export const Loader = ({ size, component }) => {
 		</Box>
 	);
 };
+
+LoaderRoot.defaultProps = {
+	color: 'secondary',
+	size: 65,
+};
+
+LoaderRoot.propTypes = {
+	color: PropTypes.string,
+	size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+	component: PropTypes.string,
+};
+
+export const Loader = LoaderRoot;

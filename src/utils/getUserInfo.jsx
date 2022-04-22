@@ -3,15 +3,14 @@
 export const getUserInfo = async (oktaAuth, dispatch) => {
 	try {
 		const isAuthenticated = await oktaAuth.isAuthenticated();
+		let payload = { isAuthenticated };
 
 		if (dispatch) {
 			dispatch({
-				type: 'GET_USER',
-				payload: { isAuthenticated: isAuthenticated },
+				type: 'USER_FETCH_STARTED',
+				payload,
 			});
 		}
-
-		let payload = { isAuthenticated, isLoadingProfile: false };
 
 		if (isAuthenticated) {
 			console.debug('Fetching user info...');
@@ -26,14 +25,14 @@ export const getUserInfo = async (oktaAuth, dispatch) => {
 			localStorage.setItem('user', JSON.stringify(user));
 
 			if (dispatch) {
-				dispatch({ type: 'GET_USER_SUCCESS', payload: payload });
+				dispatch({ type: 'USER_FETCH_SUCCEEDED', payload });
 			}
 		}
 		return payload;
 	} catch (error) {
 		if (dispatch) {
 			console.error(error);
-			dispatch({ type: 'LOGIN_ERROR', error: error });
+			dispatch({ type: 'USER_FETCH_FAILED', error: error });
 		} else throw error;
 	}
 };

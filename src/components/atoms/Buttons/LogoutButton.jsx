@@ -2,23 +2,27 @@
 
 import { CircularProgress, IconButton } from '@mui/material';
 import { Logout } from '@mui/icons-material';
+import PropTypes from 'prop-types';
+
 import { LoadingButton } from '../../../components';
 import { useAuthActions, useAuthState, useAuthDispatch } from '../../../providers';
 
-export const LogoutButton = (props) => {
+const LogoutButtonRoot = (props) => {
 	const { loader } = props || {};
-	const isIconButton = props?.isiconbutton === 'true' ? true : false;
+
+	const isIconButton = true;
+
 	const dispatch = useAuthDispatch();
-	const { isLoadingLogout } = useAuthState();
+	const { isLoadingLogout, isLoadingLogin } = useAuthState();
 	const { logout } = useAuthActions();
 
 	const onClick = () => logout(dispatch);
 
+	const isLoading = isLoadingLogout || isLoadingLogin || false;
+
 	props = {
 		onClick: onClick,
-		children: 'Logout',
-		color: 'inherit',
-		loading: isLoadingLogout,
+		loading: isLoading.toString(),
 		...props,
 	};
 
@@ -47,10 +51,26 @@ export const LogoutButton = (props) => {
 				}}
 			>
 				<IconButton {...props}>
-					{props.loading && loaderComponent}
-					{!props.loading && <Logout />}
+					{isLoading && loaderComponent}
+					{!isLoading && <Logout />}
 				</IconButton>
 			</div>
 		);
 	} else return <LoadingButton {...props} />;
 };
+
+LogoutButtonRoot.defaultProps = {
+	children: 'Logout',
+	color: 'inherit',
+	loading: 'false',
+};
+
+LogoutButtonRoot.propTypes = {
+	onClick: PropTypes.func,
+	children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+	color: PropTypes.string,
+	loading: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+	loader: PropTypes.node,
+};
+
+export const LogoutButton = LogoutButtonRoot;
