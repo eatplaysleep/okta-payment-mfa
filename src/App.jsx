@@ -16,6 +16,7 @@ import {
 	Cart,
 	Checkout,
 	Home,
+	LoadingOverlay,
 	Privacy,
 	Profile,
 	StepUpLoginCallback,
@@ -30,7 +31,7 @@ const App = () => {
 
 	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-	const { errors } = useAuthState();
+	const { errors, isLoading } = useAuthState();
 
 	useEffect(() => {
 		const dismissSnackbar = (errorId, key) => {
@@ -64,6 +65,7 @@ const App = () => {
 	return (
 		<ProductsProvider>
 			<CartProvider>
+				<LoadingOverlay open={isLoading} />
 				{!isStepUp && <AppNavBar />}
 				<Switch>
 					<SecureRoute path='/me' exact={true} component={Profile} />
