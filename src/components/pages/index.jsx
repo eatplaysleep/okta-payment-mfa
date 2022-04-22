@@ -3,6 +3,5 @@
 export * from './Checkout';
 export * from './Home';
 export * from './Profile';
-export * from './SignIn';
 export * from './StepUpLoginCallback';
 export * from './Store';
