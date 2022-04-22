@@ -1,17 +1,8 @@
 /** @format */
 
-import React, { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-	AppBar,
-	AuthModal,
-	CartIconButton,
-	LinkIconButton,
-	LoginButton,
-	LogoutButton,
-	Toolbar,
-	Typography,
-} from '../../components';
+import { AppBar, AuthButtons, AuthModal, CartIconButton, LinkIconButton, Toolbar, Typography } from '../../components';
 import { Box } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { useAuthActions, useAuthDispatch, useAuthState } from '../../providers';
@@ -19,8 +10,7 @@ import { useAuthActions, useAuthDispatch, useAuthState } from '../../providers';
 export const AppNavBar = () => {
 	const dispatch = useAuthDispatch();
 
-	const { isVisibleAuthModal, isAuthenticated, isLoadingLogin, isLoadingProfile, isLoadingLogout, user } =
-		useAuthState();
+	const { isVisibleAuthModal, isAuthenticated, user } = useAuthState();
 	const { silentAuth } = useAuthActions();
 
 	useEffect(() => {
@@ -58,26 +48,7 @@ export const AppNavBar = () => {
 					}}
 				>
 					<CartIconButton />
-					{!isLoadingProfile && !isLoadingLogin && isAuthenticated && (
-						<Fragment>
-							<LogoutButton isiconbutton='true' sx={{ color: 'secondary.main' }} loading={isLoadingLogout} />
-						</Fragment>
-					)}
-					{(isLoadingLogin || isLoadingProfile || !isAuthenticated) && (
-						<Fragment>
-							<div>
-								<LoginButton
-									loginhint='signup'
-									variant='text'
-									children='Sign Up'
-									loading={isLoadingLogin || isLoadingProfile}
-								/>
-							</div>
-							<div>
-								<LoginButton />
-							</div>
-						</Fragment>
-					)}
+					<AuthButtons />
 				</Box>
 			</Toolbar>
 		</AppBar>
