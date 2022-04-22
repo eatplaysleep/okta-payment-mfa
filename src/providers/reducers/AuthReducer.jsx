@@ -39,16 +39,26 @@ export const AuthReducer = (state, action) => {
 
 		switch (action.type) {
 			case 'MFA_ISSUE_STARTED':
-				tempState = { isLoadingLogin: true };
+				tempState = { isLoading: true, isLoadingLogin: true };
 				return { ...state, ...tempState, ...action?.payload };
 
 			case 'MFA_ISSUE_USER_CANCELLED':
+				tempState = { isLoading: !state?.isLoading, isLoadingLogin: !state?.isLoadingLogin };
+				return { ...state, ...tempState, ...action?.payload };
 			case 'MFA_ISSUE_SUCCEEDED':
-				tempState = { ...initialLoginState, isLoadingFactors: false, isStaleFactors: false };
+				tempState = {
+					...initialLoginState,
+					isLoading: !state?.isLoading,
+					isStaleFactors: false,
+					...initialLoginState,
+					isLoadingFactors: false,
+				};
 				return { ...state, ...tempState, ...action?.payload };
 
 			// FACTOR ENROLLMENT
 			case 'FACTOR_ENROLL_DIALOG_TOGGLED':
+				tempState = { isLoading: !state?.isLoading, isVisibleFactorDialog: !state?.isVisibleFactorDialog };
+				return { ...state, ...tempState, ...action?.payload };
 			case 'FACTOR_ENROLL_STARTED':
 				tempState = { isLoading: true, isVisibleFactorDialog: false };
 				return { ...state, ...tempState, ...action?.payload };
@@ -164,7 +174,7 @@ export const AuthReducer = (state, action) => {
 
 			// WEBAUTHN
 			case 'WEBAUTHN_USER_CANCELLED':
-				tempState = { ...initialLoginState };
+				tempState = { ...initialLoginState, isLoading: !state?.isLoading };
 				return { ...state, ...tempState, ...action?.payload };
 
 			case 'WEBAUTHN_ATTEST_STARTED':

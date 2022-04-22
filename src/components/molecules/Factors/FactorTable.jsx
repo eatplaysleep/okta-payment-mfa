@@ -19,8 +19,7 @@ export const FactorTable = () => {
 
 	const [idxModalIsOpen, openIdxModal] = useState(false);
 
-	const handleDialog = () =>
-		dispatch({ type: 'FACTOR_ENROLL_DIALOG_TOGGLED', payload: { isVisibleFactorDialog: !isVisibleFactorDialog } });
+	const handleDialog = () => dispatch({ type: 'FACTOR_ENROLL_DIALOG_TOGGLED' });
 
 	const handleIdxModal = () => openIdxModal(() => !idxModalIsOpen);
 
