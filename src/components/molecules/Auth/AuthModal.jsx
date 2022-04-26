@@ -8,7 +8,7 @@ import { AuthDialog, Loader } from '../../../components';
 import { useAuthActions, useAuthDispatch, useAuthState } from '../../../providers';
 
 const ENV = process.env.NODE_ENV;
-const ORIGINS = process.env.REACT_APP_ORIGIN_ALLOW?.split(/, {0,2}/) || [window.location.origin];
+const ORIGINS = process.env.REACT_APP_ORIGIN?.split(/, {0,2}/);
 
 export const AuthModal = (props) => {
 	const { onClose } = props;
@@ -35,8 +35,9 @@ export const AuthModal = (props) => {
 	// }, [tokenParams]);
 	useEffect(() => {
 		const responseHandler = ({ origin, data }) => {
+			const isAllowed = ORIGINS.includes(origin);
+
 			if (ENV === 'production') {
-				const isAllowed = ORIGINS.includes(origin);
 				if (!isAllowed) {
 					return dispatch({
 						type: 'LOGIN_IFRAME_FAILED',
