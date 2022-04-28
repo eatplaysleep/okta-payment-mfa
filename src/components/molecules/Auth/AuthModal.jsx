@@ -8,7 +8,10 @@ import { AuthDialog, Loader } from '../../../components';
 import { useAuthActions, useAuthDispatch, useAuthState } from '../../../providers';
 
 const ENV = process.env.NODE_ENV;
-const ORIGINS = process.env.REACT_APP_ORIGIN?.split(/, {0,2}/);
+const OKTA_ORIGINS = ['https://expedia-oie.dannyfuhriman.com', 'https://udp-expedia-oie.oktapreview.com'];
+const ALLOWED_ORIGINS_PROD = ['https://expedia-fido.dannyfuhriman.com', ...OKTA_ORIGINS];
+const ALLOWED_ORIGINS_DEV = ['http://localhost', ...OKTA_ORIGINS];
+const ALLOWED_ORIGINS = ENV === 'production' ? ALLOWED_ORIGINS_PROD : ALLOWED_ORIGINS_DEV;
 
 export const AuthModal = (props) => {
 	const { onClose } = props;
@@ -16,34 +19,22 @@ export const AuthModal = (props) => {
 	const { isVisibleAuthModal, isLoadingLogin, isVisibleIframe, authUrl } = useAuthState();
 	const { login } = useAuthActions();
 
-	const ALLOW = process.env.REACT_APP_STEP_UP_ALLOW,
-		modalWidth = '400px',
-		modalHeight = '650px';
+	const modalWidth = '400px';
+	const modalHeight = '650px';
 
 	const onCancel = () => {
 		dispatch({ type: 'LOGIN_CANCELLED' });
 		return onClose();
 	};
-	// useEffect(() => {
-	// 	if (tokenParams?.authorizationCode) {
-	// 		return login(dispatch, {
-	// 			tokenParams,
-	// 			isVisibleAuthModal,
-	// 		});
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [tokenParams]);
 	useEffect(() => {
 		const responseHandler = ({ origin, data }) => {
-			const isAllowed = ORIGINS.includes(origin);
+			const isAllowed = ALLOWED_ORIGINS.includes(origin);
 
-			if (ENV === 'production') {
-				if (!isAllowed) {
-					return dispatch({
-						type: 'LOGIN_IFRAME_FAILED',
-						error: `'origin' [${origin}] not allowed`,
-					});
-				}
+			if (!isAllowed) {
+				return dispatch({
+					type: 'LOGIN_IFRAME_FAILED',
+					error: `'origin' [${origin}] not allowed`,
+				});
 			}
 
 			if (data?.code) {
@@ -142,7 +133,7 @@ export const AuthModal = (props) => {
 						height={modalHeight}
 						frameBorder='0'
 						style={{ display: 'block', borderRadius: '4px' }}
-						allow={ALLOW}
+						allow={ALLOWED_ORIGINS}
 					/>
 				)}
 			</DialogContent>
