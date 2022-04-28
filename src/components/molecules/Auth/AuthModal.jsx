@@ -12,6 +12,7 @@ const OKTA_ORIGINS = ['https://expedia-oie.dannyfuhriman.com', 'https://udp-expe
 const ALLOWED_ORIGINS_PROD = ['https://expedia-fido.dannyfuhriman.com', ...OKTA_ORIGINS];
 const ALLOWED_ORIGINS_DEV = ['http://localhost', ...OKTA_ORIGINS];
 const ALLOWED_ORIGINS = ENV === 'production' ? ALLOWED_ORIGINS_PROD : ALLOWED_ORIGINS_DEV;
+const IFRAME_ALLOW = `publickey-credentials-get ${ALLOWED_ORIGINS.join(' ')}`;
 
 export const AuthModal = (props) => {
 	const { onClose } = props;
@@ -133,7 +134,7 @@ export const AuthModal = (props) => {
 						height={modalHeight}
 						frameBorder='0'
 						style={{ display: 'block', borderRadius: '4px' }}
-						allow={ALLOWED_ORIGINS}
+						allow={IFRAME_ALLOW}
 					/>
 				)}
 			</DialogContent>
