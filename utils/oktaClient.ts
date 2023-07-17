@@ -2,11 +2,12 @@
 
 import * as okta from '@okta/okta-sdk-nodejs';
 
-const CLIENT_ID = process.env.API_CLIENT_ID;
-const SCOPES = process.env.API_SCOPES.split(' ');
-const KEY = process.env.API_JWK;
+const { API_CLIENT_ID: CLIENT_ID, API_SCOPES = '', API_JWK: KEY, REACT_APP_OKTA_URL = '' } = process.env;
 
-export const ORG_URL = process.env.REACT_APP_OKTA_URL;
+const SCOPES = API_SCOPES.split(' ');
+const ORG_URLS = REACT_APP_OKTA_URL.split(' ');
+
+export const ORG_URL = ORG_URLS.find((u) => u === window.location.origin);
 
 export const client = new okta.Client({
 	orgUrl: ORG_URL,
