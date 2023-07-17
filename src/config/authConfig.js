@@ -1,6 +1,6 @@
 /** @format */
 
-import { OKTA_URL } from '../utils';
+import { ORG_URL } from '../utils';
 
 const {
 	OKTA_TESTING_DISABLEHTTPSCHECK = false,
@@ -12,7 +12,7 @@ const {
 
 // const SCOPES = 'openid profile email';
 // const CLIENT_ID = '0oa120pjs4hOYsSJx0h8';
-const ISSUER = `${OKTA_URL}/oauth2/${AUTH_SERVER_ID}`;
+const ISSUER = `${ORG_URL}/oauth2/${AUTH_SERVER_ID}`;
 // const ISSUER = 'https://expedia.dannyfuhriman.com/oauth2/default';
 // const ISSUER = 'https://udp-expedia-oie.oktapreview.com/oauth2/aus1gb3zbtlqNoCUK1d7';
 
