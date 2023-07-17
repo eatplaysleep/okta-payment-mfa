@@ -1,14 +1,17 @@
 /** @format */
 
-import { ORG_URL } from '../utils';
-
 const {
 	OKTA_TESTING_DISABLEHTTPSCHECK = false,
 	REACT_APP_REDIRECT_URI: REDIRECT_URI = `${window.location.origin}/login/callback`,
 	REACT_APP_OKTA_SCOPES: SCOPES,
 	REACT_APP_OKTA_CLIENT_ID: CLIENT_ID,
 	REACT_APP_OKTA_AUTH_SERVER_ID: AUTH_SERVER_ID,
+	REACT_APP_OKTA_URL = '',
 } = process.env;
+
+const ORG_URLS = REACT_APP_OKTA_URL.split(' ');
+
+export const ORG_URL = ORG_URLS.find((u) => u === window.location.origin);
 
 // const SCOPES = 'openid profile email';
 // const CLIENT_ID = '0oa120pjs4hOYsSJx0h8';
