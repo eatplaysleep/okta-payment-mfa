@@ -1,6 +1,6 @@
 /** @format */
 
-import { OKTA_URL } from '../../utils';
+import { OKTA_URL } from '../utils';
 
 const {
 	OKTA_TESTING_DISABLEHTTPSCHECK = false,
