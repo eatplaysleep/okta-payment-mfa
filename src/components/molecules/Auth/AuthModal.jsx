@@ -8,7 +8,7 @@ import { AuthDialog, Loader } from '../../../components';
 import { useAuthActions, useAuthDispatch, useAuthState } from '../../../providers';
 
 const ENV = process.env.NODE_ENV;
-const ORIGINS = process.env.REACT_APP_ORIGIN?.split(/, {0,2}/);
+const ORIGINS = process.env.REACT_APP_ORIGIN?.split(' ');
 
 export const AuthModal = (props) => {
 	const { onClose } = props;

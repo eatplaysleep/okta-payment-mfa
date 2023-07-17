@@ -3,7 +3,11 @@ import { useEffect } from 'react';
 import { Loader } from '../../components';
 import { useAuthState, useAuthDispatch } from '../../providers';
 
-const ORIGIN = process.env.REACT_APP_ORIGIN;
+const { REACT_APP_ORIGIN = '' } = process.env;
+
+const ORIGINS = REACT_APP_ORIGIN.split(' ');
+
+const ORIGIN = ORIGINS.find((u) => u === window.location.origin);
 
 export const StepUpLoginCallback = () => {
 	const { login } = useAuthState();
