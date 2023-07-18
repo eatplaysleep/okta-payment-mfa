@@ -11,7 +11,7 @@ const {
 
 const ORG_URLS = REACT_APP_OKTA_URL.split(' ');
 
-export const ORG_URL = ORG_URLS.find((u) => u === window.location.origin);
+export const ORG_URL = ORG_URLS.find((u) => u.split('.')[1] === window.location.host.split('.')[1]);
 
 // const SCOPES = 'openid profile email';
 // const CLIENT_ID = '0oa120pjs4hOYsSJx0h8';
