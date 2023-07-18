@@ -3,18 +3,16 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { RequestOptions } from '@okta/okta-auth-js';
 
-import { client, ORG_URL } from '../utils';
+import { getClient } from '.';
 
-export const activateFactor = async (
-	req: VercelRequest,
-	res: VercelResponse
-) => {
+export const activateFactor = async (req: VercelRequest, res: VercelResponse) => {
 	try {
+		const { client, orgUrl } = getClient(req);
 		const {
 				query: { id, factorId },
 				body,
 			} = req || {},
-			url = `${ORG_URL}/api/v1/users/${id}/factors/${factorId}/lifecycle/activate`,
+			url = `${orgUrl}/api/v1/users/${id}/factors/${factorId}/lifecycle/activate`,
 			request: RequestInit = {
 				method: 'post',
 				headers: {

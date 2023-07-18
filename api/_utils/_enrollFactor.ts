@@ -3,16 +3,18 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { RequestOptions } from '@okta/okta-auth-js';
 
-import { client, ORG_URL } from './oktaClient';
+import { getClient } from './_oktaClient';
 
 export const enrollFactor = async (req: VercelRequest, res: VercelResponse) => {
 	try {
+		const { client, orgUrl } = getClient(req);
+
 		const {
 			query: { id },
 			body,
 		} = req || {};
 
-		const url = `${ORG_URL}/api/v1/users/${id}/factors`;
+		const url = `${orgUrl}/api/v1/users/${id}/factors`;
 		// const url = 'https://ends9jz6b5wpg.x.pipedream.net';
 
 		const request: RequestInit = {

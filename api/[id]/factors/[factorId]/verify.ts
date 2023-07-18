@@ -1,6 +1,6 @@
 /** @format */
 
-import { verifyFactor } from '../../../../utils/verifyFactor';
+import { verifyFactor } from '../../../_utils';
 
 const verify = (req, res) => verifyFactor(req, res);
 
