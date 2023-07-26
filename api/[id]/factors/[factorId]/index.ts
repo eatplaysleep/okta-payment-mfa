@@ -1,7 +1,5 @@
-/** @format */
-
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { deleteFactor, getAvailableFactors } from '../../../../utils';
+import { deleteFactor, getAvailableFactors } from '../../../_utils';
 
 const index = async (req: VercelRequest, res: VercelResponse) => {
 	try {

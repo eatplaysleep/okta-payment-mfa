@@ -1,5 +1,3 @@
-/** @format */
-
 export * from './_activateFactor';
 export * from './_deleteFactor';
 export * from './_enrollFactor';

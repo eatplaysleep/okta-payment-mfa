@@ -4,21 +4,23 @@ import { Client } from '@okta/okta-sdk-nodejs';
 
 import type { VercelRequest } from '@vercel/node';
 
-const { API_CLIENT_ID: CLIENT_ID, API_SCOPES = '', API_JWK: KEY, REACT_APP_OKTA_URL = '' } = process.env;
+const { API_CLIENT_ID: CLIENT_ID, API_SCOPES = '', API_JWK: KEY, VITE_OKTA_URL = '' } = process.env;
 
 const SCOPES = API_SCOPES.split(' ');
-const ORG_URLS = REACT_APP_OKTA_URL.split(' ');
+const ORG_URLS = VITE_OKTA_URL.split(' ');
 
 export const getClient = (req: VercelRequest) => {
-	const { url } = req;
+	const { headers } = req;
 
-	if (!url) {
+	const { host } = headers || {};
+
+	if (!host) {
 		throw new Error('Invalid incoming request');
 	}
 
-	const { host } = new URL(url);
-
-	const orgUrl = ORG_URLS.find((u) => u.split('.')[1] === host.split('.')[1]);
+	const orgUrl = host.includes('localhost')
+		? ORG_URLS[0]
+		: ORG_URLS.find((u) => u.split('.')[1] === host.split('.')[1]);
 
 	if (!orgUrl) {
 		throw new Error('Unable to parse Okta org URL. Invalid request.');

@@ -3,38 +3,6 @@
 import { UserFactor } from '@okta/okta-sdk-nodejs';
 import { Response } from 'node-fetch';
 
-type FactorDevice = {
-	id: string;
-	type?: string;
-};
-interface Factor extends Omit<OktaFactor, '_links'> {
-	userId: string;
-	id: string;
-	name:
-		| 'call'
-		| 'email'
-		| 'push'
-		| 'question'
-		| 'sms'
-		| 'token:hardware'
-		| 'token:hotp'
-		| 'token:software:totp'
-		| 'token'
-		| 'u2f'
-		| 'webauthn'
-		| 'unknown';
-	isRequired: boolean;
-	_links?: { [name: string]: unknown };
-}
-
-interface OktaFactor extends Omit<UserFactor, 'delete'> {
-	enrollment?: string;
-	profile?: {
-		credentialId: string;
-		authenticatorName: string;
-	};
-}
-
 export const parseFactors = async (res: Response, filter?: { status: string; type: string }): Promise<Factor[]> => {
 	try {
 		if (res.ok) {
@@ -48,7 +16,7 @@ export const parseFactors = async (res: Response, filter?: { status: string; typ
 			body.forEach((factor) => {
 				let resp: Factor = {
 					userId: userId,
-					name: factorMap[factor?.factorType as string] ?? 'Unknown',
+					name: factorMap[factor?.factorType as keyof FactorMap] ?? 'Unknown',
 					isRequired: factor?.enrollment === 'REQUIRED' ? true : false,
 					...factor,
 				};
@@ -74,22 +42,56 @@ export const parseFactors = async (res: Response, filter?: { status: string; typ
 	}
 };
 
+interface Factor extends Omit<OktaFactor, '_links'> {
+	userId: string;
+	id: string;
+	name: FactorType;
+	isRequired: boolean;
+	_links?: { [name: string]: unknown };
+}
+
+interface OktaFactor extends Omit<UserFactor, 'delete'> {
+	enrollment?: string;
+	profile?: {
+		credentialId: string;
+		authenticatorName: string;
+	};
+}
+
 type FactorMap = {
-	call: 'Call';
-	email: 'Email';
-	push: 'Okta Verify';
-	question: 'Security Question';
-	sms: 'SMS';
-	'token:hardware': 'Hardware TOTP';
-	'token:hotp': 'Custom HOTP';
-	'token:software:totp': 'Software TOTP';
-	token: 'OTP Device/Application';
-	u2f: 'Hardware U2F';
-	webauthn: 'WebAuthN';
+	[key in FactorKey]: FactorType;
 };
 
+type FactorKey =
+	| 'call'
+	| 'email'
+	| 'push'
+	| 'question'
+	| 'sms'
+	| 'token:hardware'
+	| 'token:hotp'
+	| 'token:software:totp'
+	| 'token'
+	| 'u2f'
+	| 'webauthn'
+	| 'unknown';
+
+type FactorType =
+	| 'Voice'
+	| 'Email'
+	| 'Okta Verify'
+	| 'Security Question'
+	| 'SMS'
+	| 'Hardware TOTP'
+	| 'Custom HOTP'
+	| 'Software TOTP'
+	| 'OTP Device/Application'
+	| 'Hardware U2F'
+	| 'Unknown'
+	| 'WebAuthN';
+
 const factorMap: FactorMap = {
-	call: 'Call',
+	call: 'Voice',
 	email: 'Email',
 	push: 'Okta Verify',
 	question: 'Security Question',
@@ -99,5 +101,6 @@ const factorMap: FactorMap = {
 	'token:software:totp': 'Software TOTP',
 	token: 'OTP Device/Application',
 	u2f: 'Hardware U2F',
+	unknown: 'Unknown',
 	webauthn: 'WebAuthN',
 };

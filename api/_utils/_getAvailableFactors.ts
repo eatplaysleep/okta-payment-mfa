@@ -11,7 +11,6 @@ export const getAvailableFactors = async (req: VercelRequest, res: VercelRespons
 		const {
 			query: { id },
 		} = req || {};
-
 		const url = `${orgUrl}/api/v1/users/${id}/factors/catalog`;
 
 		const request: RequestInit = {
