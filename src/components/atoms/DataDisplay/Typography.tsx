@@ -1,12 +1,13 @@
 /** @format */
 
-import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@mui/styles';
 import MuiTypography from '@mui/material/Typography';
 
-const markStyleMapping = {
+import type { Theme, TypographyClasses, TypographyProps as MuiTypographyProps } from '@mui/material';
+
+const markStyleMapping: MarkStyleMapping = {
 	center: {
 		h1: '',
 		h2: 'markedH2Center',
@@ -33,7 +34,7 @@ const markStyleMapping = {
 	},
 };
 
-const styles = theme => ({
+const styles = (theme: Theme) => ({
 	[markStyleMapping.center.h2]: {
 		height: 4,
 		width: 73,
@@ -74,12 +75,17 @@ const variantMapping = {
 	subtitle1: 'h3',
 };
 
-const TypographyRoot = props => {
+const TypographyRoot = (props: TypographyProps) => {
 	const { children, variant, classes, marked = 'none', ...other } = props;
 
-	let markedClassName = '';
-	if (variant && variant in markStyleMapping[marked]) {
-		markedClassName = classes[markStyleMapping[marked][variant]];
+	let markedClassName;
+
+	if (classes && marked && variant && variant in markStyleMapping[marked]) {
+		const _class = markStyleMapping[marked][variant];
+
+		if (_class) {
+			markedClassName = classes[_class as keyof TypographyClasses];
+		}
 	}
 
 	return (
@@ -123,3 +129,24 @@ TypographyRoot.propTypes = {
 };
 
 export const Typography = withStyles(styles)(TypographyRoot);
+
+export interface TypographyProps extends MuiTypographyProps {
+	marked?: 'none' | 'center' | 'left';
+	component?: React.ElementType;
+}
+
+interface MarkStyleMapping {
+	center: MarkStyleMappingTypographyClasses;
+	left: MarkStyleMappingTypographyClasses;
+	none: MarkStyleMappingTypographyClasses;
+}
+
+interface MarkStyleMappingTypographyClasses
+	extends Omit<Partial<TypographyClasses>, 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'> {
+	h1: TypographyClasses['h1'];
+	h2: TypographyClasses['h2'];
+	h3: TypographyClasses['h3'];
+	h4: TypographyClasses['h4'];
+	h5: TypographyClasses['h5'];
+	h6: TypographyClasses['h6'];
+}
