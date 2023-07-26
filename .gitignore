@@ -133,3 +133,4 @@ yarn.lock
 # vercel
 
 .vercel
+.env*.local
