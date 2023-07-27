@@ -2,6 +2,7 @@
 
 import { useOktaAuth } from '@okta/okta-react';
 import { removeNils, getOAuthUrls } from '@okta/okta-auth-js';
+
 import { useWebAuthn } from '../hooks';
 import { getUserInfo as getUser, toQueryString } from '../utils';
 
@@ -250,7 +251,7 @@ export const useAuthActions = () => {
 		const idxLogin = async (dispatch, props) => {
 			try {
 				console.error('NOT IMPLEMENTED');
-				// const CLIENT_ID = process.env.REACT_APP_STEP_UP_CLIENT_ID;
+				// const CLIENT_ID = import.meta.env.REACT_APP_STEP_UP_CLIENT_ID;
 				// const { input } = props || {};
 				// console.debug('input:', JSON.stringify(input, null, 2));
 				// oktaAuth.options.clientId = CLIENT_ID;
@@ -263,7 +264,7 @@ export const useAuthActions = () => {
 
 				// console.debug(resp);
 
-				// oktaAuth.options.clientId = process.env.REACT_APP_OKTA_CLIENT_ID;
+				// oktaAuth.options.clientId = import.meta.env.REACT_APP_OKTA_CLIENT_ID;
 
 				// return dispatch({
 				// 	type: 'IDX_NEXT',

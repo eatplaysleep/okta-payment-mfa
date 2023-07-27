@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { Loader } from '../../components';
 import { useAuthState, useAuthDispatch } from '../../providers';
 
-const { REACT_APP_ORIGIN = '' } = process.env;
+const { VITE_ORIGIN = '' } = import.meta.env;
 
-const ORIGINS = REACT_APP_ORIGIN.split(' ');
+const ORIGINS = VITE_ORIGIN.split(' ');
 
 const ORIGIN = ORIGINS.find((u) => u === window.location.origin);
 
