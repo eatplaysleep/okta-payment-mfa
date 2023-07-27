@@ -2,11 +2,11 @@
 
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Theme } from '../styles/Theme';
+import { Theme } from '../styles/theme';
 
-export const withRoot = Component => {
+export const withRoot = (Component) => {
 	// export default function withRoot(Component) {
-	const WithRoot = props => (
+	const WithRoot = (props) => (
 		<ThemeProvider theme={Theme}>
 			{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
 			<CssBaseline />
