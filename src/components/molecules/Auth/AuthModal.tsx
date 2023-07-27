@@ -4,25 +4,29 @@ import { useEffect } from 'react';
 import { IconButton, DialogContent, DialogTitle } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import swal from 'sweetalert';
-import { AuthDialog, Loader } from '../../../components';
+import { AuthDialog, Loader } from '../..';
 import { useAuthActions, useAuthDispatch, useAuthState } from '../../../providers';
 
-const ENV = process.env.NODE_ENV;
-const ORIGINS = process.env.REACT_APP_ORIGIN?.split(' ');
+import type { DialogProps } from '@mui/material';
 
-export const AuthModal = (props) => {
+const { MODE, VITE_ORIGIN: ORIGIN = '', VITE_STEP_UP_ALLOW: ALLOW } = import.meta.env;
+
+const ORIGINS = ORIGIN?.split(' ');
+
+export const AuthModal = (props: DialogProps) => {
 	const { onClose } = props;
 	const dispatch = useAuthDispatch();
 	const { isVisibleAuthModal, isLoadingLogin, isVisibleIframe, authUrl } = useAuthState();
 	const { login } = useAuthActions();
 
-	const ALLOW = process.env.REACT_APP_STEP_UP_ALLOW,
-		modalWidth = '400px',
-		modalHeight = '650px';
+	const modalWidth = '400px';
+	const modalHeight = '650px';
 
-	const onCancel = () => {
+	const onCancel: React.MouseEventHandler<HTMLButtonElement> = (e) => {
 		dispatch({ type: 'LOGIN_CANCELLED' });
-		return onClose();
+		if (onClose) {
+			return onClose(e, 'backdropClick');
+		}
 	};
 	// useEffect(() => {
 	// 	if (tokenParams?.authorizationCode) {
@@ -33,11 +37,12 @@ export const AuthModal = (props) => {
 	// 	}
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	// }, [tokenParams]);
+
 	useEffect(() => {
-		const responseHandler = ({ origin, data }) => {
+		const responseHandler: EventListener = ({ origin, data }) => {
 			const isAllowed = ORIGINS.includes(origin);
 
-			if (ENV === 'production') {
+			if (MODE === 'production') {
 				if (!isAllowed) {
 					return dispatch({
 						type: 'LOGIN_IFRAME_FAILED',
@@ -93,7 +98,7 @@ export const AuthModal = (props) => {
 			}
 		};
 
-		const resolve = (error) => {
+		const resolve = (error?: unknown) => {
 			if (error) {
 				throw error;
 			}
@@ -131,7 +136,7 @@ export const AuthModal = (props) => {
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
-			<DialogContent sx={{ width: modalWidth, height: modalHeight }}>
+			<DialogContent sx={{ width: modalWidth, height: modalHeight, px: 0 }}>
 				{isLoadingLogin && <Loader />}
 				{authUrl && isVisibleIframe && (
 					<iframe
