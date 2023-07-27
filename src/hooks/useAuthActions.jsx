@@ -343,29 +343,6 @@ export const useAuthActions = () => {
 			}
 		};
 
-		const fetchAvailableFactors = async (dispatch, userId) => {
-			try {
-				dispatch({ type: 'FACTORS_FETCH_AVAILABLE_STARTED' });
-
-				const url = `${window.location.origin}/api/${userId}/factors/catalog`;
-
-				const response = await fetch(url);
-
-				if (!response.ok) {
-					throw response;
-				}
-
-				const availableFactors = await response.json();
-
-				dispatch({
-					type: 'FACTORS_FETCH_AVAILABLE_SUCCESS',
-					payload: { availableFactors },
-				});
-			} catch (error) {
-				return dispatch({ type: 'FACTORS_FETCH_AVAILABLE_FAILED', error });
-			}
-		};
-
 		const fetchFactors = async (dispatch, userId) => {
 			try {
 				if (userId) {
@@ -452,7 +429,6 @@ export const useAuthActions = () => {
 
 		return {
 			enrollMFA,
-			fetchAvailableFactors,
 			fetchFactors,
 			getUser,
 			idxLogin,

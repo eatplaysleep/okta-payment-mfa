@@ -17,13 +17,6 @@ export const FactorDialog = ({ sx, ...props }: DialogProps) => {
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = ({ currentTarget }) =>
 		enrollMFA(dispatch, user?.sub, currentTarget?.getAttribute('data-factorType')?.toLowerCase());
 
-	// useEffect(() => {
-	// 	if (!availableFactors || (Array.isArray(availableFactors) && availableFactors.length < 1)) {
-	// 		fetchAvailableFactors(dispatch, userId);
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [availableFactors, userId]);
-
 	return (
 		<Dialog sx={{ minWidth: '250px', ...sx }} {...props}>
 			<DialogTitle>Enroll Factor</DialogTitle>
